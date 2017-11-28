@@ -1,0 +1,29 @@
+<resources>
+    <!-- App -->
+    <string name="app_name">BrickController</string>
+
+    <!-- Common -->
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+    <string name="loading">Loading...</string>
+    <string name="saving">Saving...</string>
+    <string name="delete">Delete</string>
+    <string name="are_you_sure_you_want_to_delete">Are you sure you want to delete?</string>
+    <string name="location_alert_title">Location access is needed.</string>
+    <string name="location_alert_message">Please grant location access to be able to communicate with bluetooth devices.</string>
+
+    <!-- Creation list activity -->
+    <string name="title_activity_creation_list">Creation list</string>
+
+    <string name="device_management">Device management</string>
+    <string name="settings">Settings</string>
+    <string name="about">About</string>
+
+    <!-- Device list activity -->
+    <string name="title_activity_device_list">Devices</string>
+    <string name="scan">Scan</string>
+    <string name="scanning">Scanning devices...</string>
+
+</resources>
