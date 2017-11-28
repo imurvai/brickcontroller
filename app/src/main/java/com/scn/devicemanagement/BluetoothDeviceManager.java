@@ -12,6 +12,9 @@ import android.support.annotation.MainThread;
 
 import com.scn.logger.Logger;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -181,8 +184,14 @@ public final class BluetoothDeviceManager extends SpecificDeviceManager {
             ScanRecord scanRecord = result.getScanRecord();
             if (scanRecord == null) return;
 
-            String manufacturerData = getManufacturerData(scanRecord.getBytes());
-            Logger.i(TAG, "  manufacturer data: " + manufacturerData);
+            Map<String, String> scanRecordMap = processScanRecord(scanRecord.getBytes());
+            if (!scanRecordMap.containsKey("FF")) {
+                Logger.i(TAG, "  No manufacturer data in scan record.");
+                return;
+            }
+
+            String manufacturerData = scanRecordMap.get("FF");
+            Logger.i(TAG, "  Manufacturer data: " + manufacturerData);
 
             synchronized (deviceEmitterLock) {
                 if (deviceEmitter != null) {
@@ -191,6 +200,9 @@ public final class BluetoothDeviceManager extends SpecificDeviceManager {
                     }
                     else if (manufacturerData.startsWith("48 4D")) {
                         deviceEmitter.onNext(createDevice(DeviceType.BUWIZZ, result.getDevice().getName(), result.getDevice().getAddress()));
+                    }
+                    else {
+                        Logger.i(TAG, "  Unknown bluetooth device.");
                     }
                 }
             }
@@ -209,52 +221,57 @@ public final class BluetoothDeviceManager extends SpecificDeviceManager {
         }
     };
 
-    private String getManufacturerData(byte scanRecord[]) {
-        Logger.i(TAG, "getManufacturerData...");
+    private Map<String, String> processScanRecord(byte scanRecord[]) {
+        Logger.i(TAG, "processScanRecord...");
+
+        Map<String, String> scanRecordMap = new HashMap<>();
 
         if (scanRecord == null || scanRecord.length == 0) {
             Logger.i(TAG, "  empty scan record.");
-            return "";
+            return scanRecordMap;
         }
 
-        int flag = 0;
+        boolean isLength = true;
         int length = 0;
-        byte type = 0;
+        String type = "";
         byte index = 0;
         StringBuilder sb = new StringBuilder();
-        String manufacturerData = "";
 
         for (byte b : scanRecord) {
-            switch (flag) {
-                case 0:
-                    length = b;
-                    if (length == 0) return manufacturerData;
-                    Logger.i(TAG, "  length: " + length);
-                    flag = 1;
-                    break;
-                case 1:
-                    type = b;
+            if (isLength) {
+                length = b;
+                Logger.i(TAG, "  length: " + length);
+                if (length == 0) {
+                    return scanRecordMap;
+                }
+
+                isLength = false;
+                index = 0;
+            } else {
+                if (index == 0) {
+                    type = String.format("%02X", b);
                     Logger.i(TAG, "  type: " + type);
-                    flag = 1 < length ? 2 : 0;
-                    index = 0;
-                    break;
-                case 2:
-                    if (index == 0) sb.setLength(0);
+
+                    sb.setLength(0);
+                    index++;
+                } else {
                     sb.append(String.format("%02X", b));
-                    if (index < length - 2) {
+
+                    if (index < length - 1) {
                         sb.append(" ");
                         index++;
                     }
                     else {
-                        String dataString = sb.toString();
-                        Logger.i(TAG, "  data: " + dataString);
-                        if (type == -1) manufacturerData = dataString;
-                        flag = 0;
+                        String data = sb.toString();
+                        Logger.i(TAG, "  data: " + data);
+
+                        scanRecordMap.put(type, data);
+                        isLength = true;
                     }
-                    break;
+                }
             }
         }
 
-        return manufacturerData;
+        return scanRecordMap;
     }
 }

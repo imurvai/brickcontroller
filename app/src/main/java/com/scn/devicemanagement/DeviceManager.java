@@ -11,6 +11,7 @@ import com.scn.devicemanagement.devicerepository.DeviceRepository;
 import com.scn.logger.Logger;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -167,12 +168,13 @@ public final class DeviceManager {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         device -> {
-                            Logger.i(TAG, "Device scan onNext - " + device.getId());
+                            Logger.i(TAG, "Device scan onNext - " + device);
                             addDevice(device, true);
                         },
                         error -> {
                             Logger.e(TAG, "Device scan onError...", error);
                             setState(State.Ok, true);
+                            saveDevices();
                         },
                         () -> {
                             Logger.i(TAG, "Device scan onComplete...");
@@ -188,7 +190,7 @@ public final class DeviceManager {
         Logger.i(TAG, "stopDeviceScan...");
 
         if (getCurrentState() != State.Scanning) {
-            Logger.w(TAG, "  wrong state - " + getCurrentState().toString());
+            Logger.w(TAG, "  wrong state - " + getCurrentState());
             return;
         }
 
@@ -199,7 +201,10 @@ public final class DeviceManager {
     @MainThread
     public synchronized List<Device> getDevices() {
         Logger.i(TAG, "getDevices...");
-        return new ArrayList<>(deviceMap.values());
+
+        List<Device> deviceList = new ArrayList<>(deviceMap.values());
+        Collections.sort(deviceList);
+        return deviceList;
     }
 
     @MainThread
@@ -222,10 +227,10 @@ public final class DeviceManager {
 
     @MainThread
     public synchronized boolean removeDevice(@NonNull final Device device) {
-        Logger.i(TAG, "removeDevice - " + device.getId());
+        Logger.i(TAG, "removeDevice - " + device);
 
         if (getCurrentState() != State.Ok) {
-            Logger.w(TAG, "  wrong state - " + getCurrentState().toString());
+            Logger.w(TAG, "  wrong state - " + getCurrentState());
             return false;
         }
 
@@ -262,7 +267,7 @@ public final class DeviceManager {
         Logger.i(TAG, "removeAllDevices...");
 
         if (getCurrentState() != State.Ok) {
-            Logger.w(TAG, "  wrong state - " + getCurrentState().toString());
+            Logger.w(TAG, "  wrong state - " + getCurrentState());
             return false;
         }
 
@@ -291,10 +296,10 @@ public final class DeviceManager {
 
     @MainThread
     public synchronized boolean updateDevice(@NonNull final Device device) {
-        Logger.i(TAG, "updateDevice - " + device.getId());
+        Logger.i(TAG, "updateDevice - " + device);
 
         if (getCurrentState() != State.Ok) {
-            Logger.w(TAG, "  wrong state - " + getCurrentState().toString());
+            Logger.w(TAG, "  wrong state - " + getCurrentState());
             return false;
         }
 
@@ -313,11 +318,11 @@ public final class DeviceManager {
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(
                 x -> {
-                    Logger.i(TAG, "updateDevice onSuccess - " + device.getId());
+                    Logger.i(TAG, "updateDevice onSuccess - " + device);
                     setState(State.Ok, false);
                 },
                 e -> {
-                    Logger.e(TAG, "updateDevice onError - " + device.getId(), e);
+                    Logger.e(TAG, "updateDevice onError - " + device, e);
                     setState(State.Ok, true);
                 });
 
@@ -353,7 +358,7 @@ public final class DeviceManager {
 
     @MainThread
     private boolean addDevice(@NonNull final Device device, boolean notify) {
-        Logger.i(TAG, "addDevice - " + device.getId());
+        Logger.i(TAG, "addDevice - " + device);
 
         if (deviceMap.containsKey(device.getId())) {
             Logger.i(TAG, "  Device already added.");

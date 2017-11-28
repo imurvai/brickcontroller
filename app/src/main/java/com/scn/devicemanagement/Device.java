@@ -1,5 +1,7 @@
 package com.scn.devicemanagement;
 
+import android.support.annotation.NonNull;
+
 import java.util.List;
 import java.util.Map;
 
@@ -9,7 +11,7 @@ import io.reactivex.Single;
  * Created by steve on 2017. 03. 18..
  */
 
-public abstract class Device {
+public abstract class Device implements Comparable<Device> {
 
     //
     // Private members
@@ -26,6 +28,29 @@ public abstract class Device {
         this.name = name;
         this.address = address;
     }
+
+    //
+    // Comparable overrides
+    //
+
+    @Override
+    public int compareTo(@NonNull Device device) {
+        if (device.getType() != getType()) {
+            return getType().compareTo(device.getType());
+        }
+
+        return getAddress().compareTo(device.getAddress());
+    }
+
+    //
+    // Object overrides
+    //
+
+    @Override
+    public String toString() {
+        return "Name: " + getName() + ", type: " + getType() + ", address: " + getAddress();
+    }
+
 
     //
     // API

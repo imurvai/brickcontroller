@@ -26,4 +26,9 @@ public class DeviceEntity {
     public static DeviceEntity fromDevice(Device device) {
         return new DeviceEntity(device.getType(), device.getName(), device.getAddress());
     }
+
+    @Override
+    public String toString() {
+        return "Name: " + name + ", type: " + type + ", address: " + address;
+    }
 }

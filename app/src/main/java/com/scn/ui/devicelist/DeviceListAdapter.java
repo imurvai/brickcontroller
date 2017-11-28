@@ -29,13 +29,6 @@ final class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.Dev
     private List<Device> deviceList = new ArrayList<>();
 
     //
-    // Constructor
-    //
-
-    public DeviceListAdapter() {
-    }
-
-    //
     // RecyclerView.Adapter overrides
     //
 
@@ -53,7 +46,11 @@ final class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.Dev
 
     @Override
     public int getItemCount() {
-        return deviceList.size();
+        if (deviceList != null) {
+            return deviceList.size();
+        }
+
+        return 0;
     }
 
     //
@@ -71,12 +68,9 @@ final class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.Dev
 
     public class DeviceListAdapterViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.vendor_image)
-        ImageView vendorImage;
-        @BindView(R.id.device_name)
-        TextView deviceName;
-        @BindView(R.id.device_address)
-        TextView deviceAddress;
+        @BindView(R.id.vendor_image) ImageView vendorImage;
+        @BindView(R.id.device_name) TextView deviceName;
+        @BindView(R.id.device_address) TextView deviceAddress;
 
         public DeviceListAdapterViewHolder(View itemView) {
             super(itemView);

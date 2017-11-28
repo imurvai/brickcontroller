@@ -122,18 +122,22 @@ public class CreationListActivity extends BaseActivity implements NavigationView
         Logger.i(TAG, "onNavigationItemSelected...");
 
         int id = item.getItemId();
-        if (id == R.id.nav_device_management) {
-            startActivity(new Intent(CreationListActivity.this, DeviceListActivity.class));
-        }
-        else if (id == R.id.nav_settings) {
-            Toast.makeText(CreationListActivity.this, "Settings selected.", Toast.LENGTH_SHORT).show();
-        }
-        else if (id == R.id.nav_about) {
-            Toast.makeText(CreationListActivity.this, "About selected.", Toast.LENGTH_SHORT).show();
+        switch (id) {
+            case R.id.nav_device_management:
+                startActivity(new Intent(CreationListActivity.this, DeviceListActivity.class));
+                break;
+
+            case R.id.nav_settings:
+                Toast.makeText(CreationListActivity.this, "Settings selected.", Toast.LENGTH_SHORT).show();
+                break;
+
+            case R.id.nav_about:
+                Toast.makeText(CreationListActivity.this, "About selected.", Toast.LENGTH_SHORT).show();
+                break;
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
+        return false;
     }
 
     //
