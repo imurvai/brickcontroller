@@ -1,7 +1,12 @@
 package com.scn.devicemanagement;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 
+import com.scn.common.StateChange;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,11 +19,28 @@ import io.reactivex.Single;
 public abstract class Device implements Comparable<Device> {
 
     //
+    // Constants
+    //
+
+    public enum State {
+        DISCONNECTED,
+        CONNECTING,
+        CONNECTED,
+        GETTING_DEVICE_INFO,
+        DISCONNECTING
+    }
+
+    //
     // Private members
     //
 
+    private static final String TAG = Device.class.getSimpleName();
+
     protected String name;
     protected String address;
+
+    protected MutableLiveData<StateChange<Device.State>> stateChangeLiveData = new MutableLiveData<>();
+    protected MutableLiveData<Map<String, String>> deviceInfoLiveData = new MutableLiveData<>();
 
     //
     // Constructor
@@ -27,6 +49,9 @@ public abstract class Device implements Comparable<Device> {
     Device(String name, String address) {
         this.name = name;
         this.address = address;
+
+        this.stateChangeLiveData.setValue(new StateChange(State.DISCONNECTED, State.DISCONNECTED, false));
+        this.deviceInfoLiveData.setValue(new HashMap<>());
     }
 
     //
@@ -60,18 +85,18 @@ public abstract class Device implements Comparable<Device> {
     public abstract DeviceType getType();
 
     public String getName() { return name; }
-    public void setName(String value) { name = value; }
+    void setName(String value) { name = value; }
 
     public String getAddress() { return address; }
 
-    public abstract Single<Void> connect();
+    public abstract boolean connect();
     public abstract void disconnect();
 
     public abstract int getNumberOfChannels();
 
-    public abstract Single<Map<String, String>> getDeviceInfo();
+    public abstract LiveData<Map<String, String>> getDeviceInfoLiveData();
 
-    public abstract Single<Void> setOutputLevel(int level);
+    public abstract boolean setOutputLevel(int level);
 
     public abstract boolean setOutput(int channel, int level);
     public abstract boolean setOutputs(List<ChannelValue> channelValues);

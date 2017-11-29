@@ -1,5 +1,6 @@
 package com.scn.devicemanagement;
 
+import android.arch.lifecycle.LiveData;
 import android.support.annotation.MainThread;
 
 import com.scn.logger.Logger;
@@ -49,15 +50,15 @@ final class BuWizzDevice extends BluetoothDevice {
 
     @MainThread
     @Override
-    public Single<Void> connect() {
-        Logger.i(TAG, "connect - " + getId());
-        return null;
+    public boolean connect() {
+        Logger.i(TAG, "connect - " + this);
+        return false;
     }
 
     @MainThread
     @Override
     public void disconnect() {
-        Logger.i(TAG, "disconnect - " + getId());
+        Logger.i(TAG, "disconnect - " + this);
     }
 
     @Override
@@ -67,16 +68,16 @@ final class BuWizzDevice extends BluetoothDevice {
 
     @MainThread
     @Override
-    public Single<Map<String, String>> getDeviceInfo() {
+    public LiveData<Map<String, String>> getDeviceInfoLiveData() {
         Logger.i(TAG, "getDeviceInfo - " + getId());
-        return Single.error(new RuntimeException("setOutputLevel not implemented yet."));
+        throw new RuntimeException("setOutputLevel not implemented yet.");
     }
 
     @MainThread
     @Override
-    public Single<Void> setOutputLevel(int level) {
+    public boolean setOutputLevel(int level) {
         Logger.i(TAG, "setOutputLevel - " + getId());
-        return Single.error(new RuntimeException("setOutputLevel not implemented yet."));
+        throw new RuntimeException("setOutputLevel not implemented yet.");
     }
 
     @MainThread

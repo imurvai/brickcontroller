@@ -1,5 +1,6 @@
 package com.scn.devicemanagement;
 
+import android.arch.lifecycle.LiveData;
 import android.support.annotation.MainThread;
 
 import com.scn.logger.Logger;
@@ -51,9 +52,9 @@ final class SBrickDevice extends BluetoothDevice {
 
     @MainThread
     @Override
-    public Single<Void> connect() {
+    public boolean connect() {
         Logger.i(TAG, "connect - " + getId());
-        return null;
+        return false;
     }
 
     @MainThread
@@ -69,17 +70,16 @@ final class SBrickDevice extends BluetoothDevice {
 
     @MainThread
     @Override
-    public Single<Map<String, String>> getDeviceInfo() {
+    public LiveData<Map<String, String>> getDeviceInfoLiveData() {
         Logger.i(TAG, "getDeviceInfo - " + getId());
-
         return null;
     }
 
     @MainThread
     @Override
-    public Single<Void> setOutputLevel(int level) {
+    public boolean setOutputLevel(int level) {
         Logger.i(TAG, "setOutputLevel...");
-        return Single.error(new RuntimeException("SBrick doesn't support setOutputLevel"));
+        throw new RuntimeException("SBrick doesn't support setOutputLevel");
     }
 
     @MainThread

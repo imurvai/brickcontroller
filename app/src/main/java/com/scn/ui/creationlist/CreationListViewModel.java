@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
 import android.support.annotation.MainThread;
 
+import com.scn.common.StateChange;
 import com.scn.creationmanagement.CreationManager;
 import com.scn.devicemanagement.DeviceManager;
 import com.scn.logger.Logger;
@@ -50,7 +51,7 @@ public class CreationListViewModel extends ViewModel {
     //
 
     @MainThread
-    public LiveData<DeviceManager.StateChange> getDeviceManagerStateChangeLiveData() {
+    public LiveData<StateChange<DeviceManager.State>> getDeviceManagerStateChangeLiveData() {
         Logger.i(TAG, "getDeviceManagerStateLiveData");
         return deviceManager.getStateChangeLiveData();
     }

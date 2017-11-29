@@ -2,6 +2,8 @@ package com.scn.dagger;
 
 import com.scn.ui.creationlist.CreationListActivity;
 import com.scn.ui.creationlist.CreationListActivityModule;
+import com.scn.ui.devicedetails.DeviceDetailsActivity;
+import com.scn.ui.devicedetails.DeviceDetailsActivityModule;
 import com.scn.ui.devicelist.DeviceListActivity;
 import com.scn.ui.devicelist.DeviceListActivityModule;
 
@@ -20,4 +22,7 @@ public abstract class ActivityBuilderModule {
 
     @ContributesAndroidInjector(modules = DeviceListActivityModule.class)
     abstract DeviceListActivity bindDeviceListActivity();
+
+    @ContributesAndroidInjector(modules = DeviceDetailsActivityModule.class)
+    abstract DeviceDetailsActivity bindDeviceDetailsActivity();
 }

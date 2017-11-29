@@ -2,14 +2,13 @@ package com.scn.ui.creationlist;
 
 import android.Manifest;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -18,14 +17,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.scn.devicemanagement.DeviceManager;
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
 import com.scn.ui.Helper;
 import com.scn.ui.R;
+import com.scn.ui.devicedetails.DeviceDetailsActivity;
 import com.scn.ui.devicelist.DeviceListActivity;
-
-import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,8 +42,6 @@ public class CreationListActivity extends BaseActivity implements NavigationView
     @BindView(R.id.nav_view) NavigationView navigationView;
     @BindView(R.id.recyclerview) RecyclerView recyclerView;
 
-    @Inject DeviceManager deviceManager;
-
     CreationListViewModel viewModel;
     Dialog dialog;
 
@@ -62,36 +57,44 @@ public class CreationListActivity extends BaseActivity implements NavigationView
         setContentView(R.layout.activity_creation_list);
         ButterKnife.bind(this);
         setupActivityComponents();
+        viewModel = getViewModel(CreationListViewModel.class);
+
         requestPermissions(new String[] { Manifest.permission.ACCESS_COARSE_LOCATION }, PERMISSION_REQUEST_COARSE_LOCATION);
 
-        viewModel = getViewModel(CreationListViewModel.class);
+        CreationListAdapter creationListAdapter = new CreationListAdapter();
+        recyclerView.setLayoutManager(new LinearLayoutManager(CreationListActivity.this));
+        recyclerView.addItemDecoration(new DividerItemDecoration(CreationListActivity.this, DividerItemDecoration.VERTICAL));
+        recyclerView.setAdapter(creationListAdapter);
 
         viewModel.getDeviceManagerStateChangeLiveData().observe(CreationListActivity.this, stateChange -> {
             Logger.i(TAG, "Device manager stateChange - " + stateChange.getPreviousState() + " -> " + stateChange.getCurrentState());
 
             switch (stateChange.getCurrentState()) {
-                case Ok:
+                case OK:
                     if (dialog != null) dialog.dismiss();
+
+                    switch (stateChange.getPreviousState()) {
+                        case LOADING:
+                            if (stateChange.isError()) {
+                                Helper.showAlertDialog(
+                                        CreationListActivity.this,
+                                        getString(R.string.error),
+                                        getString(R.string.error_during_loading_devices),
+                                        getString(R.string.ok),
+                                        dialogInterface -> stateChange.setErrorHandled());
+                            }
+                            break;
+                    }
                     break;
 
-                case Loading:
+                case LOADING:
                     if (dialog != null) dialog.dismiss();
                     dialog = Helper.showProgressDialog(CreationListActivity.this, getString(R.string.loading));
                     break;
-
-                case Scanning:
-                    break;
             }
         });
-    }
-
-    @Override
-    protected void onResume() {
-        Logger.i(TAG, "onResume...");
 
         viewModel.loadDevices();
-
-        super.onResume();
     }
 
     @Override

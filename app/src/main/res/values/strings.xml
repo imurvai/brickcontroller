@@ -5,17 +5,24 @@
     <!-- Common -->
     <string name="ok">Ok</string>
     <string name="cancel">Cancel</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     <string name="open">Open</string>
     <string name="close">Close</string>
     <string name="loading">Loading...</string>
     <string name="saving">Saving...</string>
-    <string name="delete">Delete</string>
-    <string name="are_you_sure_you_want_to_delete">Are you sure you want to delete?</string>
+    <string name="remove">Remove</string>
+    <string name="removing">Removing...</string>
+    <string name="connecting">Connecting...</string>
+    <string name="error">Error</string>
+    <string name="are_you_sure_you_want_to_remove">Are you sure you want to remove?</string>
     <string name="location_alert_title">Location access is needed.</string>
     <string name="location_alert_message">Please grant location access to be able to communicate with bluetooth devices.</string>
 
     <!-- Creation list activity -->
     <string name="title_activity_creation_list">Creation list</string>
+    <string name="error_during_loading_devices">Error during loading devices.</string>
+    <string name="error_during_loading_creations">Error during loading creations.</string>
 
     <string name="device_management">Device management</string>
     <string name="settings">Settings</string>
@@ -24,6 +31,14 @@
     <!-- Device list activity -->
     <string name="title_activity_device_list">Devices</string>
     <string name="scan">Scan</string>
-    <string name="scanning">Scanning devices...</string>
+    <string name="scanning">Scanning for devices...</string>
+    <string name="error_during_scanning_for_devices">Error during scanning for devices.</string>
+    <string name="failed_to_save_devices">Failed to save devices.</string>
+    <string name="failed_to_remove_devices">Failed to remove devices.</string>
+
+    <!-- Device details activity -->
+    <string name="title_activity_device_details">Device details</string>
+    <string name="failed_to_update_device">Failed to update device name.</string>
+    <string name="failed_to_remove_device">Failed to remove device.</string>
 
 </resources>

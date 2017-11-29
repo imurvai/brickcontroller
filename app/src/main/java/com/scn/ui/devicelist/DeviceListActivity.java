@@ -1,30 +1,19 @@
 package com.scn.ui.devicelist;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.scn.devicemanagement.Device;
-import com.scn.devicemanagement.DeviceManager;
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
 import com.scn.ui.Helper;
 import com.scn.ui.R;
-
-import java.util.List;
-
-import javax.inject.Inject;
+import com.scn.ui.creationlist.CreationListActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -67,28 +56,51 @@ public class DeviceListActivity extends BaseActivity {
             Logger.i(TAG, "Device manager stateChange - " + stateChange.getPreviousState() + " -> " + stateChange.getCurrentState());
 
             switch (stateChange.getCurrentState()) {
-                case Ok:
+                case OK:
                     if (dialog != null) dialog.dismiss();
+
+                    switch (stateChange.getPreviousState()) {
+                        case REMOVING:
+                            if (stateChange.isError()) {
+                                Helper.showAlertDialog(
+                                        DeviceListActivity.this,
+                                        getString(R.string.error),
+                                        getString(R.string.failed_to_remove_devices),
+                                        getString(R.string.ok),
+                                        dialogInterface -> stateChange.setErrorHandled());
+                            }
+                            break;
+
+                        case SCANNING:
+                            if (stateChange.isError()) {
+                                Helper.showAlertDialog(
+                                        DeviceListActivity.this,
+                                        getString(R.string.error),
+                                        getString(R.string.error_during_scanning_for_devices),
+                                        getString(R.string.ok),
+                                        dialogInterface -> stateChange.setErrorHandled());
+                            }
+                            break;
+                    }
                     break;
 
-                case Scanning:
+                case SCANNING:
                     if (dialog != null) dialog.dismiss();
                     dialog = Helper.showProgressDialog(
                             DeviceListActivity.this,
                             getString(R.string.scanning),
-                            (dialogInterface, i) -> {
-                                viewModel.stopDeviceScan();
-                            });
+                            (dialogInterface, i) -> viewModel.stopDeviceScan());
                     break;
 
-                case Saving:
+                case REMOVING:
                     if (dialog != null) dialog.dismiss();
-                    dialog = Helper.showProgressDialog(DeviceListActivity.this, getString(R.string.saving));
+                    dialog = Helper.showProgressDialog(DeviceListActivity.this, getString(R.string.removing));
                     break;
             }
         });
+
         viewModel.getDeviceListLiveData().observe(DeviceListActivity.this, deviceList -> {
-            Logger.i(TAG, "Device list change...");
+            Logger.i(TAG, "Device list changed...");
             deviceListAdapter.setDeviceList(deviceList);
         });
     }
@@ -114,9 +126,9 @@ public class DeviceListActivity extends BaseActivity {
                 Logger.i(TAG, "  delete selected.");
                 Helper.showQuestionDialog(
                         DeviceListActivity.this,
-                        getString(R.string.are_you_sure_you_want_to_delete),
-                        getString(R.string.ok),
-                        getString(R.string.cancel),
+                        getString(R.string.are_you_sure_you_want_to_remove),
+                        getString(R.string.yes),
+                        getString(R.string.no),
                         (dialogInterface, i) -> viewModel.deleteAllDevices(),
                         (dialogInterface, i) -> {});
                 return true;

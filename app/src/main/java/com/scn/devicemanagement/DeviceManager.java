@@ -6,6 +6,7 @@ import android.content.Context;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 
+import com.scn.common.StateChange;
 import com.scn.devicemanagement.devicerepository.DeviceEntity;
 import com.scn.devicemanagement.devicerepository.DeviceRepository;
 import com.scn.logger.Logger;
@@ -38,12 +39,11 @@ public final class DeviceManager {
     private static final String TAG = DeviceManager.class.getSimpleName();
 
     public enum State {
-        Ok,
-        Loading,
-        Saving,
-        Deleting,
-        Updating,
-        Scanning
+        OK,
+        LOADING,
+        REMOVING,
+        UPDATING,
+        SCANNING
     }
 
     //
@@ -57,7 +57,7 @@ public final class DeviceManager {
 
     private Map<String, Device> deviceMap = new HashMap<>();
     private MutableLiveData<List<Device>> deviceListLiveData = new MutableLiveData<>();
-    private MutableLiveData<StateChange> stateChangeLiveData = new MutableLiveData<>();
+    private MutableLiveData<StateChange<DeviceManager.State>> stateChangeLiveData = new MutableLiveData<>();
 
     //
     // Constructor
@@ -76,7 +76,7 @@ public final class DeviceManager {
         this.infraRedDeviceManager = infraRedDeviceManager;
 
         deviceListLiveData.setValue(getDevices());
-        stateChangeLiveData.setValue(new StateChange(State.Ok, State.Ok, false));
+        stateChangeLiveData.setValue(new StateChange(State.OK, State.OK, false));
     }
 
     //
@@ -102,7 +102,7 @@ public final class DeviceManager {
     }
 
     @MainThread
-    public synchronized LiveData<StateChange> getStateChangeLiveData() {
+    public synchronized LiveData<StateChange<DeviceManager.State>> getStateChangeLiveData() {
         Logger.i(TAG, "getStateChangeLiveData...");
         return stateChangeLiveData;
     }
@@ -111,12 +111,12 @@ public final class DeviceManager {
     public synchronized boolean startLoadingDevices() {
         Logger.i(TAG, "startLoadingDevices...");
 
-        if (getCurrentState() != State.Ok) {
+        if (getCurrentState() != State.OK) {
             Logger.w(TAG, "  wrong state - " + getCurrentState().toString());
             return false;
         }
 
-        setState(State.Loading, false);
+        setState(State.LOADING, false);
 
         deviceMap.clear();
 
@@ -139,11 +139,11 @@ public final class DeviceManager {
                     devices -> {
                         Logger.i(TAG, "Load devices onSuccess...");
                         addDevices(devices);
-                        setState(State.Ok, false);
+                        setState(State.OK, false);
                     },
                     error -> {
                         Logger.e(TAG, "Load devices onError...", error);
-                        setState(State.Ok, true);
+                        setState(State.OK, true);
                     });
 
         return true;
@@ -153,18 +153,23 @@ public final class DeviceManager {
     public synchronized boolean startDeviceScan() {
         Logger.i(TAG, "startDeviceScan...");
 
-        if (getCurrentState() != State.Ok) {
+        if (getCurrentState() != State.OK) {
             Logger.w(TAG, "  wrong state - " + getCurrentState().toString());
             return false;
         }
 
-        setState(State.Scanning, false);
+        setState(State.SCANNING, false);
 
         Observable<Device> bluetoothDeviceObservable = bluetoothDeviceManager.startScan();
         Observable<Device> infraredDeviceObservable = infraRedDeviceManager.startScan();
 
         Observable.merge(infraredDeviceObservable, bluetoothDeviceObservable)
                 .subscribeOn(Schedulers.io())
+                .map(device -> {
+                    Logger.i(TAG, "Saving device - " + device);
+                    deviceRepository.saveDevice(DeviceEntity.fromDevice(device));
+                    return device;
+                })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         device -> {
@@ -173,13 +178,11 @@ public final class DeviceManager {
                         },
                         error -> {
                             Logger.e(TAG, "Device scan onError...", error);
-                            setState(State.Ok, true);
-                            saveDevices();
+                            setState(State.OK, true);
                         },
                         () -> {
                             Logger.i(TAG, "Device scan onComplete...");
-                            setState(State.Ok, false);
-                            saveDevices();
+                            setState(State.OK, false);
                         });
 
         return true;
@@ -189,7 +192,7 @@ public final class DeviceManager {
     public synchronized void stopDeviceScan() {
         Logger.i(TAG, "stopDeviceScan...");
 
-        if (getCurrentState() != State.Scanning) {
+        if (getCurrentState() != State.SCANNING) {
             Logger.w(TAG, "  wrong state - " + getCurrentState());
             return;
         }
@@ -227,9 +230,9 @@ public final class DeviceManager {
 
     @MainThread
     public synchronized boolean removeDevice(@NonNull final Device device) {
-        Logger.i(TAG, "removeDevice - " + device);
+        Logger.i(TAG, "deleteDevice - " + device);
 
-        if (getCurrentState() != State.Ok) {
+        if (getCurrentState() != State.OK) {
             Logger.w(TAG, "  wrong state - " + getCurrentState());
             return false;
         }
@@ -239,7 +242,7 @@ public final class DeviceManager {
             return false;
         }
 
-        setState(State.Deleting, false);
+        setState(State.REMOVING, false);
 
         Single.fromCallable(() -> {
             deviceRepository.deleteDevice(DeviceEntity.fromDevice(device));
@@ -252,11 +255,11 @@ public final class DeviceManager {
                     Logger.i(TAG, "deleteDevice onSuccess.");
                     deviceMap.remove(deviceMap.get(device.getId()));
                     deviceListLiveData.setValue(getDevices());
-                    setState(State.Ok, false);
+                    setState(State.OK, false);
                 },
                 e -> {
                     Logger.e(TAG, "deleteDevice onError", e);
-                    setState(State.Ok, true);
+                    setState(State.OK, true);
                 });
 
         return true;
@@ -266,12 +269,12 @@ public final class DeviceManager {
     public synchronized boolean removeAllDevices() {
         Logger.i(TAG, "removeAllDevices...");
 
-        if (getCurrentState() != State.Ok) {
+        if (getCurrentState() != State.OK) {
             Logger.w(TAG, "  wrong state - " + getCurrentState());
             return false;
         }
 
-        setState(State.Saving, false);
+        setState(State.REMOVING, false);
 
         Single.fromCallable(() -> {
             deviceRepository.deleteAllDevices();
@@ -281,24 +284,25 @@ public final class DeviceManager {
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(
                 x -> {
-                    Logger.i(TAG, "deleteAllDevice onSuccess.");
+                    Logger.i(TAG, "removeAllDevice onSuccess.");
                     deviceMap.clear();
                     deviceListLiveData.setValue(getDevices());
-                    setState(State.Ok, false);
+                    setState(State.OK, false);
                 },
                 e -> {
-                    Logger.e(TAG, "deleteAllDevice onError", e);
-                    setState(State.Ok, true);
+                    Logger.e(TAG, "removeAllDevice onError", e);
+                    setState(State.OK, true);
                 });
 
         return true;
     }
 
     @MainThread
-    public synchronized boolean updateDevice(@NonNull final Device device) {
+    public synchronized boolean updateDevice(@NonNull final Device device, String newName) {
         Logger.i(TAG, "updateDevice - " + device);
+        Logger.i(TAG, "  new name: " + newName);
 
-        if (getCurrentState() != State.Ok) {
+        if (getCurrentState() != State.OK) {
             Logger.w(TAG, "  wrong state - " + getCurrentState());
             return false;
         }
@@ -308,10 +312,11 @@ public final class DeviceManager {
             return false;
         }
 
-        setState(State.Updating, false);
+        setState(State.UPDATING, false);
 
         Single.fromCallable(() -> {
-            deviceRepository.updateDevice(DeviceEntity.fromDevice(device));
+            DeviceEntity deviceEntity = new DeviceEntity(device.getType(), newName, device.getAddress());
+            deviceRepository.updateDevice(deviceEntity);
             return true;
         })
         .subscribeOn(Schedulers.io())
@@ -319,11 +324,12 @@ public final class DeviceManager {
         .subscribe(
                 x -> {
                     Logger.i(TAG, "updateDevice onSuccess - " + device);
-                    setState(State.Ok, false);
+                    device.setName(newName);
+                    setState(State.OK, false);
                 },
                 e -> {
                     Logger.e(TAG, "updateDevice onError - " + device, e);
-                    setState(State.Ok, true);
+                    setState(State.OK, true);
                 });
 
         return true;
@@ -381,48 +387,28 @@ public final class DeviceManager {
         deviceListLiveData.setValue(getDevices());
     }
 
-    @MainThread
-    private void saveDevices() {
-        Logger.i(TAG, "saveDevices...");
-
-        setState(State.Saving, false);
-
-        Single.fromCallable(() -> {
-            List<DeviceEntity> deviceEntities = new ArrayList<>();
-            for (Device device : getDevices()) deviceEntities.add(DeviceEntity.fromDevice(device));
-            deviceRepository.saveDevices(deviceEntities);
-            return true;
-        })
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(
-                x -> {
-                    Logger.i(TAG, "saveDevices onSuccess.");
-                    setState(State.Ok, false);
-                },
-                e -> {
-                    Logger.e(TAG, "saveDevices onError", e);
-                    setState(State.Ok, true);
-                });
-    }
-
-    //
-    // StateChange class
-    //
-
-    public static class StateChange {
-        private final State previousState;
-        private final State currentState;
-        private final boolean isError;
-
-        StateChange(State previousState, State currentState, boolean isError) {
-            this.previousState = previousState;
-            this.currentState = currentState;
-            this.isError = isError;
-        }
-
-        public State getPreviousState() { return previousState; }
-        public State getCurrentState() { return currentState; }
-        public boolean isError() { return isError; }
-    }
+//    @MainThread
+//    private void saveDevices() {
+//        Logger.i(TAG, "saveDevices...");
+//
+//        setState(State.SAVING, false);
+//
+//        Single.fromCallable(() -> {
+//            List<DeviceEntity> deviceEntities = new ArrayList<>();
+//            for (Device device : getDevices()) deviceEntities.add(DeviceEntity.fromDevice(device));
+//            deviceRepository.saveDevices(deviceEntities);
+//            return true;
+//        })
+//        .subscribeOn(Schedulers.io())
+//        .observeOn(AndroidSchedulers.mainThread())
+//        .subscribe(
+//                x -> {
+//                    Logger.i(TAG, "saveDevices onSuccess.");
+//                    setState(State.OK, false);
+//                },
+//                e -> {
+//                    Logger.e(TAG, "saveDevices onError", e);
+//                    setState(State.OK, true);
+//                });
+//    }
 }

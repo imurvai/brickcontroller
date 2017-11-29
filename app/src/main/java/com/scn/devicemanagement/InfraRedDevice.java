@@ -1,5 +1,6 @@
 package com.scn.devicemanagement;
 
+import android.arch.lifecycle.LiveData;
 import android.support.annotation.MainThread;
 
 import com.scn.logger.Logger;
@@ -54,13 +55,10 @@ final class InfraRedDevice extends Device {
 
     @MainThread
     @Override
-    public Single<Void> connect() {
+    public boolean connect() {
         Logger.i(TAG, "connect - " + getId());
-
-        return Single.fromCallable(() -> {
-            infraRedDeviceManager.connect(this);
-            return null;
-        });
+        infraRedDeviceManager.connect(this);
+        return true;
     }
 
     @MainThread
@@ -77,23 +75,17 @@ final class InfraRedDevice extends Device {
 
     @MainThread
     @Override
-    public Single<Map<String, String>> getDeviceInfo() {
+    public LiveData<Map<String, String>> getDeviceInfoLiveData() {
         Logger.i(TAG, "getDeviceInfo - " + getId());
 
-        return Single.fromCallable(() -> {
-            Map<String, String> info = new HashMap<>();
-            info.put("Name", getName());
-            info.put("Channel", getAddress());
-            info.put("Vendor", "Lego");
-            return info;
-        });
+        throw new RuntimeException("not implemented.");
     }
 
     @MainThread
     @Override
-    public Single<Void> setOutputLevel(int level) {
+    public boolean setOutputLevel(int level) {
         Logger.i(TAG, "setOutputLevel...");
-        return Single.error(new RuntimeException("Infrared doesn't support setOutputLevel"));
+        throw new RuntimeException("Infrared doesn't support setOutputLevel");
     }
 
     @MainThread
