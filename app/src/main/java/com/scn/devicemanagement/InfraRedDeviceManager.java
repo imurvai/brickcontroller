@@ -23,6 +23,7 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
     //
 
     private static final String TAG = InfraRedDeviceManager.class.getSimpleName();
+    private static final DeviceType[] supportedDeviceTypes = new DeviceType[] { DeviceType.INFRARED };
 
     private Context context;
 
@@ -106,6 +107,11 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
     @Override
     synchronized void stopScan() {
         Logger.i(TAG, "stopScan...");
+    }
+
+    @Override
+    DeviceType[] getSupportedDeviceTypes() {
+        return supportedDeviceTypes;
     }
 
     @Override

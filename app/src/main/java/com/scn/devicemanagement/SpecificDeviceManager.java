@@ -11,5 +11,6 @@ abstract class SpecificDeviceManager {
     abstract Observable<Device> startScan();
     abstract void stopScan();
 
+    abstract DeviceType[] getSupportedDeviceTypes();
     abstract Device createDevice(DeviceType type, String name, String address);
 }

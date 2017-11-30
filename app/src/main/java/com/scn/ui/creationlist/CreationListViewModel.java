@@ -59,6 +59,6 @@ public class CreationListViewModel extends ViewModel {
     @MainThread
     public void loadDevices() {
         Logger.i(TAG, "loadDevices...");
-        deviceManager.startLoadingDevices();
+        deviceManager.loadDevicesAsync();
     }
 }

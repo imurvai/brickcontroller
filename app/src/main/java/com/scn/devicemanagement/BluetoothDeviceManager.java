@@ -33,6 +33,7 @@ public final class BluetoothDeviceManager extends SpecificDeviceManager {
     //
 
     private static final String TAG = BluetoothDeviceManager.class.getSimpleName();
+    private static final DeviceType[] supportedDeviceTypes = new DeviceType[] { DeviceType.BUWIZZ, DeviceType.SBRICK };
 
     private Context context = null;
 
@@ -149,6 +150,11 @@ public final class BluetoothDeviceManager extends SpecificDeviceManager {
                 deviceEmitter = null;
             }
         }
+    }
+
+    @Override
+    public DeviceType[] getSupportedDeviceTypes() {
+        return supportedDeviceTypes;
     }
 
     @Override

@@ -50,8 +50,8 @@ public abstract class Device implements Comparable<Device> {
         this.name = name;
         this.address = address;
 
-        this.stateChangeLiveData.setValue(new StateChange(State.DISCONNECTED, State.DISCONNECTED, false));
-        this.deviceInfoLiveData.setValue(new HashMap<>());
+        this.stateChangeLiveData.postValue(new StateChange(State.DISCONNECTED, State.DISCONNECTED, false));
+        this.deviceInfoLiveData.postValue(new HashMap<>());
     }
 
     //
@@ -85,7 +85,7 @@ public abstract class Device implements Comparable<Device> {
     public abstract DeviceType getType();
 
     public String getName() { return name; }
-    void setName(String value) { name = value; }
+    public void setName(String value) { name = value; }
 
     public String getAddress() { return address; }
 

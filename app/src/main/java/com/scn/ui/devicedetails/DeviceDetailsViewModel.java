@@ -57,7 +57,7 @@ public class DeviceDetailsViewModel extends ViewModel {
 
     void removeDevice() {
         Logger.i(TAG, "deleteDevice - " + device);
-        deviceManager.removeDevice(device);
+        deviceManager.removeDeviceAsync(device);
     }
 
     void connectDevice() {
@@ -71,8 +71,8 @@ public class DeviceDetailsViewModel extends ViewModel {
     }
 
     void updateDevice(String newName) {
-        Logger.i(TAG, "updateDevice - " + device);
+        Logger.i(TAG, "updateDeviceAsync - " + device);
         Logger.i(TAG, "  new name: " + newName);
-        deviceManager.updateDevice(device, newName);
+        deviceManager.updateDeviceAsync(device, newName);
     }
 }
