@@ -32,6 +32,7 @@
     <string name="title_activity_device_list">Devices</string>
     <string name="scan">Scan</string>
     <string name="scanning">Scanning for devices...</string>
+    <string name="are_you_sure_you_want_to_remove_all_devices">Are you sure you want to remove all the devices?</string>
     <string name="error_during_scanning_for_devices">Error during scanning for devices.</string>
     <string name="failed_to_save_devices">Failed to save devices.</string>
     <string name="failed_to_remove_devices">Failed to remove devices.</string>

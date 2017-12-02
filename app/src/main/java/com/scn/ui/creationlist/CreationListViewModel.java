@@ -21,7 +21,7 @@ public class CreationListViewModel extends ViewModel {
     // Members
     //
 
-    private static final String TAG = CreationListActivity.class.getSimpleName();
+    private static final String TAG = CreationListViewModel.class.getSimpleName();
 
     @Inject CreationManager creationManager;
     @Inject DeviceManager deviceManager;

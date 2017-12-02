@@ -19,9 +19,7 @@ import android.widget.Toast;
 
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
-import com.scn.ui.Helper;
 import com.scn.ui.R;
-import com.scn.ui.devicedetails.DeviceDetailsActivity;
 import com.scn.ui.devicelist.DeviceListActivity;
 
 import butterknife.BindView;
@@ -43,7 +41,6 @@ public class CreationListActivity extends BaseActivity implements NavigationView
     @BindView(R.id.recyclerview) RecyclerView recyclerView;
 
     CreationListViewModel viewModel;
-    Dialog dialog;
 
     //
     // Activity overrides
@@ -71,13 +68,12 @@ public class CreationListActivity extends BaseActivity implements NavigationView
 
             switch (stateChange.getCurrentState()) {
                 case OK:
-                    if (dialog != null) dialog.dismiss();
+                    dismissDialog();
 
                     switch (stateChange.getPreviousState()) {
                         case LOADING:
                             if (stateChange.isError()) {
-                                Helper.showAlertDialog(
-                                        CreationListActivity.this,
+                                showAlertDialog(
                                         getString(R.string.error),
                                         getString(R.string.error_during_loading_devices),
                                         getString(R.string.ok),
@@ -88,8 +84,7 @@ public class CreationListActivity extends BaseActivity implements NavigationView
                     break;
 
                 case LOADING:
-                    if (dialog != null) dialog.dismiss();
-                    dialog = Helper.showProgressDialog(CreationListActivity.this, getString(R.string.loading));
+                    showProgressDialog(getString(R.string.loading));
                     break;
             }
         });
@@ -152,7 +147,7 @@ public class CreationListActivity extends BaseActivity implements NavigationView
 
         floatingActionButton.setOnClickListener(view -> {
             Logger.i(TAG, "Floating action button clicked...");
-            Helper.showMessageBox(CreationListActivity.this, "Add clicked.");
+            showMessageBox("Add clicked.");
         });
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open, R.string.close);

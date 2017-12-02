@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.reactivex.Single;
-
 /**
  * Created by steve on 2017. 03. 18..
  */
@@ -46,7 +44,7 @@ public abstract class Device implements Comparable<Device> {
     // Constructor
     //
 
-    Device(String name, String address) {
+    Device(@NonNull String name, @NonNull String address) {
         this.name = name;
         this.address = address;
 
@@ -99,7 +97,7 @@ public abstract class Device implements Comparable<Device> {
     public abstract boolean setOutputLevel(int level);
 
     public abstract boolean setOutput(int channel, int level);
-    public abstract boolean setOutputs(List<ChannelValue> channelValues);
+    public abstract boolean setOutputs(@NonNull List<ChannelValue> channelValues);
 
     protected void checkChannel(int channel) {
         if (channel < 0 || getNumberOfChannels() <= channel) {

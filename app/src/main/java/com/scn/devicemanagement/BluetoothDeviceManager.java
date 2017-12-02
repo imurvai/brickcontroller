@@ -190,6 +190,9 @@ public final class BluetoothDeviceManager extends SpecificDeviceManager {
             ScanRecord scanRecord = result.getScanRecord();
             if (scanRecord == null) return;
 
+            android.bluetooth.BluetoothDevice device = result.getDevice();
+            if (device == null) return;
+
             Map<String, String> scanRecordMap = processScanRecord(scanRecord.getBytes());
             if (!scanRecordMap.containsKey("FF")) {
                 Logger.i(TAG, "  No manufacturer data in scan record.");
@@ -202,10 +205,10 @@ public final class BluetoothDeviceManager extends SpecificDeviceManager {
             synchronized (deviceEmitterLock) {
                 if (deviceEmitter != null) {
                     if (manufacturerData.startsWith("98 01")) {
-                        deviceEmitter.onNext(createDevice(DeviceType.SBRICK, result.getDevice().getName(), result.getDevice().getAddress()));
+                        deviceEmitter.onNext(createDevice(DeviceType.SBRICK, device.getName(), device.getAddress()));
                     }
                     else if (manufacturerData.startsWith("48 4D")) {
-                        deviceEmitter.onNext(createDevice(DeviceType.BUWIZZ, result.getDevice().getName(), result.getDevice().getAddress()));
+                        deviceEmitter.onNext(createDevice(DeviceType.BUWIZZ, device.getName(), device.getAddress()));
                     }
                     else {
                         Logger.i(TAG, "  Unknown bluetooth device.");

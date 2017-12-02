@@ -5,6 +5,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.WorkerThread;
 
 import com.scn.devicemanagement.Device;
 import com.scn.devicemanagement.DeviceFactory;
@@ -55,6 +56,7 @@ public class DeviceRepository {
     // API
     //
 
+    @WorkerThread
     public synchronized void loadDevices(@NonNull DeviceFactory deviceFactory) {
         Logger.i(TAG, "loadDevices...");
 
@@ -71,6 +73,7 @@ public class DeviceRepository {
         deviceListLiveData.postValue(getDeviceList());
     }
 
+    @WorkerThread
     public synchronized void storeDevice(@NonNull Device device) {
         Logger.i(TAG, "storeDevice - " + device);
 
@@ -79,6 +82,7 @@ public class DeviceRepository {
         deviceListLiveData.postValue(getDeviceList());
     }
 
+    @WorkerThread
     public synchronized void updateDevice(@NonNull Device device, @NonNull String newName) {
         Logger.i(TAG, "updateDeviceAsync - " + device);
         Logger.i(TAG, "  new name: " + newName);
@@ -87,6 +91,7 @@ public class DeviceRepository {
         device.setName(newName);
     }
 
+    @WorkerThread
     public synchronized void deleteDevice(@NonNull Device device) {
         Logger.i(TAG, "deleteDevice - " + device);
 
@@ -95,6 +100,7 @@ public class DeviceRepository {
         deviceListLiveData.postValue(getDeviceList());
     }
 
+    @WorkerThread
     public synchronized void deleteAllDevices() {
         Logger.i(TAG, "deleteAllDevices...");
         deviceDao.deleteAll();

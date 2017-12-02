@@ -1,5 +1,6 @@
 package com.scn.ui.devicelist;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,8 @@ import com.scn.ui.R;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -22,11 +25,23 @@ import butterknife.ButterKnife;
 
 final class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.DeviceListAdapterViewHolder> {
 
+    public interface OnDeviceClickListener {
+        void onClick(Device device);
+    }
+
     //
     // Private members
     //
 
     private List<Device> deviceList = new ArrayList<>();
+    private OnDeviceClickListener deviceClickListener = null;
+
+    //
+    // Constructor
+    //
+
+    @Inject
+    DeviceListAdapter() {}
 
     //
     // RecyclerView.Adapter overrides
@@ -34,14 +49,16 @@ final class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.Dev
 
     @Override
     public DeviceListAdapterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_device, parent, false);
+        View view = LayoutInflater
+                .from(parent.getContext())
+                .inflate(R.layout.list_item_device, parent, false);
         return new DeviceListAdapterViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(DeviceListAdapterViewHolder holder, int position) {
         Device device = deviceList.get(position);
-        holder.setView(device);
+        holder.bind(device, deviceClickListener);
     }
 
     @Override
@@ -62,6 +79,10 @@ final class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.Dev
         notifyDataSetChanged();
     }
 
+    public void setDeviceClickListener(OnDeviceClickListener deviceClickListener) {
+        this.deviceClickListener = deviceClickListener;
+    }
+
     //
     // ViewHolder
     //
@@ -77,7 +98,7 @@ final class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.Dev
             ButterKnife.bind(this, itemView);
         }
 
-        public void setView(Device device) {
+        public void bind(final Device device, final OnDeviceClickListener deviceClickListener) {
             switch (device.getType()) {
                 case BUWIZZ:
                     vendorImage.setImageResource(R.drawable.buwizz_logo);
@@ -89,8 +110,13 @@ final class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.Dev
                     vendorImage.setImageResource(R.drawable.lego_logo);
                     break;
             }
+
             deviceName.setText(device.getName());
             deviceAddress.setText(device.getAddress());
+
+            itemView.setOnClickListener(view -> {
+                if (deviceClickListener != null) deviceClickListener.onClick(device);
+            });
         }
     }
 }

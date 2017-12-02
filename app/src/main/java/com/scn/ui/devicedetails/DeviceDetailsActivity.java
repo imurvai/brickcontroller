@@ -1,7 +1,5 @@
 package com.scn.ui.devicedetails;
 
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
@@ -12,7 +10,6 @@ import android.view.MenuItem;
 import com.scn.devicemanagement.DeviceManager;
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
-import com.scn.ui.Helper;
 import com.scn.ui.R;
 
 import javax.inject.Inject;
@@ -38,7 +35,6 @@ public class DeviceDetailsActivity extends BaseActivity {
     @BindView(R.id.toolbar) Toolbar toolbar;
 
     DeviceDetailsViewModel viewModel;
-    Dialog dialog;
 
     //
     // Activity overrides
@@ -59,13 +55,12 @@ public class DeviceDetailsActivity extends BaseActivity {
 
             switch (stateChange.getCurrentState()) {
                 case OK:
-                    if (dialog != null) dialog.dismiss();
+                    dismissDialog();
 
                     switch (stateChange.getPreviousState()) {
                         case UPDATING:
                             if (stateChange.isError()) {
-                                Helper.showAlertDialog(
-                                        DeviceDetailsActivity.this,
+                                showAlertDialog(
                                         getString(R.string.error),
                                         getString(R.string.failed_to_update_device),
                                         getString(R.string.ok),
@@ -75,8 +70,7 @@ public class DeviceDetailsActivity extends BaseActivity {
 
                         case REMOVING:
                             if (stateChange.isError()) {
-                                Helper.showAlertDialog(
-                                        DeviceDetailsActivity.this,
+                                showAlertDialog(
                                         getString(R.string.error),
                                         getString(R.string.failed_to_remove_device),
                                         getString(R.string.ok),
@@ -90,8 +84,7 @@ public class DeviceDetailsActivity extends BaseActivity {
                     break;
 
                 case REMOVING:
-                    if (dialog != null) dialog.dismiss();
-                    dialog = Helper.showProgressDialog(DeviceDetailsActivity.this, getString(R.string.removing));
+                    showProgressDialog(getString(R.string.removing));
                     break;
             }
         });
@@ -120,8 +113,7 @@ public class DeviceDetailsActivity extends BaseActivity {
         switch (item.getItemId()) {
             case R.id.menu_item_delete:
                 Logger.i(TAG, "  delete selected.");
-                Helper.showQuestionDialog(
-                        DeviceDetailsActivity.this,
+                showQuestionDialog(
                         getString(R.string.are_you_sure_you_want_to_remove),
                         getString(R.string.ok),
                         getString(R.string.cancel),

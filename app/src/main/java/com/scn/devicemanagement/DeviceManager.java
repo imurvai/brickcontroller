@@ -176,7 +176,8 @@ public final class DeviceManager implements DeviceFactory {
 
             Observable.merge(deviceScanObservables)
                     .subscribeOn(Schedulers.io())
-                    .doOnNext(device -> deviceRepository.storeDevice(device)) // TODO: on background thread!!!
+                    .observeOn(Schedulers.io())
+                    .doOnNext(device -> deviceRepository.storeDevice(device))
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             device -> {
