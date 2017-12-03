@@ -3,8 +3,12 @@ package com.scn.devicemanagement;
 import android.content.Context;
 import android.hardware.ConsumerIrManager;
 import android.support.annotation.MainThread;
+import android.support.annotation.NonNull;
 
 import com.scn.logger.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -23,26 +27,52 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
     //
 
     private static final String TAG = InfraRedDeviceManager.class.getSimpleName();
-    private static final DeviceType[] supportedDeviceTypes = new DeviceType[] { DeviceType.INFRARED };
 
-    private Context context;
+    private static final int IR_FREQUENCY = 38000;
+    private static final int IR_MARK = 158;
+    private static final int IR_START_STOP_GAP = 1026;
+    private static final int IR_ONE_GAP = 553;
+    private static final int IR_ZERO_GAP = 263;
+
+    private final ConsumerIrManager irManager;
 
     private int numConnectedDevices = 0;
-    private int outputValues[] = new int[8];
+    private int outputValues[][] = new int[4][2];
+    private int irData[] = new int[4 * 18 * 2];
 
     //
     // Constructor
     //
 
     @Inject
-    public InfraRedDeviceManager(Context context) {
+    public InfraRedDeviceManager(@NonNull Context context) {
+        super(context);
         Logger.i(TAG, "constructor...");
 
-        if (context == null)
-            throw new IllegalArgumentException("context is null.");
+        ConsumerIrManager irManager = context.getSystemService(ConsumerIrManager.class);
+        if (irManager != null && irManager.hasIrEmitter()) {
+            Logger.i(TAG, "  Supported frequency ranges:");
+            boolean isIrFrequencySupported = false;
 
-        this.context = context;
+            ConsumerIrManager.CarrierFrequencyRange frequencyRanges[] = irManager.getCarrierFrequencies();
+            for (ConsumerIrManager.CarrierFrequencyRange frequencyRange : frequencyRanges) {
+                int minFreq = frequencyRange.getMinFrequency();
+                int maxFreq = frequencyRange.getMaxFrequency();
+                Logger.i(TAG, "    Range: " + minFreq + " - " + maxFreq);
+                if (minFreq <= IR_FREQUENCY && IR_FREQUENCY <= maxFreq) isIrFrequencySupported = true;
+            }
 
+            if (!isIrFrequencySupported) {
+                Logger.i(TAG, "  IR frequency is not supported.");
+                irManager = null;
+            }
+        }
+        else {
+            Logger.i(TAG, "  No suitable IR emitter.");
+            irManager = null;
+        }
+
+        this.irManager = irManager;
         resetOutputs();
     }
 
@@ -50,25 +80,21 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
     // API
     //
 
-    static boolean isInfraRedSupported(Context context) {
+    public boolean isInfraRedSupported() {
         Logger.i(TAG, "isInfraRedSupported...");
-
-        ConsumerIrManager irManager = context.getSystemService(ConsumerIrManager.class);
-        boolean isSupported = irManager != null && irManager.hasIrEmitter();
-
-        Logger.i(TAG, "  Infra is " + (isSupported ? "" : "NOT") + " supported.");
-        return isSupported;
+        Logger.i(TAG, "  Infra is " + (irManager != null ? "" : "NOT ") + "supported.");
+        return irManager != null;
     }
 
     @MainThread
-    synchronized void connect(Device device) {
-        Logger.i(TAG, "connect - " + device.getId());
+    void connectDevice(@NonNull Device device) {
+        Logger.i(TAG, "connectDevice - " + device);
         numConnectedDevices++;
     }
 
     @MainThread
-    synchronized void disconnect(Device device) {
-        Logger.i(TAG, "disconnect - " + device.getId());
+    void disconnectDevice(@NonNull Device device) {
+        Logger.i(TAG, "disconnectDevice - " + device);
 
         numConnectedDevices--;
         if (numConnectedDevices == 0)
@@ -76,11 +102,11 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
     }
 
     @MainThread
-    synchronized void setOutput(String deviceAddress, int channel, int value) {
-        Logger.i(TAG, "setOutput - address: " + deviceAddress + ", channel: " + channel + ", value: " + value);
+    void setOutput(@NonNull Device device, int channel, int value) {
+        Logger.i(TAG, "setOutput - " + device + ", channel: " + channel + ", value: " + value);
 
-        int address = convertAddress(deviceAddress);
-        outputValues[address * 2 + channel] = value;
+        int address = convertAddress(device.getAddress());
+        outputValues[address][channel] = value;
     }
 
     //
@@ -92,7 +118,7 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
     synchronized Observable<Device> startScan() {
         Logger.i(TAG, "startScan...");
 
-        if (!isInfraRedSupported(context)) {
+        if (!isInfraRedSupported()) {
             return Observable.empty();
         }
 
@@ -110,15 +136,10 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
     }
 
     @Override
-    DeviceType[] getSupportedDeviceTypes() {
-        return supportedDeviceTypes;
-    }
-
-    @Override
-    Device createDevice(DeviceType type, String name, String address) {
+    Device createDevice(@NonNull DeviceType type, @NonNull String name, @NonNull String address) {
         Logger.i(TAG, "createDevice...");
 
-        if (!isInfraRedSupported(context)) {
+        if (!isInfraRedSupported()) {
             return null;
         }
 
@@ -136,10 +157,13 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
 
     private void resetOutputs() {
         Logger.i(TAG, "resetOutputs");
-        for (int i = 0; i < 8; i++) outputValues[i] = 0;
+        for (int i = 0; i < 4; i++) {
+            outputValues[i][0] = 0;
+            outputValues[i][1] = 0;
+        }
     }
 
-    private int convertAddress(String address) {
+    private int convertAddress(@NonNull String address) {
         Logger.i(TAG, "convertAddress - " + address);
 
         switch (address) {
@@ -149,5 +173,58 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
             case "4": return 3;
             default: throw new IllegalArgumentException("Invalid infra address.");
         }
+    }
+
+    private void sendIrData() {
+        int index = 0;
+
+        for (int address = 0; address < 4; address++) {
+            int value0 = outputValues[address][0];
+            int value1 = outputValues[address][1];
+
+            int nibble1 = 0x4 | address;
+            int nibble2 = calculateOutputNibble(value0);
+            int nibble3 = calculateOutputNibble(value1);
+            int nibbleLrc = 0xf ^ nibble1 ^ nibble2 ^ nibble3;
+
+            index = appendStartStop(index);
+            index = appendNibble(index, nibble1);
+            index = appendNibble(index, nibble2);
+            index = appendNibble(index, nibble3);
+            index = appendNibble(index, nibbleLrc);
+            index = appendStartStop(index);
+        }
+
+        irManager.transmit(IR_FREQUENCY, irData);
+    }
+
+    private int calculateOutputNibble(int value) {
+        if (value < -255) value = -255;
+        if (value > 255) value = 255;
+
+        int sign = value < 0 ? 8 : 0;
+        value = Math.abs(value) >> 5;
+
+        return sign | value;
+    }
+
+    private int appendStartStop(int index) {
+        irData[index++] = IR_MARK;
+        irData[index++] = IR_START_STOP_GAP;
+        return index;
+    }
+
+    private int appendBit(int index, int bit) {
+        irData[index++] = IR_MARK;
+        irData[index++] = (bit != 0) ? IR_ONE_GAP : IR_ZERO_GAP;
+        return index;
+    }
+
+    private int appendNibble(int index, int nibble) {
+        index = appendBit(index, nibble & 8);
+        index = appendBit(index, nibble & 4);
+        index = appendBit(index, nibble & 2);
+        index = appendBit(index, nibble & 1);
+        return index;
     }
 }

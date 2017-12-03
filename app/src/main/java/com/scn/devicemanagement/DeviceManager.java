@@ -83,14 +83,12 @@ public final class DeviceManager implements DeviceFactory {
 
         switch (type) {
             case INFRARED:
-                if (InfraRedDeviceManager.isInfraRedSupported(context))
-                    device = infraRedDeviceManager.createDevice(type, name, address);
+                device = infraRedDeviceManager.createDevice(type, name, address);
                 break;
 
             case BUWIZZ:
             case SBRICK:
-                if (BluetoothDeviceManager.isBluetoothLESupported(context))
-                    device = bluetoothDeviceManager.createDevice(type, name, address);
+                device = bluetoothDeviceManager.createDevice(type, name, address);
                 break;
         }
 
@@ -104,19 +102,19 @@ public final class DeviceManager implements DeviceFactory {
     @MainThread
     public boolean isBluetoothLESupported() {
         Logger.i(TAG, "isBluetoothLESupported...");
-        return BluetoothDeviceManager.isBluetoothLESupported(context);
+        return bluetoothDeviceManager.isBluetoothLESupported();
     }
 
     @MainThread
     public boolean isBluetoothOn() {
         Logger.i(TAG, "isBluetoothOn...");
-        return BluetoothDeviceManager.isBluetoothOn();
+        return bluetoothDeviceManager.isBluetoothOn();
     }
 
     @MainThread
     public boolean isInfraSupported() {
         Logger.i(TAG, "isInfraSupported...");
-        return InfraRedDeviceManager.isInfraRedSupported(context);
+        return infraRedDeviceManager.isInfraRedSupported();
     }
 
     @MainThread

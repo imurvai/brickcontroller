@@ -1,7 +1,9 @@
 package com.scn.devicemanagement;
 
 import android.arch.lifecycle.LiveData;
+import android.content.Context;
 import android.support.annotation.MainThread;
+import android.support.annotation.NonNull;
 
 import com.scn.logger.Logger;
 
@@ -29,8 +31,8 @@ final class BuWizzDevice extends BluetoothDevice {
     // Constructor
     //
 
-    BuWizzDevice(String name, String address, BluetoothDeviceManager bluetoothDeviceManager) {
-        super(name, address, bluetoothDeviceManager);
+    BuWizzDevice(@NonNull Context context, @NonNull String name, @NonNull String address, @NonNull BluetoothDeviceManager bluetoothDeviceManager) {
+        super(context, name, address, bluetoothDeviceManager);
         Logger.i(TAG, "constructor...");
         Logger.i(TAG, "  name: " + name);
         Logger.i(TAG, "  address: " + address);
@@ -51,14 +53,28 @@ final class BuWizzDevice extends BluetoothDevice {
     @MainThread
     @Override
     public boolean connect() {
-        Logger.i(TAG, "connect - " + this);
+        Logger.i(TAG, "connectDevice - " + this);
         return false;
     }
 
     @MainThread
     @Override
-    public void disconnect() {
-        Logger.i(TAG, "disconnect - " + this);
+    public boolean disconnect() {
+        Logger.i(TAG, "disconnectDevice - " + this);
+
+        if (getCurrentState() != State.CONNECTED || getCurrentState() != State.CONNECTING) {
+            Logger.i(TAG, "  Wrong state - " + getCurrentState());
+            return false;
+        }
+
+        if (bluetoothGatt == null) {
+            Logger.w(TAG, "  bluetoothGatt is null.");
+            return false;
+        }
+
+        bluetoothGatt.disconnect();
+        setState(State.DISCONNECTING, false);
+        return true;
     }
 
     @Override

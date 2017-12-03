@@ -1,5 +1,10 @@
 package com.scn.devicemanagement;
 
+import android.content.Context;
+import android.support.annotation.NonNull;
+
+import com.scn.logger.Logger;
+
 import io.reactivex.Observable;
 
 /**
@@ -8,9 +13,29 @@ import io.reactivex.Observable;
 
 abstract class SpecificDeviceManager {
 
+    //
+    // Private, protected members
+    //
+
+    private static final String TAG = SpecificDeviceManager.class.getSimpleName();
+
+    protected Context context;
+
+    //
+    // Constructor
+    //
+
+    protected SpecificDeviceManager(@NonNull Context context) {
+        Logger.i(TAG, "constructor...");
+        this.context = context;
+    }
+
+    //
+    // API
+    //
+
     abstract Observable<Device> startScan();
     abstract void stopScan();
 
-    abstract DeviceType[] getSupportedDeviceTypes();
-    abstract Device createDevice(DeviceType type, String name, String address);
+    abstract Device createDevice(@NonNull DeviceType type, @NonNull String name, @NonNull String address);
 }

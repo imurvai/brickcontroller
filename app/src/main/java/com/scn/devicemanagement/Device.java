@@ -2,9 +2,11 @@ package com.scn.devicemanagement;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 
 import com.scn.common.StateChange;
+import com.scn.logger.Logger;
 
 import java.util.HashMap;
 import java.util.List;
@@ -88,7 +90,7 @@ public abstract class Device implements Comparable<Device> {
     public String getAddress() { return address; }
 
     public abstract boolean connect();
-    public abstract void disconnect();
+    public abstract boolean disconnect();
 
     public abstract int getNumberOfChannels();
 
@@ -103,6 +105,18 @@ public abstract class Device implements Comparable<Device> {
         if (channel < 0 || getNumberOfChannels() <= channel) {
             throw new IllegalArgumentException("Invalid channel " + channel);
         }
+    }
+
+    @MainThread
+    protected Device.State getCurrentState() {
+        return stateChangeLiveData.getValue().getCurrentState();
+    }
+
+    @MainThread
+    protected void setState(Device.State newState, boolean isError) {
+        Logger.i(TAG, "setState - " + getCurrentState() + " -> " + newState);
+        Device.State currentState = getCurrentState();
+        stateChangeLiveData.setValue(new StateChange(currentState, newState, isError));
     }
 
     //

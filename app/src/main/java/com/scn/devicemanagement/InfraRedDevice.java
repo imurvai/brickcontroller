@@ -5,11 +5,8 @@ import android.support.annotation.MainThread;
 
 import com.scn.logger.Logger;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import io.reactivex.Single;
 
 /**
  * Created by steve on 2017. 09. 03..
@@ -22,7 +19,6 @@ final class InfraRedDevice extends Device {
     //
 
     private static final String TAG = InfraRedDevice.class.getSimpleName();
-    private static final int numberOfChannels = 2;
 
     private InfraRedDeviceManager infraRedDeviceManager;
 
@@ -56,21 +52,22 @@ final class InfraRedDevice extends Device {
     @MainThread
     @Override
     public boolean connect() {
-        Logger.i(TAG, "connect - " + getId());
-        infraRedDeviceManager.connect(this);
+        Logger.i(TAG, "connectDevice - " + this);
+        infraRedDeviceManager.connectDevice(this);
         return true;
     }
 
     @MainThread
     @Override
-    public void disconnect() {
-        Logger.i(TAG, "disconnect - " + getId());
-        infraRedDeviceManager.disconnect(this);
+    public boolean disconnect() {
+        Logger.i(TAG, "disconnectDevice - " + this);
+        infraRedDeviceManager.disconnectDevice(this);
+        return true;
     }
 
     @Override
     public int getNumberOfChannels() {
-        return numberOfChannels;
+        return 2;
     }
 
     @MainThread
@@ -93,7 +90,7 @@ final class InfraRedDevice extends Device {
     public boolean setOutput(int channel, int value) {
         Logger.i(TAG, "setOutput - channel: " + channel + ", value: " + value);
         checkChannel(channel);
-        infraRedDeviceManager.setOutput(getAddress(), channel, value);
+        infraRedDeviceManager.setOutput(this, channel, value);
         return true;
     }
 

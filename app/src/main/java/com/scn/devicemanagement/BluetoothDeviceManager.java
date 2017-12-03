@@ -33,9 +33,6 @@ public final class BluetoothDeviceManager extends SpecificDeviceManager {
     //
 
     private static final String TAG = BluetoothDeviceManager.class.getSimpleName();
-    private static final DeviceType[] supportedDeviceTypes = new DeviceType[] { DeviceType.BUWIZZ, DeviceType.SBRICK };
-
-    private Context context = null;
 
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothLeScanner bluetoothLeScanner;
@@ -49,12 +46,8 @@ public final class BluetoothDeviceManager extends SpecificDeviceManager {
 
     @Inject
     public BluetoothDeviceManager(Context context) {
+        super(context);
         Logger.i(TAG, "constructor...");
-
-        if (context == null)
-            throw new IllegalArgumentException("context is null.");
-
-        this.context = context;
 
         final BluetoothManager bluetoothManager = (BluetoothManager)context.getSystemService(Context.BLUETOOTH_SERVICE);
         if (bluetoothManager == null)
@@ -74,17 +67,17 @@ public final class BluetoothDeviceManager extends SpecificDeviceManager {
     //
 
     @MainThread
-    static boolean isBluetoothLESupported(Context context) {
+    public boolean isBluetoothLESupported() {
         Logger.i(TAG, "isBluetoothLESupported...");
 
         boolean isSupported = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
 
-        Logger.i(TAG, "  Bluetooth is " + (isSupported ? "" : "not") + " supported.");
+        Logger.i(TAG, "  Bluetooth is " + (isSupported ? "" : "NOT ") + "supported.");
         return isSupported;
     }
 
     @MainThread
-    static boolean isBluetoothOn() {
+    public boolean isBluetoothOn() {
         Logger.i(TAG, "isBluetoothOn...");
 
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
@@ -108,7 +101,7 @@ public final class BluetoothDeviceManager extends SpecificDeviceManager {
     public synchronized Observable<Device> startScan() {
         Logger.i(TAG, "startScan...");
 
-        if (!isBluetoothLESupported(context)) {
+        if (!isBluetoothLESupported()) {
             return Observable.empty();
         }
 
@@ -153,23 +146,18 @@ public final class BluetoothDeviceManager extends SpecificDeviceManager {
     }
 
     @Override
-    public DeviceType[] getSupportedDeviceTypes() {
-        return supportedDeviceTypes;
-    }
-
-    @Override
     Device createDevice(DeviceType type, String name, String address) {
         Logger.i(TAG, "createDevice...");
 
-        if (!isBluetoothLESupported(context)) {
+        if (!isBluetoothLESupported()) {
             return null;
         }
 
         switch (type) {
             case SBRICK:
-                return new SBrickDevice(name, address, this);
+                return new SBrickDevice(context, name, address, this);
             case BUWIZZ:
-                return new BuWizzDevice(name, address, this);
+                return new BuWizzDevice(context, name, address, this);
         }
 
         Logger.i(TAG, "  Not bluetooth device.");
