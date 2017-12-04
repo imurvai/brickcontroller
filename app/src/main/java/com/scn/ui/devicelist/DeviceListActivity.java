@@ -1,5 +1,6 @@
 package com.scn.ui.devicelist;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -7,14 +8,12 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.Toast;
 
-import com.scn.devicemanagement.Device;
+import com.scn.devicemanagement.DeviceType;
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
 import com.scn.ui.R;
+import com.scn.ui.devicedetails.DeviceDetailsActivity;
 
 import javax.inject.Inject;
 
@@ -93,7 +92,16 @@ public class DeviceListActivity extends BaseActivity {
         recyclerView.setAdapter(deviceListAdapter);
         deviceListAdapter.setDeviceClickListener(device -> {
             Logger.i(TAG, "onClick - device: " + device);
-            Toast.makeText(DeviceListActivity.this, "Device " + device.getName() + " clicked.", Toast.LENGTH_SHORT).show();
+
+            DeviceType deviceType = device.getType();
+            if (deviceType == DeviceType.INFRARED || deviceType == DeviceType.SBRICK) {
+                Intent intent = new Intent(DeviceListActivity.this, DeviceDetailsActivity.class);
+                intent.putExtra("EXTRA_DEVICE_ID", device.getId());
+                startActivity(intent);
+            }
+            else {
+                showAlertDialog(getString(R.string.device_type_is_not_supported_yet));
+            }
         });
     }
 
@@ -113,7 +121,7 @@ public class DeviceListActivity extends BaseActivity {
                                         getString(R.string.error),
                                         getString(R.string.failed_to_remove_devices),
                                         getString(R.string.ok),
-                                        dialogInterface -> stateChange.setErrorHandled());
+                                        dialogInterface -> stateChange.resetPreviousState());
                             }
                             break;
 
@@ -123,7 +131,7 @@ public class DeviceListActivity extends BaseActivity {
                                         getString(R.string.error),
                                         getString(R.string.error_during_scanning_for_devices),
                                         getString(R.string.ok),
-                                        dialogInterface -> stateChange.setErrorHandled());
+                                        dialogInterface -> stateChange.resetPreviousState());
                             }
                             break;
                     }

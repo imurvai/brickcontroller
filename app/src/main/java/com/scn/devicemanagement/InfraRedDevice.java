@@ -78,7 +78,6 @@ final class InfraRedDevice extends Device {
         throw new RuntimeException("not implemented.");
     }
 
-    @MainThread
     @Override
     public boolean setOutputLevel(int level) {
         Logger.i(TAG, "setOutputLevel...");
@@ -87,20 +86,10 @@ final class InfraRedDevice extends Device {
 
     @MainThread
     @Override
-    public boolean setOutput(int channel, int value) {
+    public void setOutput(int channel, int value) {
         Logger.i(TAG, "setOutput - channel: " + channel + ", value: " + value);
         checkChannel(channel);
         infraRedDeviceManager.setOutput(this, channel, value);
-        return true;
-    }
-
-    @MainThread
-    @Override
-    public boolean setOutputs(List<ChannelValue> channelValues) {
-        for (ChannelValue cv : channelValues) {
-            setOutput(cv.getChannel(), cv.getLevel());
-        }
-        return true;
     }
 
     //

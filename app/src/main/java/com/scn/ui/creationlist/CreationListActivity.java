@@ -1,7 +1,6 @@
 package com.scn.ui.creationlist;
 
 import android.Manifest;
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -77,7 +76,7 @@ public class CreationListActivity extends BaseActivity implements NavigationView
                                         getString(R.string.error),
                                         getString(R.string.error_during_loading_devices),
                                         getString(R.string.ok),
-                                        dialogInterface -> stateChange.setErrorHandled());
+                                        dialogInterface -> stateChange.resetPreviousState());
                             }
                             break;
                     }

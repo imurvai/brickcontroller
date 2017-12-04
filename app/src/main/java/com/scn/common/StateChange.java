@@ -10,8 +10,8 @@ public final class StateChange<T> {
     // Private members
     //
 
-    private final T previousState;
-    private final T currentState;
+    private T previousState;
+    private T currentState;
     private boolean isError;
 
     //
@@ -32,5 +32,8 @@ public final class StateChange<T> {
     public T getCurrentState() { return currentState; }
     public boolean isError() { return isError; }
 
-    public void setErrorHandled() { isError = false; }
+    public void resetPreviousState() {
+        previousState = currentState;
+        isError = false;
+    }
 }

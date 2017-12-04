@@ -109,6 +109,17 @@ public abstract class BaseActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    protected void showAlertDialog(String message) {
+        Logger.i(TAG, "showAlertDialog - " + message);
+
+        dismissDialog();
+        dialog = new AlertDialog.Builder(this)
+                .setMessage(message)
+                .setPositiveButton(getString(R.string.ok), null)
+                .create();
+        dialog.show();
+    }
+
     protected void showAlertDialog(String title, String message, String positiveButtonText, final DialogInterface.OnDismissListener dismissListener) {
         Logger.i(TAG, "showAlertDialog - " + message);
 

@@ -37,8 +37,13 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
     private final ConsumerIrManager irManager;
 
     private int numConnectedDevices = 0;
-    private int outputValues[][] = new int[4][2];
-    private int irData[] = new int[4 * 18 * 2];
+
+    private Thread irThread = null;
+    private boolean stopIrThread = false;
+
+    private final int outputValues[][] = new int[4][2];
+    private final boolean isContinueSending[] = new boolean[4];
+    private final int irData[] = new int[18 * 2];
 
     //
     // Constructor
@@ -89,7 +94,11 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
     @MainThread
     void connectDevice(@NonNull Device device) {
         Logger.i(TAG, "connectDevice - " + device);
+
         numConnectedDevices++;
+        if (numConnectedDevices == 1) {
+            startIrThread();
+        }
     }
 
     @MainThread
@@ -97,8 +106,9 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
         Logger.i(TAG, "disconnectDevice - " + device);
 
         numConnectedDevices--;
-        if (numConnectedDevices == 0)
-            resetOutputs();
+        if (numConnectedDevices == 0) {
+            stopIrThread = true;
+        }
     }
 
     @MainThread
@@ -107,6 +117,7 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
 
         int address = convertAddress(device.getAddress());
         outputValues[address][channel] = value;
+        isContinueSending[address] = true;
     }
 
     //
@@ -157,9 +168,10 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
 
     private void resetOutputs() {
         Logger.i(TAG, "resetOutputs");
-        for (int i = 0; i < 4; i++) {
-            outputValues[i][0] = 0;
-            outputValues[i][1] = 0;
+        for (int address = 0; address < 4; address++) {
+            outputValues[address][0] = 0;
+            outputValues[address][1] = 0;
+            isContinueSending[address] = false;
         }
     }
 
@@ -175,33 +187,56 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
         }
     }
 
+    private void startIrThread() {
+        Logger.i(TAG, "startIrThread...");
+
+        resetOutputs();
+
+        stopIrThread = false;
+        irThread = new Thread(() -> {
+            Logger.i(TAG, "starting IR thread...");
+
+            while (!stopIrThread) {
+                sendIrData();
+
+                try { Thread.sleep(10); } catch (InterruptedException e) {}
+            }
+
+            resetOutputs();
+            Logger.i(TAG, "exiting from IR thread.");
+        });
+    }
+
     private void sendIrData() {
-        int index = 0;
-
         for (int address = 0; address < 4; address++) {
-            int value0 = outputValues[address][0];
-            int value1 = outputValues[address][1];
+            if (isContinueSending[address]) {
+                int index = 0;
 
-            int nibble1 = 0x4 | address;
-            int nibble2 = calculateOutputNibble(value0);
-            int nibble3 = calculateOutputNibble(value1);
-            int nibbleLrc = 0xf ^ nibble1 ^ nibble2 ^ nibble3;
+                int value0 = outputValues[address][0];
+                int value1 = outputValues[address][1];
 
-            index = appendStartStop(index);
-            index = appendNibble(index, nibble1);
-            index = appendNibble(index, nibble2);
-            index = appendNibble(index, nibble3);
-            index = appendNibble(index, nibbleLrc);
-            index = appendStartStop(index);
+                int nibble1 = 0x4 | address;
+                int nibble2 = calculateOutputNibble(value0);
+                int nibble3 = calculateOutputNibble(value1);
+                int nibbleLrc = 0xf ^ nibble1 ^ nibble2 ^ nibble3;
+
+                index = appendStartStop(index);
+                index = appendNibble(index, nibble1);
+                index = appendNibble(index, nibble2);
+                index = appendNibble(index, nibble3);
+                index = appendNibble(index, nibbleLrc);
+                appendStartStop(index);
+
+                irManager.transmit(IR_FREQUENCY, irData);
+
+                if (value0 == 0 && value1 == 0) {
+                    isContinueSending[address] = false;
+                }
+            }
         }
-
-        irManager.transmit(IR_FREQUENCY, irData);
     }
 
     private int calculateOutputNibble(int value) {
-        if (value < -255) value = -255;
-        if (value > 255) value = 255;
-
         int sign = value < 0 ? 8 : 0;
         value = Math.abs(value) >> 5;
 

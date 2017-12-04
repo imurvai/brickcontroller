@@ -50,6 +50,17 @@ public class DeviceDetailsViewModel extends ViewModel {
     // API
     //
 
+    void init(String deviceId) {
+        Logger.i(TAG, "init - " + deviceId);
+
+        if (device != null) {
+            Logger.i(TAG, "  Already inited.");
+            return;
+        }
+
+        this.device = deviceManager.getDevice(deviceId);
+    }
+
     LiveData<StateChange<DeviceManager.State>> getDeviceMangerStateChangeLiveData() {
         Logger.i(TAG, "getDeviceMangerStateChangeLiveData...");
         return deviceManager.getStateChangeLiveData();

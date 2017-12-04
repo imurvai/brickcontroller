@@ -35,6 +35,11 @@
             android:name="com.scn.ui.devicelist.DeviceListActivity"
             android:label="@string/title_activity_device_list"
             android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity
+            android:name="com.scn.ui.devicedetails.DeviceDetailsActivity"
+            android:label="@string/title_activity_device_details"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

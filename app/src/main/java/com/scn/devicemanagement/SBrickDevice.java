@@ -28,9 +28,8 @@ final class SBrickDevice extends BluetoothDevice {
     //
 
     private static final String TAG = SBrickDevice.class.getSimpleName();
-    private static final int numberOfChannels = 4;
 
-    private int[] channelValues = new int[numberOfChannels];
+    private final int[] outputValues = new int[4];
 
     //
     // Constructor
@@ -109,7 +108,7 @@ final class SBrickDevice extends BluetoothDevice {
 
     @Override
     public int getNumberOfChannels() {
-        return numberOfChannels;
+        return 4;
     }
 
     @MainThread
@@ -126,21 +125,10 @@ final class SBrickDevice extends BluetoothDevice {
         throw new RuntimeException("SBrick doesn't support setOutputLevel");
     }
 
-    @MainThread
     @Override
-    public boolean setOutput(int channel, int value) {
+    public void setOutput(int channel, int value) {
         Logger.i(TAG, "setOutput - channel: " + channel + ", value: " + value);
         checkChannel(channel);
-        return false;
-    }
-
-    @MainThread
-    @Override
-    public boolean setOutputs(List<ChannelValue> channelValues) {
-        for (ChannelValue cv : channelValues) {
-            setOutput(cv.getChannel(), cv.getLevel());
-        }
-        return true;
     }
 
     //

@@ -98,14 +98,17 @@ public abstract class Device implements Comparable<Device> {
 
     public abstract boolean setOutputLevel(int level);
 
-    public abstract boolean setOutput(int channel, int level);
-    public abstract boolean setOutputs(@NonNull List<ChannelValue> channelValues);
+    public abstract void setOutput(int channel, int level);
 
-    protected void checkChannel(int channel) {
-        if (channel < 0 || getNumberOfChannels() <= channel) {
-            throw new IllegalArgumentException("Invalid channel " + channel);
+    public void setOutputs(@NonNull List<ChannelValue> channelValues) {
+        for (ChannelValue cv : channelValues) {
+            setOutput(cv.getChannel(), cv.getLevel());
         }
     }
+
+    //
+    // Protected methods
+    //
 
     @MainThread
     protected Device.State getCurrentState() {
@@ -117,6 +120,18 @@ public abstract class Device implements Comparable<Device> {
         Logger.i(TAG, "setState - " + getCurrentState() + " -> " + newState);
         Device.State currentState = getCurrentState();
         stateChangeLiveData.setValue(new StateChange(currentState, newState, isError));
+    }
+
+    protected void checkChannel(int channel) {
+        if (channel < 0 || getNumberOfChannels() <= channel) {
+            throw new IllegalArgumentException("Invalid channel " + channel);
+        }
+    }
+
+    protected int clampOutputValue(int value) {
+        if (value < -255) value = -255;
+        if (255 < value) value = 255;
+        return value;
     }
 
     //

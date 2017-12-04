@@ -23,9 +23,8 @@ final class BuWizzDevice extends BluetoothDevice {
     //
 
     private static final String TAG = BuWizzDevice.class.getSimpleName();
-    private static final int numberOfChannels = 4;
 
-    private int[] channelValues = new int[numberOfChannels];
+    private final int[] outputValues = new int[4];
 
     //
     // Constructor
@@ -79,37 +78,26 @@ final class BuWizzDevice extends BluetoothDevice {
 
     @Override
     public int getNumberOfChannels() {
-        return numberOfChannels;
+        return 4;
     }
 
     @MainThread
     @Override
     public LiveData<Map<String, String>> getDeviceInfoLiveData() {
         Logger.i(TAG, "getDeviceInfo - " + getId());
-        throw new RuntimeException("setOutputLevel not implemented yet.");
+        throw new RuntimeException("not implemented.");
     }
 
     @MainThread
     @Override
     public boolean setOutputLevel(int level) {
         Logger.i(TAG, "setOutputLevel - " + getId());
-        throw new RuntimeException("setOutputLevel not implemented yet.");
+        throw new RuntimeException("not implemented.");
     }
 
-    @MainThread
     @Override
-    public boolean setOutput(int channel, int value) {
+    public void setOutput(int channel, int value) {
         Logger.i(TAG, "setOutput - channel: " + channel + ", value: " + value);
         checkChannel(channel);
-        return false;
-    }
-
-    @MainThread
-    @Override
-    public boolean setOutputs(List<ChannelValue> channelValues) {
-        for (ChannelValue cv : channelValues) {
-            setOutput(cv.getChannel(), cv.getLevel());
-        }
-        return true;
     }
 }
