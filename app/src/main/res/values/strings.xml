@@ -18,6 +18,10 @@
     <string name="are_you_sure_you_want_to_remove">Are you sure you want to remove?</string>
     <string name="location_alert_title">Location access is needed.</string>
     <string name="location_alert_message">Please grant location access to be able to communicate with bluetooth devices.</string>
+    <string name="type">Type</string>
+    <string name="device_name">Device name</string>
+    <string name="manufacturer">Manufacturer</string>
+    <string name="address">Address</string>
 
     <!-- Creation list activity -->
     <string name="title_activity_creation_list">Creation list</string>

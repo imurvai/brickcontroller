@@ -1,6 +1,5 @@
 package com.scn.ui.devicelist;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -81,6 +80,7 @@ final class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.Dev
 
     public void setDeviceClickListener(OnDeviceClickListener deviceClickListener) {
         this.deviceClickListener = deviceClickListener;
+        notifyDataSetChanged();
     }
 
     //

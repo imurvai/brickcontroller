@@ -61,6 +61,8 @@ public class DeviceDetailsViewModel extends ViewModel {
         this.device = deviceManager.getDevice(deviceId);
     }
 
+    Device getDevice() { return device; }
+
     LiveData<StateChange<DeviceManager.State>> getDeviceMangerStateChangeLiveData() {
         Logger.i(TAG, "getDeviceMangerStateChangeLiveData...");
         return deviceManager.getStateChangeLiveData();

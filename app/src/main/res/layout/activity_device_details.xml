@@ -39,30 +39,6 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="8dp">
-
-                <EditText
-                    android:id="@+id/device_name"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_marginRight="8dp"
-                    android:layout_toLeftOf="@id/update_device_name"
-                    android:inputType="text"
-                    android:singleLine="true" />
-
-                <Button
-                    android:id="@+id/update_device_name"
-                    android:layout_width="32dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:background="@drawable/ic_check" />
-
-            </RelativeLayout>
-
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recyclerview"
                 android:layout_width="match_parent"

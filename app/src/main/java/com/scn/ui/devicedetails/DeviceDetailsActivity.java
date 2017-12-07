@@ -1,13 +1,19 @@
 package com.scn.ui.devicedetails;
 
 import android.os.Bundle;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.scn.devicemanagement.Device;
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
 import com.scn.ui.R;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -24,9 +30,12 @@ public class DeviceDetailsActivity extends BaseActivity {
 
     private static final String TAG = DeviceDetailsActivity.class.getSimpleName();
 
-    @BindView(R.id.toolbar) Toolbar toolbar;
-
     DeviceDetailsViewModel viewModel;
+    @Inject DeviceDetailsAdapter deviceDetailsAdapter;
+
+    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.recyclerview) RecyclerView recyclerView;
+
 
     //
     // Activity overrides
@@ -43,6 +52,7 @@ public class DeviceDetailsActivity extends BaseActivity {
 
         String deviceId = getIntent().getStringExtra("EXTRA_DEVICE_ID");
         setupViewModel(deviceId);
+        setupRecyclerView(viewModel.getDevice());
     }
 
     @Override
@@ -88,7 +98,10 @@ public class DeviceDetailsActivity extends BaseActivity {
         Logger.i(TAG, "setupViewModel - " + deviceId);
 
         viewModel = getViewModel(DeviceDetailsViewModel.class);
-        viewModel.init(deviceId);
+
+        if (deviceId != null) {
+            viewModel.init(deviceId);
+        }
 
         viewModel.getDeviceMangerStateChangeLiveData().observe(DeviceDetailsActivity.this, stateChange -> {
             Logger.i(TAG, "Device manager stateChange - " + stateChange.getPreviousState() + " -> " + stateChange.getCurrentState());
@@ -130,5 +143,13 @@ public class DeviceDetailsActivity extends BaseActivity {
                     break;
             }
         });
+    }
+
+    private void setupRecyclerView(Device device) {
+        recyclerView.setLayoutManager(new LinearLayoutManager(DeviceDetailsActivity.this));
+        recyclerView.addItemDecoration(new DividerItemDecoration(DeviceDetailsActivity.this, DividerItemDecoration.VERTICAL));
+        recyclerView.setAdapter(deviceDetailsAdapter);
+        deviceDetailsAdapter.setDevice(device);
+        deviceDetailsAdapter.setSeekBarListener((localDevice, channel, value) -> Logger.i(TAG, "onSeekBarChanged - " + value));
     }
 }

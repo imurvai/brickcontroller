@@ -77,6 +77,8 @@ public class CreationListActivity extends BaseActivity implements NavigationView
                                         getString(R.string.error_during_loading_devices),
                                         getString(R.string.ok),
                                         dialogInterface -> stateChange.resetPreviousState());
+                            } else {
+                                stateChange.resetPreviousState();
                             }
                             break;
                     }
