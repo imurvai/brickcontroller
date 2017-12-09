@@ -2,6 +2,7 @@ package com.scn.devicemanagement;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.os.Looper;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 
@@ -40,7 +41,6 @@ public abstract class Device implements Comparable<Device> {
     protected String address;
 
     protected MutableLiveData<StateChange<Device.State>> stateChangeLiveData = new MutableLiveData<>();
-    protected MutableLiveData<Map<String, String>> deviceInfoLiveData = new MutableLiveData<>();
 
     //
     // Constructor
@@ -51,7 +51,6 @@ public abstract class Device implements Comparable<Device> {
         this.address = address;
 
         this.stateChangeLiveData.postValue(new StateChange(State.DISCONNECTED, State.DISCONNECTED, false));
-        this.deviceInfoLiveData.postValue(new HashMap<>());
     }
 
     //
@@ -89,12 +88,12 @@ public abstract class Device implements Comparable<Device> {
 
     public String getAddress() { return address; }
 
+    public abstract int getNumberOfChannels();
+
     public abstract boolean connect();
     public abstract boolean disconnect();
 
-    public abstract int getNumberOfChannels();
-
-    public abstract LiveData<Map<String, String>> getDeviceInfoLiveData();
+    public LiveData<StateChange<Device.State>> getStateChangeLiveData() { return stateChangeLiveData; }
 
     public abstract boolean setOutputLevel(int level);
 
@@ -115,11 +114,15 @@ public abstract class Device implements Comparable<Device> {
         return stateChangeLiveData.getValue().getCurrentState();
     }
 
-    @MainThread
     protected void setState(Device.State newState, boolean isError) {
         Logger.i(TAG, "setState - " + getCurrentState() + " -> " + newState);
         Device.State currentState = getCurrentState();
-        stateChangeLiveData.setValue(new StateChange(currentState, newState, isError));
+        if (Looper.getMainLooper().isCurrentThread()) {
+            stateChangeLiveData.setValue(new StateChange(currentState, newState, isError));
+        }
+        else {
+            stateChangeLiveData.postValue(new StateChange(currentState, newState, isError));
+        }
     }
 
     protected void checkChannel(int channel) {
@@ -128,7 +131,7 @@ public abstract class Device implements Comparable<Device> {
         }
     }
 
-    protected int clampOutputValue(int value) {
+    protected int limitOutputValue(int value) {
         if (value < -255) value = -255;
         if (255 < value) value = 255;
         return value;

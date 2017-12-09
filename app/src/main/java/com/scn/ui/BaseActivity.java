@@ -7,6 +7,7 @@ import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
@@ -44,6 +45,17 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
     }
 
+    @Override
+    protected void onPause() {
+        Logger.i(TAG, "onPause...");
+
+        if (dialog != null) {
+            dialog.dismiss();
+        }
+
+        super.onPause();
+    }
+
     //
     // API
     //
@@ -62,7 +74,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
-    protected void showMessageBox(String message) {
+    protected void showMessageBox(@NonNull String message) {
         Logger.i(TAG, "showMessageBox - " + message);
 
         dismissDialog();
@@ -73,7 +85,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    protected void showMessageBox(String message, final DialogInterface.OnClickListener onClickListener) {
+    protected void showMessageBox(@NonNull String message, @NonNull final DialogInterface.OnClickListener onClickListener) {
         Logger.i(TAG, "showMessageBox - " + message);
 
         dismissDialog();
@@ -84,7 +96,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    protected void showMessageBox(String title, String message, int iconId, final DialogInterface.OnClickListener onClickListener) {
+    protected void showMessageBox(@NonNull String title, @NonNull String message, int iconId, @NonNull final DialogInterface.OnClickListener onClickListener) {
         Logger.i(TAG, "showMessageBox - tile: " + title + ", message: " + message);
 
         dismissDialog();
@@ -97,7 +109,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    protected void showQuestionDialog(String question, String positiveButtonText, String negativeButtonText, final DialogInterface.OnClickListener onPositiveListener, final DialogInterface.OnClickListener onNegativeListener) {
+    protected void showQuestionDialog(@NonNull String question, @NonNull String positiveButtonText, @NonNull String negativeButtonText, @NonNull final DialogInterface.OnClickListener onPositiveListener, final DialogInterface.OnClickListener onNegativeListener) {
         Logger.i(TAG, "showQuestionDialog - " + question);
 
         dismissDialog();
@@ -109,7 +121,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    protected void showAlertDialog(String message) {
+    protected void showAlertDialog(@NonNull String message) {
         Logger.i(TAG, "showAlertDialog - " + message);
 
         dismissDialog();
@@ -120,12 +132,23 @@ public abstract class BaseActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    protected void showAlertDialog(String title, String message, String positiveButtonText, final DialogInterface.OnDismissListener dismissListener) {
+    protected void showAlertDialog(@NonNull String message, @NonNull final DialogInterface.OnDismissListener dismissListener) {
         Logger.i(TAG, "showAlertDialog - " + message);
 
         dismissDialog();
         dialog = new AlertDialog.Builder(this)
-                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(getString(R.string.ok), null)
+                .setOnDismissListener(dismissListener)
+                .create();
+        dialog.show();
+    }
+
+    protected void showAlertDialog(@NonNull String message, @NonNull String positiveButtonText, @NonNull final DialogInterface.OnDismissListener dismissListener) {
+        Logger.i(TAG, "showAlertDialog - " + message);
+
+        dismissDialog();
+        dialog = new AlertDialog.Builder(this)
                 .setMessage(message)
                 .setPositiveButton(positiveButtonText, null)
                 .setOnDismissListener(dismissListener)
@@ -133,7 +156,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    protected void showProgressDialog(String message) {
+    protected void showProgressDialog(@NonNull String message) {
         Logger.i(TAG, "showProgressDialog - " + message);
 
         dismissDialog();
@@ -144,7 +167,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    protected void showProgressDialog(String message, final DialogInterface.OnClickListener onClickListener) {
+    protected void showProgressDialog(@NonNull String message, @NonNull final DialogInterface.OnClickListener onClickListener) {
         Logger.i(TAG, "showProgressDialog - " + message);
 
         dismissDialog();

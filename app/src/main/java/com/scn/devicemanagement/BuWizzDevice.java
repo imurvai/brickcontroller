@@ -1,16 +1,12 @@
 package com.scn.devicemanagement;
 
-import android.arch.lifecycle.LiveData;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 
 import com.scn.logger.Logger;
-
-import java.util.List;
-import java.util.Map;
-
-import io.reactivex.Single;
 
 /**
  * Created by steve on 2017. 03. 18..
@@ -49,43 +45,9 @@ final class BuWizzDevice extends BluetoothDevice {
     @Override
     public DeviceType getType() { return DeviceType.BUWIZZ; }
 
-    @MainThread
-    @Override
-    public boolean connect() {
-        Logger.i(TAG, "connectDevice - " + this);
-        return false;
-    }
-
-    @MainThread
-    @Override
-    public boolean disconnect() {
-        Logger.i(TAG, "disconnectDevice - " + this);
-
-        if (getCurrentState() != State.CONNECTED || getCurrentState() != State.CONNECTING) {
-            Logger.i(TAG, "  Wrong state - " + getCurrentState());
-            return false;
-        }
-
-        if (bluetoothGatt == null) {
-            Logger.w(TAG, "  bluetoothGatt is null.");
-            return false;
-        }
-
-        bluetoothGatt.disconnect();
-        setState(State.DISCONNECTING, false);
-        return true;
-    }
-
     @Override
     public int getNumberOfChannels() {
         return 4;
-    }
-
-    @MainThread
-    @Override
-    public LiveData<Map<String, String>> getDeviceInfoLiveData() {
-        Logger.i(TAG, "getDeviceInfo - " + getId());
-        throw new RuntimeException("not implemented.");
     }
 
     @MainThread
@@ -99,5 +61,30 @@ final class BuWizzDevice extends BluetoothDevice {
     public void setOutput(int channel, int value) {
         Logger.i(TAG, "setOutput - channel: " + channel + ", value: " + value);
         checkChannel(channel);
+        throw new RuntimeException("not implemented.");
     }
+
+    //
+    // Protected API
+    //
+
+    @Override
+    protected void onServiceDiscovered(BluetoothGatt gatt) {
+        Logger.i(TAG, "onServiceDiscovered - device: " + BuWizzDevice.this);
+    }
+
+    @Override
+    protected void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+        Logger.i(TAG, "onCharacteristicRead - device: " + BuWizzDevice.this);
+    }
+
+    @Override
+    protected void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+        Logger.i(TAG, "onCharacteristicWrite - device: " + BuWizzDevice.this);
+    }
+
+    //
+    // Private methods
+    //
+
 }

@@ -1,21 +1,12 @@
 package com.scn.devicemanagement;
 
-import android.arch.lifecycle.LiveData;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 
 import com.scn.logger.Logger;
-
-import java.util.List;
-import java.util.Map;
-
-import io.reactivex.Single;
 
 /**
  * Created by steve on 2017. 03. 18..
@@ -23,11 +14,31 @@ import io.reactivex.Single;
 
 final class SBrickDevice extends BluetoothDevice {
 
+
     //
     // Members
     //
 
     private static final String TAG = SBrickDevice.class.getSimpleName();
+
+    // Service UUIDs
+    private static final String SERVICE_PARTIAL_UUID_GENERIC_GAP = "1800";
+    private static final String SERVICE_PARTIAL_UUID_DEVICE_INFORMATION = "180a";
+    private static final String SERVICE_UUID_REMOTE_CONTROL = "4dc591b0-857c-41de-b5f1-15abda665b0c";
+
+    // Characteristic UUIDs
+    private static final String CHARACTERISTIC_PARTIAL_UUID_DEVICE_NAME = "2a00";
+    private static final String CHARACTERISTIC_PARTIAL_UUID_APPEARANCE = "2a01";
+    private static final String CHARACTERISTIC_PARTIAL_UUID_MODEL_NUMBER = "2a24";
+    private static final String CHARACTERISTIC_PARTIAL_UUID_FIRMWARE_REVISION = "2a26";
+    private static final String CHARACTERISTIC_PARTIAL_UUID_HARDWARE_REVISION = "2a27";
+    private static final String CHARACTERISTIC_PARTIAL_UUID_SOFTWARE_REVISION = "2a28";
+    private static final String CHARACTERISTIC_PARTIAL_UUID_MANUFACTURER_NAME = "2a29";
+    private static final String CHARACTERISTIC_UUID_REMOTE_CONTROL = "2b8cbcc-0e25-4bda-8790-a15f53e6010f";
+    private static final String CHARACTERISTIC_UUID_QUICK_DRIVE = "489a6ae0-c1ab-4c9c-bdb2-11d373c1b7fb";
+
+    private BluetoothGattCharacteristic remoteControlCharacteristic;
+    private BluetoothGattCharacteristic quickDriveCharacteristic;
 
     private final int[] outputValues = new int[4];
 
@@ -56,66 +67,9 @@ final class SBrickDevice extends BluetoothDevice {
         return DeviceType.SBRICK;
     }
 
-    @MainThread
-    @Override
-    public boolean connect() {
-        Logger.i(TAG, "connectDevice - " + this);
-
-        if (getCurrentState() == State.CONNECTING) {
-            Logger.i(TAG, "  Already connecting.");
-            return true;
-        }
-
-        if (getCurrentState() != State.DISCONNECTED) {
-            Logger.i(TAG, "  Wrong state - " + getCurrentState());
-            return false;
-        }
-
-        bluetoothGatt = bluetoothDevice.connectGatt(context, true, gattCallback);
-        if (bluetoothGatt == null) {
-            Logger.w(TAG, "  Failed to connectDevice GATT.");
-            return false;
-        }
-
-        setState(State.CONNECTING, false);
-        return true;
-    }
-
-    @MainThread
-    @Override
-    public boolean disconnect() {
-        Logger.i(TAG, "disconnectDevice - " + this);
-
-        if (getCurrentState() == State.DISCONNECTING) {
-            Logger.i(TAG, "  Already disconnecting.");
-            return true;
-        }
-
-        if (getCurrentState() != State.CONNECTED || getCurrentState() != State.CONNECTING) {
-            Logger.i(TAG, "  Wrong state - " + getCurrentState());
-            return false;
-        }
-
-        if (bluetoothGatt == null) {
-            Logger.w(TAG, "  bluetoothGatt is null.");
-            return false;
-        }
-
-        bluetoothGatt.disconnect();
-        setState(State.DISCONNECTING, false);
-        return true;
-    }
-
     @Override
     public int getNumberOfChannels() {
         return 4;
-    }
-
-    @MainThread
-    @Override
-    public LiveData<Map<String, String>> getDeviceInfoLiveData() {
-        Logger.i(TAG, "getDeviceInfo - " + getId());
-        return null;
     }
 
     @MainThread
@@ -132,55 +86,29 @@ final class SBrickDevice extends BluetoothDevice {
     }
 
     //
+    // Protected API
+    //
+
+    @Override
+    protected void onServiceDiscovered(BluetoothGatt gatt) {
+        Logger.i(TAG, "onServiceDiscovered - device: " + SBrickDevice.this);
+
+        remoteControlCharacteristic = getGattCharacteristic(gatt, SERVICE_UUID_REMOTE_CONTROL, CHARACTERISTIC_UUID_REMOTE_CONTROL);
+        quickDriveCharacteristic = getGattCharacteristic(gatt, SERVICE_UUID_REMOTE_CONTROL, CHARACTERISTIC_UUID_QUICK_DRIVE);
+    }
+
+    @Override
+    protected void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+        Logger.i(TAG, "onCharacteristicRead - device: " + SBrickDevice.this);
+    }
+
+    @Override
+    protected void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+        Logger.i(TAG, "onCharacteristicWrite - device: " + SBrickDevice.this);
+    }
+
+    //
     // Private methods
     //
 
-    private final BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
-
-        @Override
-        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-            Logger.i(TAG, "onConnectionStateChange - device: " + SBrickDevice.this.toString());
-
-            switch (newState) {
-                case BluetoothProfile.STATE_CONNECTING:
-                    Logger.i(TAG, "  Connecting.");
-                    break;
-
-                case BluetoothProfile.STATE_CONNECTED:
-                    Logger.i(TAG, "  Connected.");
-                    gatt.discoverServices();
-                    break;
-
-                case BluetoothProfile.STATE_DISCONNECTING:
-                    Logger.i(TAG, "  Disconnecting.");
-                    break;
-
-                case BluetoothProfile.STATE_DISCONNECTED:
-                    Logger.i(TAG, "  Disconnected.");
-                    break;
-            }
-        }
-
-        @Override
-        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            Logger.i(TAG, "onServicesDiscovered...");
-
-            if (status != BluetoothGatt.GATT_SUCCESS) {
-                Logger.i(TAG, "  Error - " + status);
-                disconnect();
-                return;
-            }
-
-        }
-
-        @Override
-        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            super.onCharacteristicRead(gatt, characteristic, status);
-        }
-
-        @Override
-        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            super.onCharacteristicWrite(gatt, characteristic, status);
-        }
-    };
 }

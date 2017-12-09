@@ -1,5 +1,6 @@
 package com.scn.ui.devicedetails;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -53,14 +54,14 @@ public class DeviceDetailsActivity extends BaseActivity {
         String deviceId = getIntent().getStringExtra("EXTRA_DEVICE_ID");
         setupViewModel(deviceId);
         setupRecyclerView(viewModel.getDevice());
+
+        viewModel.connectDevice();
     }
 
     @Override
     public void onBackPressed() {
         Logger.i(TAG, "onBackPressed...");
-
-        // TODO: disconnect device
-
+        viewModel.disconnectDevice();
         super.onBackPressed();
     }
 
@@ -114,9 +115,7 @@ public class DeviceDetailsActivity extends BaseActivity {
                         case UPDATING:
                             if (stateChange.isError()) {
                                 showAlertDialog(
-                                        getString(R.string.error),
                                         getString(R.string.failed_to_update_device),
-                                        getString(R.string.ok),
                                         dialogInterface -> stateChange.resetPreviousState());
                             }
                             break;
@@ -124,9 +123,7 @@ public class DeviceDetailsActivity extends BaseActivity {
                         case REMOVING:
                             if (stateChange.isError()) {
                                 showAlertDialog(
-                                        getString(R.string.error),
                                         getString(R.string.failed_to_remove_device),
-                                        getString(R.string.ok),
                                         dialogInterface -> stateChange.resetPreviousState());
                             }
                             else {
@@ -140,6 +137,43 @@ public class DeviceDetailsActivity extends BaseActivity {
 
                 case REMOVING:
                     showProgressDialog(getString(R.string.removing));
+                    break;
+            }
+        });
+
+        viewModel.getDeviceStateChangeLiveData().observe(DeviceDetailsActivity.this, stateStateChange -> {
+            Logger.i(TAG, "Device stateChange - " + stateStateChange.getPreviousState() + " -> " + stateStateChange.getCurrentState());
+
+            switch (stateStateChange.getCurrentState()) {
+                case CONNECTING:
+                    showProgressDialog(
+                            getString(R.string.connecting),
+                            ((dialogInterface, i) -> {
+                                viewModel.disconnectDevice();
+                                DeviceDetailsActivity.this.finish();
+                            }));
+                    break;
+
+                case CONNECTED:
+                    dismissDialog();
+                    break;
+
+                case DISCONNECTING:
+                    showProgressDialog(
+                            getString(R.string.disconnecting),
+                            (dialogInterface, i) -> {
+                                viewModel.disconnectDevice();
+                                DeviceDetailsActivity.this.finish();
+                            });
+                    break;
+
+                case DISCONNECTED:
+                    showProgressDialog(
+                            getString(R.string.reconnecting),
+                            (dialogInterface, i) -> {
+                                viewModel.disconnectDevice();
+                                DeviceDetailsActivity.this.finish();
+                            });
                     break;
             }
         });

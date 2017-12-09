@@ -11,6 +11,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.scn.devicemanagement.Device;
+import com.scn.devicemanagement.DeviceType;
 import com.scn.ui.R;
 
 import javax.inject.Inject;
@@ -108,7 +109,16 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public int getItemCount() {
-        return device != null ? device.getNumberOfChannels() + 1 : 0;
+        if (device == null) {
+            return 0;
+        }
+        else if (device.getType() == DeviceType.BUWIZZ) {
+            // TODO: remove it when BUWIZZ becomes supported
+            return 1;
+        }
+        else {
+            return device.getNumberOfChannels() + 1;
+        }
     }
 
     //

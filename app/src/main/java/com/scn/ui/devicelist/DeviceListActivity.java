@@ -92,16 +92,9 @@ public class DeviceListActivity extends BaseActivity {
         recyclerView.setAdapter(deviceListAdapter);
         deviceListAdapter.setDeviceClickListener(device -> {
             Logger.i(TAG, "onClick - device: " + device);
-
-            DeviceType deviceType = device.getType();
-            if (deviceType == DeviceType.INFRARED || deviceType == DeviceType.SBRICK) {
-                Intent intent = new Intent(DeviceListActivity.this, DeviceDetailsActivity.class);
-                intent.putExtra("EXTRA_DEVICE_ID", device.getId());
-                startActivity(intent);
-            }
-            else {
-                showAlertDialog(getString(R.string.device_type_is_not_supported_yet));
-            }
+            Intent intent = new Intent(DeviceListActivity.this, DeviceDetailsActivity.class);
+            intent.putExtra("EXTRA_DEVICE_ID", device.getId());
+            startActivity(intent);
         });
     }
 
@@ -118,9 +111,7 @@ public class DeviceListActivity extends BaseActivity {
                         case REMOVING:
                             if (stateChange.isError()) {
                                 showAlertDialog(
-                                        getString(R.string.error),
                                         getString(R.string.failed_to_remove_devices),
-                                        getString(R.string.ok),
                                         dialogInterface -> stateChange.resetPreviousState());
                             }
                             break;
@@ -128,9 +119,7 @@ public class DeviceListActivity extends BaseActivity {
                         case SCANNING:
                             if (stateChange.isError()) {
                                 showAlertDialog(
-                                        getString(R.string.error),
                                         getString(R.string.error_during_scanning_for_devices),
-                                        getString(R.string.ok),
                                         dialogInterface -> stateChange.resetPreviousState());
                             }
                             break;

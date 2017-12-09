@@ -14,6 +14,8 @@
     <string name="remove">Remove</string>
     <string name="removing">Removing...</string>
     <string name="connecting">Connecting...</string>
+    <string name="reconnecting">Reconnecting...</string>
+    <string name="disconnecting">Disconnecting...</string>
     <string name="error">Error</string>
     <string name="are_you_sure_you_want_to_remove">Are you sure you want to remove?</string>
     <string name="location_alert_title">Location access is needed.</string>
@@ -22,6 +24,7 @@
     <string name="device_name">Device name</string>
     <string name="manufacturer">Manufacturer</string>
     <string name="address">Address</string>
+    <string name="failed_to_connect">Failed to connect.</string>
 
     <!-- Creation list activity -->
     <string name="title_activity_creation_list">Creation list</string>

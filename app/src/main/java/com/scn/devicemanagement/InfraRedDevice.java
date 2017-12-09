@@ -49,22 +49,6 @@ final class InfraRedDevice extends Device {
         return DeviceType.INFRARED;
     }
 
-    @MainThread
-    @Override
-    public boolean connect() {
-        Logger.i(TAG, "connectDevice - " + this);
-        infraRedDeviceManager.connectDevice(this);
-        return true;
-    }
-
-    @MainThread
-    @Override
-    public boolean disconnect() {
-        Logger.i(TAG, "disconnectDevice - " + this);
-        infraRedDeviceManager.disconnectDevice(this);
-        return true;
-    }
-
     @Override
     public int getNumberOfChannels() {
         return 2;
@@ -72,10 +56,32 @@ final class InfraRedDevice extends Device {
 
     @MainThread
     @Override
-    public LiveData<Map<String, String>> getDeviceInfoLiveData() {
-        Logger.i(TAG, "getDeviceInfo - " + getId());
+    public boolean connect() {
+        Logger.i(TAG, "connectDevice - " + this);
 
-        throw new RuntimeException("not implemented.");
+        if (getCurrentState() == State.CONNECTED) {
+            Logger.i(TAG, "  Already connected.");
+            return false;
+        }
+
+        infraRedDeviceManager.connectDevice(this);
+        setState(State.CONNECTED, false);
+        return true;
+    }
+
+    @MainThread
+    @Override
+    public boolean disconnect() {
+        Logger.i(TAG, "disconnectDevice - " + this);
+
+        if (getCurrentState() == State.DISCONNECTED) {
+            Logger.i(TAG, "  Already disconnected.");
+            return false;
+        }
+
+        infraRedDeviceManager.disconnectDevice(this);
+        setState(State.DISCONNECTED, false);
+        return true;
     }
 
     @Override

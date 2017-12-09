@@ -73,9 +73,7 @@ public class CreationListActivity extends BaseActivity implements NavigationView
                         case LOADING:
                             if (stateChange.isError()) {
                                 showAlertDialog(
-                                        getString(R.string.error),
                                         getString(R.string.error_during_loading_devices),
-                                        getString(R.string.ok),
                                         dialogInterface -> stateChange.resetPreviousState());
                             } else {
                                 stateChange.resetPreviousState();
