@@ -22,7 +22,7 @@ import butterknife.ButterKnife;
  * Created by steve on 2017. 11. 26..
  */
 
-final class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.DeviceListAdapterViewHolder> {
+final class DeviceListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public interface OnDeviceClickListener {
         void onClick(Device device);
@@ -31,6 +31,9 @@ final class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.Dev
     //
     // Private members
     //
+
+    private static final int VIEWTYPE_DEVICEITEM = 1;
+    private static final int VIEWTYPE_DEFAULTITEM = 2;
 
     private List<Device> deviceList = new ArrayList<>();
     private OnDeviceClickListener deviceClickListener = null;
@@ -46,27 +49,58 @@ final class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.Dev
     // RecyclerView.Adapter overrides
     //
 
+
     @Override
-    public DeviceListAdapterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater
-                .from(parent.getContext())
-                .inflate(R.layout.list_item_device, parent, false);
-        return new DeviceListAdapterViewHolder(view);
+    public int getItemViewType(int position) {
+        if (deviceList == null || deviceList.size() == 0) {
+            return VIEWTYPE_DEFAULTITEM;
+        }
+
+        return VIEWTYPE_DEVICEITEM;
     }
 
     @Override
-    public void onBindViewHolder(DeviceListAdapterViewHolder holder, int position) {
-        Device device = deviceList.get(position);
-        holder.bind(device, deviceClickListener);
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        switch (viewType) {
+            case VIEWTYPE_DEVICEITEM: {
+                View view = LayoutInflater
+                        .from(parent.getContext())
+                        .inflate(R.layout.list_item_device, parent, false);
+                return new DeviceItemViewHolder(view);
+            }
+
+            case VIEWTYPE_DEFAULTITEM: {
+                View view = LayoutInflater
+                        .from(parent.getContext())
+                        .inflate(R.layout.list_item_device_list_default, parent, false);
+                return new DeviceListDefaultViewHolder(view);
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        int viewType = getItemViewType(position);
+        switch (viewType) {
+            case VIEWTYPE_DEVICEITEM:
+                ((DeviceItemViewHolder)holder).bind(deviceList.get(position), deviceClickListener);
+                break;
+
+            case VIEWTYPE_DEFAULTITEM:
+                ((DeviceListDefaultViewHolder)holder).bind();
+                break;
+        }
     }
 
     @Override
     public int getItemCount() {
-        if (deviceList != null) {
-            return deviceList.size();
+        if (deviceList == null || deviceList.size() == 0) {
+            return 1;
         }
 
-        return 0;
+        return deviceList.size();
     }
 
     //
@@ -84,16 +118,16 @@ final class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.Dev
     }
 
     //
-    // ViewHolder
+    // ViewHolders
     //
 
-    public class DeviceListAdapterViewHolder extends RecyclerView.ViewHolder {
+    public class DeviceItemViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.vendor_image) ImageView vendorImage;
         @BindView(R.id.device_name) TextView deviceName;
         @BindView(R.id.device_address) TextView deviceAddress;
 
-        public DeviceListAdapterViewHolder(View itemView) {
+        public DeviceItemViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
@@ -118,5 +152,14 @@ final class DeviceListAdapter extends RecyclerView.Adapter<DeviceListAdapter.Dev
                 if (deviceClickListener != null) deviceClickListener.onClick(device);
             });
         }
+    }
+
+    public class DeviceListDefaultViewHolder extends RecyclerView.ViewHolder {
+
+        public DeviceListDefaultViewHolder(View itemView) {
+            super(itemView);
+        }
+
+        public void bind() {}
     }
 }

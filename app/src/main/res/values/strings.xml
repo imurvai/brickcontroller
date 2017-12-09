@@ -30,6 +30,7 @@
     <string name="title_activity_creation_list">Creation list</string>
     <string name="error_during_loading_devices">Error during loading devices.</string>
     <string name="error_during_loading_creations">Error during loading creations.</string>
+    <string name="add_creation">Please add a creation</string>
 
     <string name="device_management">Device management</string>
     <string name="settings">Settings</string>
@@ -44,6 +45,7 @@
     <string name="failed_to_save_devices">Failed to save devices.</string>
     <string name="failed_to_remove_devices">Failed to remove devices.</string>
     <string name="device_type_is_not_supported_yet">This type of device is not supported yet.</string>
+    <string name="scan_devices">Please scan for devices</string>
 
     <!-- Device details activity -->
     <string name="title_activity_device_details">Device details</string>

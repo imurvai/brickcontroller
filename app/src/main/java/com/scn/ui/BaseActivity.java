@@ -160,10 +160,11 @@ public abstract class BaseActivity extends AppCompatActivity {
         Logger.i(TAG, "showProgressDialog - " + message);
 
         dismissDialog();
-        dialog = new ProgressDialog.Builder(this)
-                .setMessage(message)
-                .setCancelable(false)
-                .create();
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(message);
+        progressDialog.setCancelable(false);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        dialog = progressDialog;
         dialog.show();
     }
 
@@ -171,11 +172,12 @@ public abstract class BaseActivity extends AppCompatActivity {
         Logger.i(TAG, "showProgressDialog - " + message);
 
         dismissDialog();
-        dialog = new ProgressDialog.Builder(this)
-                .setMessage(message)
-                .setCancelable(false)
-                .setNegativeButton(this.getString(R.string.cancel), onClickListener)
-                .create();
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage(message);
+        progressDialog.setCancelable(false);
+        progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancel), onClickListener);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        dialog = progressDialog;
         dialog.show();
     }
 }

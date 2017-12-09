@@ -1,6 +1,7 @@
 package com.scn.ui.creationlist;
 
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -18,11 +19,14 @@ import butterknife.ButterKnife;
  * Created by imurvai on 2017-11-28.
  */
 
-final class CreationListAdapter extends RecyclerView.Adapter<CreationListAdapter.CreationListAdapterViewHolder> {
+final class CreationListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     //
     // Private members
     //
+
+    private static final int VIEWTYPE_CREATION = 1;
+    private static final int VIEWTYPE_DEFAULT = 2;
 
     List<Creation> creationList = new ArrayList<>();
 
@@ -30,23 +34,58 @@ final class CreationListAdapter extends RecyclerView.Adapter<CreationListAdapter
     // RecyclerView.Adapter overrides
     //
 
+
     @Override
-    public CreationListAdapterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public int getItemViewType(int position) {
+        if (creationList == null || creationList.size() == 0) {
+            return VIEWTYPE_DEFAULT;
+        }
+
+        return VIEWTYPE_CREATION;
+    }
+
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        switch (viewType) {
+            case VIEWTYPE_CREATION: {
+                View view = LayoutInflater
+                        .from(parent.getContext())
+                        .inflate(R.layout.list_item_creation, parent, false);
+                return new CreationItemViewHolder(view);
+            }
+
+            case VIEWTYPE_DEFAULT: {
+                View view = LayoutInflater
+                        .from(parent.getContext())
+                        .inflate(R.layout.list_item_creation_list_default, parent, false);
+                return new CreationListDefaultViewHolder(view);
+            }
+        }
+
         return null;
     }
 
     @Override
-    public void onBindViewHolder(CreationListAdapterViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        int viewType = getItemViewType(position);
+        switch (viewType) {
+            case VIEWTYPE_CREATION:
+                ((CreationItemViewHolder)holder).bind(creationList.get(position));
+                break;
 
+            case VIEWTYPE_DEFAULT:
+                ((CreationListDefaultViewHolder)holder).bind();
+                break;
+        }
     }
 
     @Override
     public int getItemCount() {
-        if (creationList != null) {
+        if (creationList != null && creationList.size() > 0) {
             return creationList.size();
         }
 
-        return 0;
+        return 1;
     }
 
     //
@@ -58,20 +97,30 @@ final class CreationListAdapter extends RecyclerView.Adapter<CreationListAdapter
     }
 
     //
-    // ViewHolder
+    // ViewHolders
     //
 
-    public class CreationListAdapterViewHolder extends RecyclerView.ViewHolder {
+    public class CreationItemViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.creation_name) TextView creationName;
 
-        public CreationListAdapterViewHolder(View itemView) {
+        public CreationItemViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
 
-        public void setView(Creation creation) {
+        public void bind(Creation creation) {
             creationName.setText(creation.getName());
+        }
+    }
+
+    public class CreationListDefaultViewHolder extends RecyclerView.ViewHolder {
+
+        public CreationListDefaultViewHolder(View itemView) {
+            super(itemView);
+        }
+
+        public void bind() {
         }
     }
 }
