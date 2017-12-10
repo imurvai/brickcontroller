@@ -184,6 +184,9 @@ public class DeviceDetailsActivity extends BaseActivity {
         recyclerView.addItemDecoration(new DividerItemDecoration(DeviceDetailsActivity.this, DividerItemDecoration.VERTICAL));
         recyclerView.setAdapter(deviceDetailsAdapter);
         deviceDetailsAdapter.setDevice(device);
-        deviceDetailsAdapter.setSeekBarListener((localDevice, channel, value) -> Logger.i(TAG, "onSeekBarChanged - " + value));
+        deviceDetailsAdapter.setSeekBarListener((localDevice, channel, value) -> {
+            //Logger.i(TAG, "onSeekBarChanged - " + value);
+            localDevice.setOutput(channel, value);
+        });
     }
 }

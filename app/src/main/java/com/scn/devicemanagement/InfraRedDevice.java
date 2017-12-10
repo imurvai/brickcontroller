@@ -93,8 +93,9 @@ final class InfraRedDevice extends Device {
     @MainThread
     @Override
     public void setOutput(int channel, int value) {
-        Logger.i(TAG, "setOutput - channel: " + channel + ", value: " + value);
+        //Logger.i(TAG, "setOutput - channel: " + channel + ", value: " + value);
         checkChannel(channel);
+        value = limitOutputValue(value);
         infraRedDeviceManager.setOutput(this, channel, value);
     }
 

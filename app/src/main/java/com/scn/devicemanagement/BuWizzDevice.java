@@ -20,6 +20,15 @@ final class BuWizzDevice extends BluetoothDevice {
 
     private static final String TAG = BuWizzDevice.class.getSimpleName();
 
+    // Service UUIDs
+    private static final String SERVICE_UUID_REMOTE_CONTROL = "0000ffe0-0000-1000-8000-00805f9b34fb";
+
+    // Characteristic UUIDs
+    private static final String CHARACTERISTIC_PARTIAL_UUID_DEVICE_NAME = "2a00";
+    private static final String CHARACTERISTIC_UUID_REMOTE_CONTROL = "0000ffe1-0000-1000-8000-00805f9b34fb";
+
+    private BluetoothGattCharacteristic remoteControlCharacteristic;
+
     private final int[] outputValues = new int[4];
 
     //
@@ -61,7 +70,8 @@ final class BuWizzDevice extends BluetoothDevice {
     public void setOutput(int channel, int value) {
         Logger.i(TAG, "setOutput - channel: " + channel + ", value: " + value);
         checkChannel(channel);
-        throw new RuntimeException("not implemented.");
+        value = limitOutputValue(value);
+        outputValues[channel] = value;
     }
 
     //
@@ -71,6 +81,8 @@ final class BuWizzDevice extends BluetoothDevice {
     @Override
     protected void onServiceDiscovered(BluetoothGatt gatt) {
         Logger.i(TAG, "onServiceDiscovered - device: " + BuWizzDevice.this);
+
+        remoteControlCharacteristic = getGattCharacteristic(gatt, SERVICE_UUID_REMOTE_CONTROL, CHARACTERISTIC_UUID_REMOTE_CONTROL);
     }
 
     @Override
@@ -81,6 +93,11 @@ final class BuWizzDevice extends BluetoothDevice {
     @Override
     protected void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
         Logger.i(TAG, "onCharacteristicWrite - device: " + BuWizzDevice.this);
+    }
+
+    @Override
+    protected void disconnectInternal() {
+        Logger.i(TAG, "disconnectInternal - device: " + BuWizzDevice.this);
     }
 
     //

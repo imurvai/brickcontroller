@@ -7,9 +7,6 @@ import android.support.annotation.NonNull;
 
 import com.scn.logger.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -92,7 +89,7 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
     }
 
     @MainThread
-    void connectDevice(@NonNull Device device) {
+    synchronized void connectDevice(@NonNull Device device) {
         Logger.i(TAG, "connectDevice - " + device);
 
         numConnectedDevices++;
@@ -102,7 +99,7 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
     }
 
     @MainThread
-    void disconnectDevice(@NonNull Device device) {
+    synchronized void disconnectDevice(@NonNull Device device) {
         Logger.i(TAG, "disconnectDevice - " + device);
 
         numConnectedDevices--;
@@ -113,7 +110,7 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
 
     @MainThread
     void setOutput(@NonNull Device device, int channel, int value) {
-        Logger.i(TAG, "setOutput - " + device + ", channel: " + channel + ", value: " + value);
+        //Logger.i(TAG, "setOutput - " + device + ", channel: " + channel + ", value: " + value);
 
         int address = convertAddress(device.getAddress());
         outputValues[address][channel] = value;
@@ -176,7 +173,7 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
     }
 
     private int convertAddress(@NonNull String address) {
-        Logger.i(TAG, "convertAddress - " + address);
+        //Logger.i(TAG, "convertAddress - " + address);
 
         switch (address) {
             case "1": return 0;
@@ -194,17 +191,18 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
 
         stopIrThread = false;
         irThread = new Thread(() -> {
-            Logger.i(TAG, "starting IR thread...");
+            Logger.i(TAG, "entering IR thread...");
 
             while (!stopIrThread) {
                 sendIrData();
 
-                try { Thread.sleep(10); } catch (InterruptedException e) {}
+                try { Thread.sleep(20); } catch (InterruptedException e) {}
             }
 
             resetOutputs();
             Logger.i(TAG, "exiting from IR thread.");
         });
+        irThread.start();
     }
 
     private void sendIrData() {
@@ -237,10 +235,12 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
     }
 
     private int calculateOutputNibble(int value) {
-        int sign = value < 0 ? 8 : 0;
-        value = Math.abs(value) >> 5;
-
-        return sign | value;
+        if (value < 0) {
+            return (8 - (Math.abs(value) >> 5)) | 8;
+        }
+        else {
+            return value >> 5;
+        }
     }
 
     private int appendStartStop(int index) {

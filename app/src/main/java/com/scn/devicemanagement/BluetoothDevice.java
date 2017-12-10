@@ -90,6 +90,7 @@ abstract class BluetoothDevice extends Device {
         bluetoothGatt.disconnect();
         bluetoothGatt.close();
         bluetoothGatt = null;
+        disconnectInternal();
         setState(State.DISCONNECTED, false);
         return true;
     }
@@ -101,6 +102,7 @@ abstract class BluetoothDevice extends Device {
     protected abstract void onServiceDiscovered(BluetoothGatt gatt);
     protected abstract void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic);
     protected abstract void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic);
+    protected abstract void disconnectInternal();
 
     protected BluetoothGattCharacteristic getGattCharacteristic(@NonNull BluetoothGatt gatt, @NonNull String serviceUUID, @NonNull String characteristicUUID) {
         Logger.i(TAG, "getGattCharacteristic...");
@@ -165,6 +167,7 @@ abstract class BluetoothDevice extends Device {
 
             if (status != BluetoothGatt.GATT_SUCCESS) {
                 Logger.w(TAG, "  GATT status - " + status);
+                disconnectInternal();
                 setState(State.DISCONNECTED, true);
                 return;
             }
@@ -221,7 +224,7 @@ abstract class BluetoothDevice extends Device {
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            Logger.i(TAG, "onCharacteristicWrite - device: " + BluetoothDevice.this);
+            //Logger.i(TAG, "onCharacteristicWrite - device: " + BluetoothDevice.this);
             super.onCharacteristicWrite(gatt, characteristic, status);
 
             if (status != BluetoothGatt.GATT_SUCCESS) {
