@@ -77,6 +77,11 @@ public class DeviceRepository {
     public synchronized void storeDevice(@NonNull Device device) {
         Logger.i(TAG, "storeDevice - " + device);
 
+        if (deviceMap.containsKey(device.getId())) {
+            Logger.w(TAG, "  There is already a device with the same ID.");
+            return;
+        }
+
         deviceDao.insert(DeviceEntity.fromDevice(device));
         deviceMap.put(device.getId(), device);
         deviceListLiveData.postValue(getDeviceList());
@@ -89,6 +94,7 @@ public class DeviceRepository {
 
         deviceDao.update(new DeviceEntity(device.getType(), newName, device.getAddress()));
         device.setName(newName);
+        deviceListLiveData.postValue(getDeviceList());
     }
 
     @WorkerThread

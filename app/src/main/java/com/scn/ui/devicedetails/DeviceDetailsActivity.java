@@ -1,5 +1,6 @@
 package com.scn.ui.devicedetails;
 
+import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
@@ -8,6 +9,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.EditText;
 
 import com.scn.devicemanagement.Device;
 import com.scn.logger.Logger;
@@ -86,6 +89,29 @@ public class DeviceDetailsActivity extends BaseActivity {
                         (dialogInterface, i) -> viewModel.removeDevice(),
                         (dialogInterface, i) -> {});
                 return true;
+
+            case R.id.menu_item_edit:
+                Logger.i(TAG, "  edit selected.");
+
+                final EditText editText = new EditText(DeviceDetailsActivity.this);
+                editText.setText(viewModel.getDevice().getName());
+
+                AlertDialog dialog = new AlertDialog.Builder(DeviceDetailsActivity.this)
+                        .setMessage(getString(R.string.new_name))
+                        .setView(editText)
+                        .setPositiveButton(getString(R.string.ok), (dialogInterface, i) -> {
+                            Logger.i(TAG, "  onClick...");
+                            String newName = editText.getText().toString();
+                            if (newName.length() == 0) {
+                                showAlertDialog(getString(R.string.name_cannot_be_empty));
+                            }
+                            viewModel.updateDevice(newName);
+                        })
+                        .setNegativeButton(getString(R.string.cancel), null)
+                        .create();
+                dialog.show();
+
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -117,6 +143,9 @@ public class DeviceDetailsActivity extends BaseActivity {
                                 showAlertDialog(
                                         getString(R.string.failed_to_update_device),
                                         dialogInterface -> stateChange.resetPreviousState());
+                            }
+                            else {
+                                deviceDetailsAdapter.setDevice(viewModel.getDevice());
                             }
                             break;
 

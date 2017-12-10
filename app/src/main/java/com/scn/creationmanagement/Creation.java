@@ -2,6 +2,9 @@ package com.scn.creationmanagement;
 
 import com.scn.logger.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by steve on 2017. 11. 01..
  */
@@ -15,6 +18,8 @@ public final class Creation {
     private static final String TAG = Creation.class.getSimpleName();
 
     private String name;
+
+    private List<String> deviceIds = new ArrayList<>();
 
     //
     // Constructor

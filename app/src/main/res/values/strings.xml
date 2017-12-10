@@ -11,6 +11,8 @@
     <string name="close">Close</string>
     <string name="loading">Loading...</string>
     <string name="saving">Saving...</string>
+    <string name="edit">Edit</string>
+    <string name="rename">Rename</string>
     <string name="remove">Remove</string>
     <string name="removing">Removing...</string>
     <string name="connecting">Connecting...</string>
@@ -51,5 +53,7 @@
     <string name="title_activity_device_details">Device details</string>
     <string name="failed_to_update_device">Failed to update device name.</string>
     <string name="failed_to_remove_device">Failed to remove device.</string>
+    <string name="new_name">New name:</string>
+    <string name="name_cannot_be_empty">The name cannot be empty.</string>
 
 </resources>

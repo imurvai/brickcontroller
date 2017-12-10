@@ -8,4 +8,10 @@
         android:icon="@android:drawable/ic_menu_delete"
         android:title="@string/remove"
         app:showAsAction="always" />
+
+    <item
+        android:id="@+id/menu_item_edit"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:title="@string/rename"
+        app:showAsAction="always" />
 </menu>
