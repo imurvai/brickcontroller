@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
 import com.scn.ui.R;
+import com.scn.ui.creationdetails.CreationDetailsActivity;
 import com.scn.ui.devicelist.DeviceListActivity;
 
 import butterknife.BindView;
@@ -145,8 +146,18 @@ public class CreationListActivity extends BaseActivity implements NavigationView
         setSupportActionBar(toolbar);
 
         floatingActionButton.setOnClickListener(view -> {
-            Logger.i(TAG, "Floating action button clicked...");
-            showMessageBox("Add clicked.");
+            // TODO: ask the creation manager for a unique name
+            String creationName = "Creation1";
+
+            showValueEnterDialog(
+                    getString(R.string.enter_creation_name),
+                    creationName,
+                    value -> {
+                        // TODO: call the creation manger to check name
+                        Intent intent = new Intent(CreationListActivity.this, CreationDetailsActivity.class);
+                        intent.putExtra("EXTRA_CREATION_NAME", value);
+                        startActivity(intent);
+                    });
         });
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open, R.string.close);

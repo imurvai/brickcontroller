@@ -81,6 +81,7 @@ public class DeviceDetailsActivity extends BaseActivity {
         switch (item.getItemId()) {
             case R.id.menu_item_delete:
                 Logger.i(TAG, "  delete selected.");
+
                 showQuestionDialog(
                         getString(R.string.are_you_sure_you_want_to_remove),
                         getString(R.string.yes),
@@ -92,24 +93,15 @@ public class DeviceDetailsActivity extends BaseActivity {
             case R.id.menu_item_edit:
                 Logger.i(TAG, "  edit selected.");
 
-                final EditText editText = new EditText(DeviceDetailsActivity.this);
-                editText.setText(viewModel.getDevice().getName());
-
-                AlertDialog dialog = new AlertDialog.Builder(DeviceDetailsActivity.this)
-                        .setMessage(getString(R.string.new_name))
-                        .setView(editText)
-                        .setPositiveButton(getString(R.string.ok), (dialogInterface, i) -> {
-                            Logger.i(TAG, "  onClick...");
-                            String newName = editText.getText().toString();
+                showValueEnterDialog(
+                        getString(R.string.enter_device_name),
+                        viewModel.getDevice().getName(),
+                        newName -> {
                             if (newName.length() == 0) {
                                 showAlertDialog(getString(R.string.name_cannot_be_empty));
                             }
                             viewModel.updateDevice(newName);
-                        })
-                        .setNegativeButton(getString(R.string.cancel), null)
-                        .create();
-                dialog.show();
-
+                        });
                 return true;
         }
 

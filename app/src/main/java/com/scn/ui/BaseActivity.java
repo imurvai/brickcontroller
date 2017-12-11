@@ -11,6 +11,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import com.scn.logger.Logger;
 
@@ -75,7 +80,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
-    protected void showMessageBox(@NonNull String message) {
+    protected void showMessageBox(@NonNull final String message) {
         Logger.i(TAG, "showMessageBox - " + message);
 
         dismissDialog();
@@ -86,7 +91,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    protected void showMessageBox(@NonNull String message, @NonNull final DialogInterface.OnClickListener onClickListener) {
+    protected void showMessageBox(@NonNull final String message,
+                                  @NonNull final DialogInterface.OnClickListener onClickListener) {
         Logger.i(TAG, "showMessageBox - " + message);
 
         dismissDialog();
@@ -97,20 +103,11 @@ public abstract class BaseActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    protected void showMessageBox(@NonNull String title, @NonNull String message, int iconId, @NonNull final DialogInterface.OnClickListener onClickListener) {
-        Logger.i(TAG, "showMessageBox - tile: " + title + ", message: " + message);
-
-        dismissDialog();
-        dialog = new AlertDialog.Builder(this)
-                .setTitle(title)
-                .setMessage(message)
-                .setIcon(iconId)
-                .setPositiveButton(this.getString(R.string.ok), onClickListener)
-                .create();
-        dialog.show();
-    }
-
-    protected void showQuestionDialog(@NonNull String question, @NonNull String positiveButtonText, @NonNull String negativeButtonText, @NonNull final DialogInterface.OnClickListener onPositiveListener, final DialogInterface.OnClickListener onNegativeListener) {
+    protected void showQuestionDialog(@NonNull final String question,
+                                      @NonNull final String positiveButtonText,
+                                      @NonNull final String negativeButtonText,
+                                      @NonNull final DialogInterface.OnClickListener onPositiveListener,
+                                      final DialogInterface.OnClickListener onNegativeListener) {
         Logger.i(TAG, "showQuestionDialog - " + question);
 
         dismissDialog();
@@ -122,7 +119,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    protected void showAlertDialog(@NonNull String message) {
+    protected void showAlertDialog(@NonNull final String message) {
         Logger.i(TAG, "showAlertDialog - " + message);
 
         dismissDialog();
@@ -133,7 +130,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    protected void showAlertDialog(@NonNull String message, @NonNull final DialogInterface.OnDismissListener dismissListener) {
+    protected void showAlertDialog(@NonNull final  String message,
+                                   @NonNull final DialogInterface.OnDismissListener dismissListener) {
         Logger.i(TAG, "showAlertDialog - " + message);
 
         dismissDialog();
@@ -145,7 +143,9 @@ public abstract class BaseActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    protected void showAlertDialog(@NonNull String message, @NonNull String positiveButtonText, @NonNull final DialogInterface.OnDismissListener dismissListener) {
+    protected void showAlertDialog(@NonNull final String message,
+                                   @NonNull final String positiveButtonText,
+                                   @NonNull final DialogInterface.OnDismissListener dismissListener) {
         Logger.i(TAG, "showAlertDialog - " + message);
 
         dismissDialog();
@@ -157,7 +157,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    protected void showProgressDialog(@NonNull String message) {
+    protected void showProgressDialog(@NonNull final String message) {
         Logger.i(TAG, "showProgressDialog - " + message);
 
         dismissDialog();
@@ -169,7 +169,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    protected void showProgressDialog(@NonNull String message, @NonNull final DialogInterface.OnClickListener onClickListener) {
+    protected void showProgressDialog(@NonNull final String message,
+                                      @NonNull final DialogInterface.OnClickListener onClickListener) {
         Logger.i(TAG, "showProgressDialog - " + message);
 
         dismissDialog();
@@ -180,6 +181,32 @@ public abstract class BaseActivity extends AppCompatActivity {
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         dialog = progressDialog;
         dialog.show();
+    }
+
+    protected interface OnValueEnterDialogListener {
+        void onValueEntered(String value);
+    }
+
+    protected void showValueEnterDialog(@NonNull final String message,
+                                        @NonNull final String initialValue,
+                                        @NonNull final OnValueEnterDialogListener onValueEnterListener) {
+        Logger.i(TAG, "showValueEnterDialog - " + message);
+
+        View view = getLayoutInflater().inflate(R.layout.dialog_content_value_enter, null);
+        EditText editText = view.findViewById(R.id.value);
+        editText.setText(initialValue);
+
+        AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setMessage(message)
+                .setView(view)
+                .setPositiveButton(getString(R.string.ok), (dialogInterface, i) -> {
+                    if (onValueEnterListener != null) {
+                        onValueEnterListener.onValueEntered(editText.getText().toString());
+                    }
+                })
+                .setNegativeButton(getString(R.string.cancel), null)
+                .create();
+        alertDialog.show();
     }
 
     protected int convertDpToPx(int dp) {
