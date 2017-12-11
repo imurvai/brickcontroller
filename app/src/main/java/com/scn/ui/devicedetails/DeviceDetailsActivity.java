@@ -40,7 +40,6 @@ public class DeviceDetailsActivity extends BaseActivity {
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.recyclerview) RecyclerView recyclerView;
 
-
     //
     // Activity overrides
     //

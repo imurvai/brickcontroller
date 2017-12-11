@@ -56,4 +56,7 @@
     <string name="new_name">New name:</string>
     <string name="name_cannot_be_empty">The name cannot be empty.</string>
 
+    <!-- Creation details activity -->
+    <string name="title_activity_creation_details">Creation details</string>
+
 </resources>
