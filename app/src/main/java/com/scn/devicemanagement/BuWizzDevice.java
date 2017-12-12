@@ -14,6 +14,12 @@ import com.scn.logger.Logger;
 
 final class BuWizzDevice extends BluetoothDevice {
 
+    public enum OutputLevel {
+        LOW,
+        NORMAL,
+        HIGH
+    }
+
     //
     // Members
     //
@@ -33,6 +39,7 @@ final class BuWizzDevice extends BluetoothDevice {
     private boolean stopOutputThread = false;
 
     private final int[] outputValues = new int[4];
+    private OutputLevel outputLevel = OutputLevel.NORMAL;
     private boolean continueSending = true;
 
     //
@@ -140,12 +147,19 @@ final class BuWizzDevice extends BluetoothDevice {
     }
 
     private void sendOutputValues(int v0, int v1, int v2, int v3) {
+        byte outputLevelValue = 0x20;
+        switch (outputLevel) {
+            case LOW: outputLevelValue = 0x00; break;
+            case NORMAL: outputLevelValue = 0x20; break;
+            case HIGH: outputLevelValue = 0x40; break;
+        }
+
         byte[] buffer = new byte[] {
                 (byte)((Math.abs(v0) >> 2) | (v0 < 0 ? 0x40 : 0) | 0x80),
                 (byte)((Math.abs(v1) >> 2) | (v1 < 0 ? 0x40 : 0)),
                 (byte)((Math.abs(v2) >> 2) | (v2 < 0 ? 0x40 : 0)),
                 (byte)((Math.abs(v3) >> 2) | (v3 < 0 ? 0x40 : 0)),
-                (byte)20
+                outputLevelValue
         };
 
         if (remoteControlCharacteristic.setValue(buffer)) {
