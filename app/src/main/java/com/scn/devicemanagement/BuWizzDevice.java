@@ -29,7 +29,11 @@ final class BuWizzDevice extends BluetoothDevice {
 
     private BluetoothGattCharacteristic remoteControlCharacteristic;
 
+    private Thread outputThread = null;
+    private boolean stopOutputThread = false;
+
     private final int[] outputValues = new int[4];
+    private boolean continueSending = true;
 
     //
     // Constructor
@@ -72,6 +76,7 @@ final class BuWizzDevice extends BluetoothDevice {
         checkChannel(channel);
         value = limitOutputValue(value);
         outputValues[channel] = value;
+        continueSending = true;
     }
 
     //
@@ -83,6 +88,8 @@ final class BuWizzDevice extends BluetoothDevice {
         Logger.i(TAG, "onServiceDiscovered - device: " + BuWizzDevice.this);
 
         remoteControlCharacteristic = getGattCharacteristic(gatt, SERVICE_UUID_REMOTE_CONTROL, CHARACTERISTIC_UUID_REMOTE_CONTROL);
+
+        startOutputThread();
     }
 
     @Override
@@ -98,10 +105,51 @@ final class BuWizzDevice extends BluetoothDevice {
     @Override
     protected void disconnectInternal() {
         Logger.i(TAG, "disconnectInternal - device: " + BuWizzDevice.this);
+        stopOutputThread = true;
     }
 
     //
     // Private methods
     //
 
+    private void startOutputThread() {
+        Logger.i(TAG, "startOutputThread - device: " + this);
+
+        stopOutputThread = false;
+        outputThread = new Thread(() -> {
+            Logger.i(TAG, "Entering the output thread - device: " + BuWizzDevice.this);
+
+            while (!stopOutputThread) {
+                if (continueSending) {
+                    int value0 = outputValues[0];
+                    int value1 = outputValues[1];
+                    int value2 = outputValues[2];
+                    int value3 = outputValues[3];
+
+                    sendOutputValues(value0, value1, value2, value3);
+
+                    continueSending = value0 != 0 || value1 != 0 || value2 != 0 || value3 != 0;
+                }
+
+                try { Thread.sleep(60); } catch (InterruptedException e) {}
+            }
+
+            Logger.i(TAG, "Exiting from output thread - device: " + BuWizzDevice.this);
+        });
+        outputThread.start();
+    }
+
+    private void sendOutputValues(int v0, int v1, int v2, int v3) {
+        byte[] buffer = new byte[] {
+                (byte)((Math.abs(v0) >> 2) | (v0 < 0 ? 0x40 : 0) | 0x80),
+                (byte)((Math.abs(v1) >> 2) | (v1 < 0 ? 0x40 : 0)),
+                (byte)((Math.abs(v2) >> 2) | (v2 < 0 ? 0x40 : 0)),
+                (byte)((Math.abs(v3) >> 2) | (v3 < 0 ? 0x40 : 0)),
+                (byte)20
+        };
+
+        if (remoteControlCharacteristic.setValue(buffer)) {
+            bluetoothGatt.writeCharacteristic(remoteControlCharacteristic);
+        }
+    }
 }

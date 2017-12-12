@@ -112,10 +112,6 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         if (device == null) {
             return 0;
         }
-        else if (device.getType() == DeviceType.BUWIZZ) {
-            // TODO: remove it when BUWIZZ becomes supported
-            return 1;
-        }
         else {
             return device.getNumberOfChannels() + 1;
         }
@@ -163,7 +159,7 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     break;
                 case INFRARED:
                     vendorImage.setImageResource(R.drawable.lego_logo);
-                    deviceType.setText("Lego infra receiver");
+                    deviceType.setText("PF Infra red");
                     break;
             }
 
