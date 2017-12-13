@@ -78,9 +78,9 @@ final class SBrickDevice extends BluetoothDevice {
 
     @MainThread
     @Override
-    public boolean setOutputLevel(int level) {
-        Logger.i(TAG, "setOutputLevel...");
-        throw new RuntimeException("SBrick doesn't support setOutputLevel");
+    public boolean setOutputLevel(OutputLevel value) {
+        Logger.i(TAG, "setOutputLevel - not supported on SBrick.");
+        return false;
     }
 
     @Override

@@ -35,6 +35,10 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     private static final String TAG = BaseActivity.class.getSimpleName();
 
+    protected static final String EXTRA_DEVICE_ID = "EXTRA_DEVICE_ID";
+    protected static final String EXTRA_CREATION_NAME = "EXTRA_CREATION_NAME";
+    protected static final String EXTRA_CONTROLLER_PROFILE_NAME = "EXTRA_CONTROLLER_PROFILE_NAME";
+
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 

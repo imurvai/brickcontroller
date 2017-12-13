@@ -131,10 +131,10 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
         }
 
         return Observable.fromArray(
-                createDevice(DeviceType.INFRARED, "Lego PF 1", "1"),
-                createDevice(DeviceType.INFRARED, "Lego PF 2", "2"),
-                createDevice(DeviceType.INFRARED, "Lego PF 3", "3"),
-                createDevice(DeviceType.INFRARED, "Lego PF 4", "4"));
+                createDevice(DeviceType.INFRARED, "PF Infra 1", "1"),
+                createDevice(DeviceType.INFRARED, "PF Infra 2", "2"),
+                createDevice(DeviceType.INFRARED, "PF Infra 3", "3"),
+                createDevice(DeviceType.INFRARED, "PF Infra 4", "4"));
     }
 
     @MainThread

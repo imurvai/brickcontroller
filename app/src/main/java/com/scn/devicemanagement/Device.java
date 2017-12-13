@@ -31,6 +31,12 @@ public abstract class Device implements Comparable<Device> {
         DISCONNECTING
     }
 
+    public enum OutputLevel {
+        LOW,
+        NORMAL,
+        HIGH
+    }
+
     //
     // Private members
     //
@@ -95,7 +101,7 @@ public abstract class Device implements Comparable<Device> {
 
     public LiveData<StateChange<Device.State>> getStateChangeLiveData() { return stateChangeLiveData; }
 
-    public abstract boolean setOutputLevel(int level);
+    public abstract boolean setOutputLevel(OutputLevel value);
 
     public abstract void setOutput(int channel, int level);
 

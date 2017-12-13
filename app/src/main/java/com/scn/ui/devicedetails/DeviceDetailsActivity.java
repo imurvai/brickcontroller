@@ -53,7 +53,7 @@ public class DeviceDetailsActivity extends BaseActivity {
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
 
-        String deviceId = getIntent().getStringExtra("EXTRA_DEVICE_ID");
+        String deviceId = getIntent().getStringExtra(EXTRA_DEVICE_ID);
         setupViewModel(deviceId);
         setupRecyclerView(viewModel.getDevice());
 

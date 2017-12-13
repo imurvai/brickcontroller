@@ -155,7 +155,7 @@ public class CreationListActivity extends BaseActivity implements NavigationView
                     value -> {
                         // TODO: call the creation manger to check name
                         Intent intent = new Intent(CreationListActivity.this, CreationDetailsActivity.class);
-                        intent.putExtra("EXTRA_CREATION_NAME", value);
+                        intent.putExtra(EXTRA_CREATION_NAME, value);
                         startActivity(intent);
                     });
         });

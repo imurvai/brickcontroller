@@ -150,16 +150,16 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         public void bind(Device device) {
             switch (device.getType()) {
                 case BUWIZZ:
-                    vendorImage.setImageResource(R.drawable.buwizz_logo);
+                    vendorImage.setImageResource(R.drawable.buwizz_list_image);
                     deviceType.setText("BuWizz");
                     break;
                 case SBRICK:
-                    vendorImage.setImageResource(R.drawable.sbrick_logo);
+                    vendorImage.setImageResource(R.drawable.sbrick_list_image);
                     deviceType.setText("SBrick");
                     break;
                 case INFRARED:
-                    vendorImage.setImageResource(R.drawable.lego_logo);
-                    deviceType.setText("PF Infra red");
+                    vendorImage.setImageResource(R.drawable.infra_list_image);
+                    deviceType.setText("PF Infra");
                     break;
             }
 

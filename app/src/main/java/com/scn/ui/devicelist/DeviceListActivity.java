@@ -93,7 +93,7 @@ public class DeviceListActivity extends BaseActivity {
         deviceListAdapter.setDeviceClickListener(device -> {
             Logger.i(TAG, "onClick - device: " + device);
             Intent intent = new Intent(DeviceListActivity.this, DeviceDetailsActivity.class);
-            intent.putExtra("EXTRA_DEVICE_ID", device.getId());
+            intent.putExtra(EXTRA_DEVICE_ID, device.getId());
             startActivity(intent);
         });
     }

@@ -61,4 +61,7 @@
     <!-- Creation details activity -->
     <string name="title_activity_creation_details">Creation details</string>
 
+    <!-- Controller activity -->
+    <string name="title_activity_controller">Controller</string>
+
 </resources>

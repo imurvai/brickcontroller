@@ -1,12 +1,8 @@
 package com.scn.devicemanagement;
 
-import android.arch.lifecycle.LiveData;
 import android.support.annotation.MainThread;
 
 import com.scn.logger.Logger;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by steve on 2017. 09. 03..
@@ -85,9 +81,9 @@ final class InfraRedDevice extends Device {
     }
 
     @Override
-    public boolean setOutputLevel(int level) {
-        Logger.i(TAG, "setOutputLevel...");
-        throw new RuntimeException("Infrared doesn't support setOutputLevel");
+    public boolean setOutputLevel(OutputLevel value) {
+        Logger.i(TAG, "setOutputLevel - not supported on InfraRed.");
+        return false;
     }
 
     @MainThread
@@ -98,10 +94,4 @@ final class InfraRedDevice extends Device {
         value = limitOutputValue(value);
         infraRedDeviceManager.setOutput(this, channel, value);
     }
-
-    //
-    // Private methods and classes
-    //
-
-
 }

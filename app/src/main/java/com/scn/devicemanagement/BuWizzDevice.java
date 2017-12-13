@@ -14,12 +14,6 @@ import com.scn.logger.Logger;
 
 final class BuWizzDevice extends BluetoothDevice {
 
-    public enum OutputLevel {
-        LOW,
-        NORMAL,
-        HIGH
-    }
-
     //
     // Members
     //
@@ -72,14 +66,15 @@ final class BuWizzDevice extends BluetoothDevice {
 
     @MainThread
     @Override
-    public boolean setOutputLevel(int level) {
+    public boolean setOutputLevel(OutputLevel value) {
         Logger.i(TAG, "setOutputLevel - " + getId());
-        throw new RuntimeException("not implemented.");
+        outputLevel = value;
+        return true;
     }
 
     @Override
     public void setOutput(int channel, int value) {
-        Logger.i(TAG, "setOutput - channel: " + channel + ", value: " + value);
+        //Logger.i(TAG, "setOutput - channel: " + channel + ", value: " + value);
         checkChannel(channel);
         value = limitOutputValue(value);
         outputValues[channel] = value;
@@ -106,7 +101,7 @@ final class BuWizzDevice extends BluetoothDevice {
 
     @Override
     protected void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-        Logger.i(TAG, "onCharacteristicWrite - device: " + BuWizzDevice.this);
+        //Logger.i(TAG, "onCharacteristicWrite - device: " + BuWizzDevice.this);
     }
 
     @Override
