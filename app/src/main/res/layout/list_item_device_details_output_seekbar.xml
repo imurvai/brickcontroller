@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:paddingHorizontal="16dp"
-    android:paddingVertical="32dp">
+    android:paddingVertical="16dp">
 
     <android.support.v7.widget.AppCompatSeekBar
         android:id="@+id/output_level"

@@ -1,7 +1,5 @@
 package com.scn.ui.devicedetails;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -9,8 +7,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
-import android.widget.EditText;
 
 import com.scn.devicemanagement.Device;
 import com.scn.logger.Logger;
@@ -55,7 +51,7 @@ public class DeviceDetailsActivity extends BaseActivity {
 
         String deviceId = getIntent().getStringExtra(EXTRA_DEVICE_ID);
         setupViewModel(deviceId);
-        setupRecyclerView(viewModel.getDevice());
+        setupRecyclerView();
 
         viewModel.connectDevice();
     }
@@ -199,14 +195,18 @@ public class DeviceDetailsActivity extends BaseActivity {
         });
     }
 
-    private void setupRecyclerView(Device device) {
+    private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(DeviceDetailsActivity.this));
         recyclerView.addItemDecoration(new DividerItemDecoration(DeviceDetailsActivity.this, DividerItemDecoration.VERTICAL));
         recyclerView.setAdapter(deviceDetailsAdapter);
-        deviceDetailsAdapter.setDevice(device);
-        deviceDetailsAdapter.setSeekBarListener((localDevice, channel, value) -> {
-            //Logger.i(TAG, "onSeekBarChanged - " + value);
-            localDevice.setOutput(channel, value);
+
+        deviceDetailsAdapter.setDevice(viewModel.getDevice());
+        deviceDetailsAdapter.setOutputChangedListener((localDevice, channel, value) -> {
+            //Logger.i(TAG, "onOutputChanged - " + value);
+            viewModel.setOutput(channel, value);
+        });
+        deviceDetailsAdapter.setOutputLevelChangedListener((localDevice, outputLevel) -> {
+            viewModel.updateDevice(outputLevel);
         });
     }
 }

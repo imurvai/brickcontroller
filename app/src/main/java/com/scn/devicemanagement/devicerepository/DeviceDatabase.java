@@ -9,7 +9,10 @@ import android.arch.persistence.room.TypeConverters;
  */
 
 @Database(entities = { DeviceEntity.class }, version = 1)
-@TypeConverters({ DeviceTypeTypeConverter.class })
+@TypeConverters({
+        DeviceTypeTypeConverter.class,
+        DeviceOutputLevelTypeConverter.class
+})
 public abstract class DeviceDatabase extends RoomDatabase {
 
     public abstract DeviceDao deviceDao();

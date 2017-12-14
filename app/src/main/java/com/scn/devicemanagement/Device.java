@@ -56,7 +56,7 @@ public abstract class Device implements Comparable<Device> {
         this.name = name;
         this.address = address;
 
-        this.stateChangeLiveData.postValue(new StateChange(State.DISCONNECTED, State.DISCONNECTED, false));
+        stateChangeLiveData.postValue(new StateChange(State.DISCONNECTED, State.DISCONNECTED, false));
     }
 
     //
@@ -78,7 +78,7 @@ public abstract class Device implements Comparable<Device> {
 
     @Override
     public String toString() {
-        return "Name: " + getName() + ", type: " + getType() + ", address: " + getAddress();
+        return "Id: " + getId() + ", type: " + getType() + ", name: " + getName()+ ", address: " + getAddress();
     }
 
 
@@ -86,30 +86,26 @@ public abstract class Device implements Comparable<Device> {
     // API
     //
 
-    public abstract String getId();
+    public String getId() { return String.format("%s-%s", getType(), getAddress()); }
     public abstract DeviceType getType();
-
     public String getName() { return name; }
     public void setName(String value) { name = value; }
-
     public String getAddress() { return address; }
+
+    public LiveData<StateChange<Device.State>> getStateChangeLiveData() { return stateChangeLiveData; }
 
     public abstract int getNumberOfChannels();
 
     public abstract boolean connect();
     public abstract boolean disconnect();
 
-    public LiveData<StateChange<Device.State>> getStateChangeLiveData() { return stateChangeLiveData; }
-
-    public abstract boolean setOutputLevel(OutputLevel value);
+    public OutputLevel getOutputLevel() { return OutputLevel.NORMAL; }
+    public void setOutputLevel(@NonNull OutputLevel value) {
+        Logger.i(TAG, "setOutputLevel - " + value);
+        Logger.i(TAG, "  Not supported.");
+    }
 
     public abstract void setOutput(int channel, int level);
-
-    public void setOutputs(@NonNull List<ChannelValue> channelValues) {
-        for (ChannelValue cv : channelValues) {
-            setOutput(cv.getChannel(), cv.getLevel());
-        }
-    }
 
     //
     // Protected methods
@@ -141,23 +137,5 @@ public abstract class Device implements Comparable<Device> {
         if (value < -255) value = -255;
         if (255 < value) value = 255;
         return value;
-    }
-
-    //
-    // Channel-level class
-    //
-
-    public static class ChannelValue {
-        private int channel;
-        private int level;
-
-        public ChannelValue(int channel, int level) {
-            this.channel = channel;
-            this.level = level;
-        }
-
-        public int getChannel() { return channel; }
-        public int getLevel() { return level; }
-        public void setLevel(int value) { level = value; }
     }
 }

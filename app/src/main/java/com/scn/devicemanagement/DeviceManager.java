@@ -76,19 +76,19 @@ public final class DeviceManager implements DeviceFactory {
     // DeviceFactory methods
     //
 
-    public Device createDevice(DeviceType type, @NonNull String name, @NonNull String address) {
-        Logger.i(TAG, "createDevice - type: " + type.toString() + ", name: " + name + ", address: " + address);
+    public Device createDevice(DeviceType type, @NonNull String name, @NonNull String address, @NonNull Device.OutputLevel outputLevel) {
+        Logger.i(TAG, "createDevice - type: " + type.toString() + ", name: " + name + ", address: " + address + ", outputlevel: " + outputLevel);
 
         Device device = null;
 
         switch (type) {
             case INFRARED:
-                device = infraRedDeviceManager.createDevice(type, name, address);
+                device = infraRedDeviceManager.createDevice(type, name, address, outputLevel);
                 break;
 
             case BUWIZZ:
             case SBRICK:
-                device = bluetoothDeviceManager.createDevice(type, name, address);
+                device = bluetoothDeviceManager.createDevice(type, name, address, outputLevel);
                 break;
         }
 
@@ -307,6 +307,37 @@ public final class DeviceManager implements DeviceFactory {
                     Logger.e(TAG, "updateDeviceAsync onError - " + device, e);
                     setState(State.OK, true);
                 });
+
+        return true;
+    }
+
+    @MainThread
+    public boolean updateDeviceAsync(@NonNull final Device device, Device.OutputLevel newOutputLevel) {
+        Logger.i(TAG, "updateDeviceAsync - " + device);
+        Logger.i(TAG, "  new output level: " + newOutputLevel);
+
+        if (getCurrentState() != State.OK) {
+            Logger.w(TAG, "  wrong state - " + getCurrentState());
+            return false;
+        }
+
+        setState(State.UPDATING, false);
+
+        Single.fromCallable(() -> {
+            deviceRepository.updateDevice(device, newOutputLevel);
+            return true;
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        x -> {
+                            Logger.i(TAG, "updateDeviceAsync onSuccess - " + device);
+                            setState(State.OK, false);
+                        },
+                        e -> {
+                            Logger.e(TAG, "updateDeviceAsync onError - " + device, e);
+                            setState(State.OK, true);
+                        });
 
         return true;
     }

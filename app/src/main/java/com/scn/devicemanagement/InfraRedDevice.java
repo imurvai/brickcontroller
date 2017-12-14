@@ -1,6 +1,7 @@
 package com.scn.devicemanagement;
 
 import android.support.annotation.MainThread;
+import android.support.annotation.NonNull;
 
 import com.scn.logger.Logger;
 
@@ -22,7 +23,7 @@ final class InfraRedDevice extends Device {
     // Constructor
     //
 
-    InfraRedDevice(String name, String address, InfraRedDeviceManager infraRedDeviceManager) {
+    InfraRedDevice(@NonNull String name, @NonNull String address, @NonNull InfraRedDeviceManager infraRedDeviceManager) {
         super(name, address);
         Logger.i(TAG, "constructor...");
         Logger.i(TAG, "  name: " + name);
@@ -36,14 +37,7 @@ final class InfraRedDevice extends Device {
     //
 
     @Override
-    public String getId() {
-        return "Infra-" + address;
-    }
-
-    @Override
-    public DeviceType getType() {
-        return DeviceType.INFRARED;
-    }
+    public DeviceType getType() { return DeviceType.INFRARED; }
 
     @Override
     public int getNumberOfChannels() {
@@ -78,12 +72,6 @@ final class InfraRedDevice extends Device {
         infraRedDeviceManager.disconnectDevice(this);
         setState(State.DISCONNECTED, false);
         return true;
-    }
-
-    @Override
-    public boolean setOutputLevel(OutputLevel value) {
-        Logger.i(TAG, "setOutputLevel - not supported on InfraRed.");
-        return false;
     }
 
     @MainThread

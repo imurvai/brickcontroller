@@ -37,5 +37,5 @@ abstract class SpecificDeviceManager {
     abstract Observable<Device> startScan();
     abstract void stopScan();
 
-    abstract Device createDevice(@NonNull DeviceType type, @NonNull String name, @NonNull String address);
+    abstract Device createDevice(@NonNull DeviceType type, @NonNull String name, @NonNull String address, @NonNull Device.OutputLevel outputLevel);
 }

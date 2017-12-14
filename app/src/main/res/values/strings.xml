@@ -57,6 +57,10 @@
     <string name="failed_to_remove_device">Failed to remove device.</string>
     <string name="new_name">New name:</string>
     <string name="name_cannot_be_empty">The name cannot be empty.</string>
+    <string name="output_level">Output level</string>
+    <string name="low">Low</string>
+    <string name="normal">Normal</string>
+    <string name="high">High</string>
 
     <!-- Creation details activity -->
     <string name="title_activity_creation_details">Creation details</string>

@@ -64,7 +64,7 @@ public class DeviceRepository {
         List<DeviceEntity> deviceEntities = deviceDao.getAll();
 
         for (DeviceEntity deviceEntity : deviceEntities) {
-            Device device = deviceFactory.createDevice(deviceEntity.type, deviceEntity.name, deviceEntity.address);
+            Device device = deviceFactory.createDevice(deviceEntity.type, deviceEntity.name, deviceEntity.address, deviceEntity.outputLevel);
             if (device != null) {
                 deviceMap.put(device.getId(), device);
             }
@@ -92,8 +92,18 @@ public class DeviceRepository {
         Logger.i(TAG, "updateDeviceAsync - " + device);
         Logger.i(TAG, "  new name: " + newName);
 
-        deviceDao.update(new DeviceEntity(device.getType(), newName, device.getAddress()));
+        deviceDao.update(new DeviceEntity(device.getType(), newName, device.getAddress(), device.getOutputLevel()));
         device.setName(newName);
+        deviceListLiveData.postValue(getDeviceList());
+    }
+
+    @WorkerThread
+    public synchronized void updateDevice(@NonNull Device device, @NonNull Device.OutputLevel newOutputLevel) {
+        Logger.i(TAG, "updateDeviceAsync - " + device);
+        Logger.i(TAG, "  new output level: " + newOutputLevel);
+
+        deviceDao.update(new DeviceEntity(device.getType(), device.getName(), device.getAddress(), newOutputLevel));
+        device.setOutputLevel(newOutputLevel);
         deviceListLiveData.postValue(getDeviceList());
     }
 
@@ -103,7 +113,6 @@ public class DeviceRepository {
 
         deviceDao.delete(DeviceEntity.fromDevice(device));
         deviceMap.remove(device.getId());
-        deviceListLiveData.postValue(getDeviceList());
     }
 
     @WorkerThread

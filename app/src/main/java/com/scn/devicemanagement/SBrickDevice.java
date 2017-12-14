@@ -22,18 +22,9 @@ final class SBrickDevice extends BluetoothDevice {
     private static final String TAG = SBrickDevice.class.getSimpleName();
 
     // Service UUIDs
-    private static final String SERVICE_PARTIAL_UUID_GENERIC_GAP = "1800";
-    private static final String SERVICE_PARTIAL_UUID_DEVICE_INFORMATION = "180a";
     private static final String SERVICE_UUID_REMOTE_CONTROL = "4dc591b0-857c-41de-b5f1-15abda665b0c";
 
     // Characteristic UUIDs
-    private static final String CHARACTERISTIC_PARTIAL_UUID_DEVICE_NAME = "2a00";
-    private static final String CHARACTERISTIC_PARTIAL_UUID_APPEARANCE = "2a01";
-    private static final String CHARACTERISTIC_PARTIAL_UUID_MODEL_NUMBER = "2a24";
-    private static final String CHARACTERISTIC_PARTIAL_UUID_FIRMWARE_REVISION = "2a26";
-    private static final String CHARACTERISTIC_PARTIAL_UUID_HARDWARE_REVISION = "2a27";
-    private static final String CHARACTERISTIC_PARTIAL_UUID_SOFTWARE_REVISION = "2a28";
-    private static final String CHARACTERISTIC_PARTIAL_UUID_MANUFACTURER_NAME = "2a29";
     private static final String CHARACTERISTIC_UUID_REMOTE_CONTROL = "2b8cbcc-0e25-4bda-8790-a15f53e6010f";
     private static final String CHARACTERISTIC_UUID_QUICK_DRIVE = "489a6ae0-c1ab-4c9c-bdb2-11d373c1b7fb";
 
@@ -62,25 +53,11 @@ final class SBrickDevice extends BluetoothDevice {
     //
 
     @Override
-    public String getId() {
-        return "SBrick-" + address;
-    }
-
-    @Override
-    public DeviceType getType() {
-        return DeviceType.SBRICK;
-    }
+    public DeviceType getType() { return DeviceType.SBRICK; }
 
     @Override
     public int getNumberOfChannels() {
         return 4;
-    }
-
-    @MainThread
-    @Override
-    public boolean setOutputLevel(OutputLevel value) {
-        Logger.i(TAG, "setOutputLevel - not supported on SBrick.");
-        return false;
     }
 
     @Override
@@ -145,7 +122,7 @@ final class SBrickDevice extends BluetoothDevice {
                     continueSending = value0 != 0 || value1 != 0 || value2 != 0 || value3 != 0;
                 }
 
-                try { Thread.sleep(60); } catch (InterruptedException e) {}
+                try { Thread.sleep(60); } catch (InterruptedException ignored) {}
             }
 
             Logger.i(TAG, "Exiting from output thread - device: " + SBrickDevice.this);

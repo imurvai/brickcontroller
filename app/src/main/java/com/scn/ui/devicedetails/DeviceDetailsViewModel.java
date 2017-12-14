@@ -115,9 +115,15 @@ public class DeviceDetailsViewModel extends ViewModel {
     }
 
     @MainThread
+    void updateDevice(@NonNull Device.OutputLevel newOutputLevel) {
+        Logger.i(TAG, "updateDeviceAsync - " + device);
+        Logger.i(TAG, "  new output level: " + newOutputLevel);
+        deviceManager.updateDeviceAsync(device, newOutputLevel);
+    }
+
+    @MainThread
     void setOutput(int channel, int value) {
         if (device == null) return;
-
         device.setOutput(channel, value);
     }
 }

@@ -7,11 +7,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.scn.devicemanagement.Device;
 import com.scn.devicemanagement.DeviceType;
+import com.scn.logger.Logger;
 import com.scn.ui.R;
 
 import javax.inject.Inject;
@@ -25,20 +27,28 @@ import butterknife.ButterKnife;
 
 final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    public interface OnDeviceChannelSeekBarListener {
-        void onSeekBarChanged(Device device, int channel, int value);
+    public interface OnDeviceChannelOutputChangedListener {
+        void onOutputChanged(Device device, int channel, int value);
+    }
+
+    public interface OnDeviceOutputLevelChangedListener {
+        void onOutputLevelChanged(Device device, Device.OutputLevel outputLevel);
     }
 
     //
     // Private members
     //
 
+    private static final String TAG = DeviceDetailsAdapter.class.getSimpleName();
+
     private static final int VIEWTYPE_HEADER = 1;
     private static final int VIEWTYPE_OUTPUT_SEEKBAR = 2;
     private static final int VIEWTYPE_DEVICE_INFO = 3;
+    private static final int VIEWTYPE_OUTPUT_LEVEL = 4;
 
     private Device device;
-    private OnDeviceChannelSeekBarListener seekBarListener = null;
+    private OnDeviceChannelOutputChangedListener outputChangedListener = null;
+    private OnDeviceOutputLevelChangedListener outputLevelChangedListener = null;
 
     //
     // Constructor
@@ -57,12 +67,18 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         if (position == 0) {
             return VIEWTYPE_HEADER;
         }
-        else if (position <= device.getNumberOfChannels()) {
-            return VIEWTYPE_OUTPUT_SEEKBAR;
+
+        switch (device.getType()) {
+            case BUWIZZ:
+                if (position == 1) return VIEWTYPE_OUTPUT_LEVEL;
+                else if (position < device.getNumberOfChannels() + 2) return VIEWTYPE_OUTPUT_SEEKBAR;
+
+            case SBRICK:
+            case INFRARED:
+                if (position < device.getNumberOfChannels() + 1) return VIEWTYPE_OUTPUT_SEEKBAR;
         }
-        else {
-            return VIEWTYPE_DEVICE_INFO;
-        }
+
+        return VIEWTYPE_DEVICE_INFO;
     }
 
     @Override
@@ -79,7 +95,14 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 View view = LayoutInflater
                         .from(parent.getContext())
                         .inflate(R.layout.list_item_device_details_output_seekbar, parent, false);
-                return new OutputSeekBarViewHolder(view);
+                return new OutputViewHolder(view);
+            }
+
+            case VIEWTYPE_OUTPUT_LEVEL: {
+                View view = LayoutInflater
+                        .from(parent.getContext())
+                        .inflate(R.layout.list_item_device_details_output_level, parent, false);
+                return new OutputLevelViewHolder(view);
             }
 
             case VIEWTYPE_DEVICE_INFO: {
@@ -102,7 +125,12 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 break;
 
             case VIEWTYPE_OUTPUT_SEEKBAR:
-                ((OutputSeekBarViewHolder)holder).bind(device, position - 1, seekBarListener);
+                int channel = device.getType() == DeviceType.BUWIZZ ? position - 2 : position -1;
+                ((OutputViewHolder)holder).bind(device, channel, outputChangedListener);
+                break;
+
+            case VIEWTYPE_OUTPUT_LEVEL:
+                ((OutputLevelViewHolder)holder).bind(device, outputLevelChangedListener);
                 break;
         }
     }
@@ -113,7 +141,10 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             return 0;
         }
         else {
-            return device.getNumberOfChannels() + 1;
+            if (device.getType() == DeviceType.BUWIZZ)
+                return device.getNumberOfChannels() + 2;
+            else
+                return device.getNumberOfChannels() + 1;
         }
     }
 
@@ -126,8 +157,13 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         notifyDataSetChanged();
     }
 
-    public void setSeekBarListener(OnDeviceChannelSeekBarListener seekBarListener) {
-        this.seekBarListener = seekBarListener;
+    public void setOutputChangedListener(OnDeviceChannelOutputChangedListener outputChangedListener) {
+        this.outputChangedListener = outputChangedListener;
+        notifyDataSetChanged();
+    }
+
+    public void setOutputLevelChangedListener(OnDeviceOutputLevelChangedListener outputLevelChangedListener) {
+        this.outputLevelChangedListener = outputLevelChangedListener;
         notifyDataSetChanged();
     }
 
@@ -168,23 +204,26 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
     }
 
-    public class OutputSeekBarViewHolder extends RecyclerView.ViewHolder {
+    public class OutputViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.output_level) AppCompatSeekBar outputLevel;
+        @BindView(R.id.output_level) AppCompatSeekBar outputSeekBar;
 
-        public OutputSeekBarViewHolder(View itemView) {
+        public OutputViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(@NonNull final Device device, final int channel, @NonNull final OnDeviceChannelSeekBarListener seekBarListener) {
-            final int halfMax = outputLevel.getMax() / 2;
-            outputLevel.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        public void bind(final Device device, final int channel, final OnDeviceChannelOutputChangedListener listener) {
+            if (device == null) return;
+            if (listener == null) return;
+
+            final int halfMax = outputSeekBar.getMax() / 2;
+            outputSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                    if (seekBarListener != null) {
+                    if (listener != null) {
                         int value = ((i - halfMax) * 255) / halfMax;
-                        seekBarListener.onSeekBarChanged(device, channel, value);
+                        listener.onOutputChanged(device, channel, value);
                     }
                 }
 
@@ -195,6 +234,50 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
                     seekBar.setProgress(halfMax);
+                }
+            });
+        }
+    }
+
+    public class OutputLevelViewHolder extends RecyclerView.ViewHolder {
+
+        @BindView(R.id.radio_group) RadioGroup radioGroup;
+
+        public OutputLevelViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+
+        public void bind(final Device device, final OnDeviceOutputLevelChangedListener listener) {
+            if (device == null) return;
+            switch (device.getOutputLevel()) {
+                case LOW:
+                    radioGroup.check(R.id.radio_low);
+                    break;
+
+                case NORMAL:
+                    radioGroup.check(R.id.radio_normal);
+                    break;
+
+                case HIGH:
+                    radioGroup.check(R.id.radio_high);
+                    break;
+            }
+
+            if (listener == null) return;
+            radioGroup.setOnCheckedChangeListener((radioGroup, i) -> {
+                switch (i) {
+                    case R.id.radio_low:
+                        listener.onOutputLevelChanged(device, Device.OutputLevel.LOW);
+                        break;
+
+                    case R.id.radio_normal:
+                        listener.onOutputLevelChanged(device, Device.OutputLevel.NORMAL);
+                        break;
+
+                    case R.id.radio_high:
+                        listener.onOutputLevelChanged(device, Device.OutputLevel.HIGH);
+                        break;
                 }
             });
         }

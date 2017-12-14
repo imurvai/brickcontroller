@@ -146,7 +146,7 @@ public final class BluetoothDeviceManager extends SpecificDeviceManager {
     }
 
     @Override
-    Device createDevice(DeviceType type, String name, String address) {
+    Device createDevice(DeviceType type, String name, String address, Device.OutputLevel outputLevel) {
         Logger.i(TAG, "createDevice...");
 
         if (!isBluetoothLESupported()) {
@@ -157,7 +157,7 @@ public final class BluetoothDeviceManager extends SpecificDeviceManager {
             case SBRICK:
                 return new SBrickDevice(context, name, address, this);
             case BUWIZZ:
-                return new BuWizzDevice(context, name, address, this);
+                return new BuWizzDevice(context, name, address, outputLevel, this);
         }
 
         Logger.i(TAG, "  Not bluetooth device.");
@@ -193,10 +193,10 @@ public final class BluetoothDeviceManager extends SpecificDeviceManager {
             synchronized (deviceEmitterLock) {
                 if (deviceEmitter != null) {
                     if (manufacturerData.startsWith("98 01")) {
-                        deviceEmitter.onNext(createDevice(DeviceType.SBRICK, device.getName(), device.getAddress()));
+                        deviceEmitter.onNext(createDevice(DeviceType.SBRICK, device.getName(), device.getAddress(), Device.OutputLevel.NORMAL));
                     }
                     else if (manufacturerData.startsWith("48 4D")) {
-                        deviceEmitter.onNext(createDevice(DeviceType.BUWIZZ, device.getName(), device.getAddress()));
+                        deviceEmitter.onNext(createDevice(DeviceType.BUWIZZ, device.getName(), device.getAddress(), Device.OutputLevel.NORMAL));
                     }
                     else {
                         Logger.i(TAG, "  Unknown bluetooth device.");

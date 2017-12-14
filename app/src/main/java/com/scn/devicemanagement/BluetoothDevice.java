@@ -237,7 +237,7 @@ abstract class BluetoothDevice extends Device {
     };
 
     private BluetoothGattService getService(BluetoothGatt gatt, String uuid) {
-        Logger.i(TAG, "getService...");
+        Logger.i(TAG, "getService - " + uuid);
 
         if (gatt == null) {
             Logger.w(TAG, "  No GATT yet.");

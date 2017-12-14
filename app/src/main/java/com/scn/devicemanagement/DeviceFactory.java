@@ -10,5 +10,5 @@ public interface DeviceFactory {
     // API
     //
 
-    Device createDevice(DeviceType type, String name, String address);
+    Device createDevice(DeviceType type, String name, String address, Device.OutputLevel outputLevel);
 }
