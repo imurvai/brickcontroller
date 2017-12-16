@@ -104,6 +104,7 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
 
         numConnectedDevices--;
         if (numConnectedDevices == 0) {
+            Logger.i(TAG, "  Stopping IR thread...");
             stopIrThread = true;
         }
     }

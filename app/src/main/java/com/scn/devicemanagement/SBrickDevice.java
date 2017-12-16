@@ -8,6 +8,8 @@ import android.support.annotation.NonNull;
 
 import com.scn.logger.Logger;
 
+import java.util.UUID;
+
 /**
  * Created by steve on 2017. 03. 18..
  */
@@ -25,10 +27,8 @@ final class SBrickDevice extends BluetoothDevice {
     private static final String SERVICE_UUID_REMOTE_CONTROL = "4dc591b0-857c-41de-b5f1-15abda665b0c";
 
     // Characteristic UUIDs
-    private static final String CHARACTERISTIC_UUID_REMOTE_CONTROL = "2b8cbcc-0e25-4bda-8790-a15f53e6010f";
     private static final String CHARACTERISTIC_UUID_QUICK_DRIVE = "489a6ae0-c1ab-4c9c-bdb2-11d373c1b7fb";
 
-    private BluetoothGattCharacteristic remoteControlCharacteristic;
     private BluetoothGattCharacteristic quickDriveCharacteristic;
 
     private Thread outputThread = null;
@@ -74,28 +74,35 @@ final class SBrickDevice extends BluetoothDevice {
     //
 
     @Override
-    protected void onServiceDiscovered(BluetoothGatt gatt) {
+    protected boolean onServiceDiscovered(BluetoothGatt gatt) {
         Logger.i(TAG, "onServiceDiscovered - device: " + SBrickDevice.this);
 
-        remoteControlCharacteristic = getGattCharacteristic(gatt, SERVICE_UUID_REMOTE_CONTROL, CHARACTERISTIC_UUID_REMOTE_CONTROL);
         quickDriveCharacteristic = getGattCharacteristic(gatt, SERVICE_UUID_REMOTE_CONTROL, CHARACTERISTIC_UUID_QUICK_DRIVE);
+        if (quickDriveCharacteristic == null) {
+            Logger.w(TAG, "  Could not get characteristic.");
+            return false;
+        }
 
         startOutputThread();
+        return true;
     }
 
     @Override
-    protected void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+    protected boolean onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
         Logger.i(TAG, "onCharacteristicRead - device: " + SBrickDevice.this);
+        return true;
     }
 
     @Override
-    protected void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+    protected boolean onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
         //Logger.i(TAG, "onCharacteristicWrite - device: " + SBrickDevice.this);
+        return true;
     }
 
     @Override
     protected void disconnectInternal() {
         Logger.i(TAG, "disconnectInternal - device: " + SBrickDevice.this);
+        Logger.i(TAG, "  Stopping output thread...");
         stopOutputThread = true;
     }
 
@@ -131,15 +138,20 @@ final class SBrickDevice extends BluetoothDevice {
     }
 
     private void sendOutputValues(int v0, int v1, int v2, int v3) {
-        byte[] buffer = new byte[] {
-            (byte)((Math.abs(v0) & 0xfe) | 0x02 | (v0 < 0 ? 1 : 0)),
-            (byte)((Math.abs(v1) & 0xfe) | 0x02 | (v1 < 0 ? 1 : 0)),
-            (byte)((Math.abs(v2) & 0xfe) | 0x02 | (v2 < 0 ? 1 : 0)),
-            (byte)((Math.abs(v3) & 0xfe) | 0x02 | (v3 < 0 ? 1 : 0))
-        };
+        try {
+            byte[] buffer = new byte[] {
+                    (byte)((Math.abs(v0) & 0xfe) | 0x02 | (v0 < 0 ? 1 : 0)),
+                    (byte)((Math.abs(v1) & 0xfe) | 0x02 | (v1 < 0 ? 1 : 0)),
+                    (byte)((Math.abs(v2) & 0xfe) | 0x02 | (v2 < 0 ? 1 : 0)),
+                    (byte)((Math.abs(v3) & 0xfe) | 0x02 | (v3 < 0 ? 1 : 0))
+            };
 
-        if (quickDriveCharacteristic.setValue(buffer)) {
-            bluetoothGatt.writeCharacteristic(quickDriveCharacteristic);
+            if (quickDriveCharacteristic.setValue(buffer)) {
+                bluetoothGatt.writeCharacteristic(quickDriveCharacteristic);
+            }
+        }
+        catch (Exception e) {
+            Logger.w(TAG, "Failed to send output values to characteristic.");
         }
     }
 }

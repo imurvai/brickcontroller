@@ -8,6 +8,8 @@ import android.support.annotation.NonNull;
 
 import com.scn.logger.Logger;
 
+import java.util.UUID;
+
 /**
  * Created by steve on 2017. 03. 18..
  */
@@ -29,7 +31,7 @@ final class BuWizzDevice extends BluetoothDevice {
     private BluetoothGattCharacteristic remoteControlCharacteristic;
 
     private Thread outputThread = null;
-    private boolean stopOutputThread = false;
+    private final Object outputThreadLock = new Object();
 
     private OutputLevel outputLevel = OutputLevel.NORMAL;
 
@@ -89,32 +91,35 @@ final class BuWizzDevice extends BluetoothDevice {
     //
 
     @Override
-    protected void onServiceDiscovered(BluetoothGatt gatt) {
+    protected boolean onServiceDiscovered(BluetoothGatt gatt) {
         Logger.i(TAG, "onServiceDiscovered - device: " + BuWizzDevice.this);
 
         remoteControlCharacteristic = getGattCharacteristic(gatt, SERVICE_UUID_REMOTE_CONTROL, CHARACTERISTIC_UUID_REMOTE_CONTROL);
         if (remoteControlCharacteristic == null) {
-            // TODO: handle error
+            Logger.w(TAG, "  Could not get characteristic.");
+            return false;
         }
-        else {
-            startOutputThread();
-        }
+
+        startOutputThread();
+        return true;
     }
 
     @Override
-    protected void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+    protected boolean onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
         Logger.i(TAG, "onCharacteristicRead - device: " + BuWizzDevice.this);
+        return true;
     }
 
     @Override
-    protected void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+    protected boolean onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
         //Logger.i(TAG, "onCharacteristicWrite - device: " + BuWizzDevice.this);
+        return true;
     }
 
     @Override
     protected void disconnectInternal() {
         Logger.i(TAG, "disconnectInternal - device: " + BuWizzDevice.this);
-        stopOutputThread = true;
+        stopOutputThread();
     }
 
     //
@@ -124,48 +129,80 @@ final class BuWizzDevice extends BluetoothDevice {
     private void startOutputThread() {
         Logger.i(TAG, "startOutputThread - device: " + this);
 
-        stopOutputThread = false;
-        outputThread = new Thread(() -> {
-            Logger.i(TAG, "Entering the output thread - device: " + BuWizzDevice.this);
+        synchronized (outputThreadLock) {
+            stopOutputThread();
 
-            while (!stopOutputThread) {
-                if (continueSending) {
-                    int value0 = outputValues[0];
-                    int value1 = outputValues[1];
-                    int value2 = outputValues[2];
-                    int value3 = outputValues[3];
+            outputThread = new Thread(() -> {
+                Logger.i(TAG, "Entering the output thread - device: " + BuWizzDevice.this);
 
-                    sendOutputValues(value0, value1, value2, value3);
+                while (!Thread.currentThread().isInterrupted()) {
+                    if (continueSending) {
+                        int value0 = outputValues[0];
+                        int value1 = outputValues[1];
+                        int value2 = outputValues[2];
+                        int value3 = outputValues[3];
 
-                    continueSending = value0 != 0 || value1 != 0 || value2 != 0 || value3 != 0;
+                        sendOutputValues(value0, value1, value2, value3);
+
+                        continueSending = value0 != 0 || value1 != 0 || value2 != 0 || value3 != 0;
+                    }
+
+                    try {
+                        Thread.sleep(60);
+                    }
+                    catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
                 }
 
-                try { Thread.sleep(60); } catch (InterruptedException e) {}
+                Logger.i(TAG, "Exiting from output thread - device: " + BuWizzDevice.this);
+            });
+            outputThread.start();
+        }
+    }
+
+    private void stopOutputThread() {
+        Logger.i(TAG, "stopOtuputThread...");
+
+        synchronized (outputThreadLock) {
+            if (outputThread == null) {
+                Logger.i(TAG, "  Output thread is already null.");
+                return;
             }
 
-            Logger.i(TAG, "Exiting from output thread - device: " + BuWizzDevice.this);
-        });
-        outputThread.start();
+            if (!outputThread.isInterrupted()) {
+                Logger.i(TAG, "  Interrupting the output thread...");
+                outputThread.interrupt();
+                try { outputThread.join(); } catch (InterruptedException e) {}
+            }
+
+            outputThread = null;
+        }
     }
 
     private void sendOutputValues(int v0, int v1, int v2, int v3) {
-        byte outputLevelValue = 0x20;
-        switch (outputLevel) {
-            case LOW: outputLevelValue = 0x00; break;
-            case NORMAL: outputLevelValue = 0x20; break;
-            case HIGH: outputLevelValue = 0x40; break;
+        try {
+            byte outputLevelValue = 0x20;
+            switch (outputLevel) {
+                case LOW: outputLevelValue = 0x00; break;
+                case NORMAL: outputLevelValue = 0x20; break;
+                case HIGH: outputLevelValue = 0x40; break;
+            }
+
+            byte[] buffer = new byte[] {
+                    (byte)((Math.abs(v0) >> 2) | (v0 < 0 ? 0x40 : 0) | 0x80),
+                    (byte)((Math.abs(v1) >> 2) | (v1 < 0 ? 0x40 : 0)),
+                    (byte)((Math.abs(v2) >> 2) | (v2 < 0 ? 0x40 : 0)),
+                    (byte)((Math.abs(v3) >> 2) | (v3 < 0 ? 0x40 : 0)),
+                    outputLevelValue
+            };
+
+            if (remoteControlCharacteristic.setValue(buffer)) {
+                bluetoothGatt.writeCharacteristic(remoteControlCharacteristic);
+            }
         }
-
-        byte[] buffer = new byte[] {
-                (byte)((Math.abs(v0) >> 2) | (v0 < 0 ? 0x40 : 0) | 0x80),
-                (byte)((Math.abs(v1) >> 2) | (v1 < 0 ? 0x40 : 0)),
-                (byte)((Math.abs(v2) >> 2) | (v2 < 0 ? 0x40 : 0)),
-                (byte)((Math.abs(v3) >> 2) | (v3 < 0 ? 0x40 : 0)),
-                outputLevelValue
-        };
-
-        if (remoteControlCharacteristic.setValue(buffer)) {
-            bluetoothGatt.writeCharacteristic(remoteControlCharacteristic);
+        catch (Exception e) {
+            Logger.w(TAG, "Failed to send output values to characteristic.");
         }
     }
 }

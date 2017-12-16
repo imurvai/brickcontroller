@@ -32,7 +32,9 @@ abstract class BluetoothDevice extends Device {
     protected final BluetoothDeviceManager bluetoothDeviceManager;
     protected final BluetoothAdapter bluetoothAdapter;
     protected final android.bluetooth.BluetoothDevice bluetoothDevice;
+
     protected BluetoothGatt bluetoothGatt = null;
+    protected final Object bluetoothGattLock = new Object();
 
     //
     // Constructor
@@ -56,24 +58,21 @@ abstract class BluetoothDevice extends Device {
     public boolean connect() {
         Logger.i(TAG, "connectDevice - " + this);
 
-        if (getCurrentState() == State.CONNECTING) {
-            Logger.i(TAG, "  Already connecting.");
+        synchronized (bluetoothGattLock) {
+            if (bluetoothGatt != null) {
+                Logger.w(TAG, "  GATT is already been used.");
+                return false;
+            }
+
+            bluetoothGatt = bluetoothDevice.connectGatt(context, true, gattCallback);
+            if (bluetoothGatt == null) {
+                Logger.w(TAG, "  Failed to connect GATT.");
+                return false;
+            }
+
+            setState(State.CONNECTING, false);
             return true;
         }
-
-        if (getCurrentState() != State.DISCONNECTED) {
-            Logger.i(TAG, "  Wrong state - " + getCurrentState());
-            return false;
-        }
-
-        bluetoothGatt = bluetoothDevice.connectGatt(context, true, gattCallback);
-        if (bluetoothGatt == null) {
-            Logger.w(TAG, "  Failed to connectDevice GATT.");
-            return false;
-        }
-
-        setState(State.CONNECTING, false);
-        return true;
     }
 
     @MainThread
@@ -81,27 +80,27 @@ abstract class BluetoothDevice extends Device {
     public boolean disconnect() {
         Logger.i(TAG, "disconnectDevice - " + this);
 
-        if (bluetoothGatt == null) {
-            Logger.w(TAG, "  bluetoothGatt is null.");
-            setState(State.DISCONNECTED, false);
-            return false;
-        }
+        synchronized (bluetoothGattLock) {
+            if (bluetoothGatt != null) {
+                Logger.i(TAG, "  Disconnecting GATT...");
+                bluetoothGatt.disconnect();
+                bluetoothGatt.close();
+                bluetoothGatt = null;
+            }
 
-        bluetoothGatt.disconnect();
-        bluetoothGatt.close();
-        bluetoothGatt = null;
-        disconnectInternal();
-        setState(State.DISCONNECTED, false);
-        return true;
+            disconnectInternal();
+            setState(State.DISCONNECTED, false);
+            return true;
+        }
     }
 
     //
     // Protected API
     //
 
-    protected abstract void onServiceDiscovered(BluetoothGatt gatt);
-    protected abstract void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic);
-    protected abstract void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic);
+    protected abstract boolean onServiceDiscovered(BluetoothGatt gatt);
+    protected abstract boolean onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic);
+    protected abstract boolean onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic);
     protected abstract void disconnectInternal();
 
     protected BluetoothGattCharacteristic getGattCharacteristic(@NonNull BluetoothGatt gatt, @NonNull String serviceUUID, @NonNull String characteristicUUID) {
@@ -126,8 +125,9 @@ abstract class BluetoothDevice extends Device {
         else {
             Logger.i(TAG, "  Full characteristic UUID");
             BluetoothGattCharacteristic characteristic = service.getCharacteristic(UUID.fromString(characteristicUUID));
-            if (characteristic != null)
+            if (characteristic != null) {
                 return characteristic;
+            }
         }
 
         Logger.w(TAG, "  No such characteristic found.");
@@ -167,7 +167,6 @@ abstract class BluetoothDevice extends Device {
 
             if (status != BluetoothGatt.GATT_SUCCESS) {
                 Logger.w(TAG, "  GATT status - " + status);
-                disconnectInternal();
                 setState(State.DISCONNECTED, true);
                 return;
             }
@@ -175,23 +174,51 @@ abstract class BluetoothDevice extends Device {
             switch (newState) {
                 case BluetoothProfile.STATE_CONNECTING:
                     Logger.i(TAG, "  Connecting.");
-                    setState(State.CONNECTING, false);
+                    synchronized (bluetoothGattLock) {
+                        if (bluetoothGatt == null) {
+                            Logger.w(TAG, "  Disconnect has been called.");
+                            return;
+                        }
+
+                        setState(State.CONNECTING, false);
+                    }
                     break;
 
                 case BluetoothProfile.STATE_CONNECTED:
                     Logger.i(TAG, "  Connected.");
-                    bluetoothGatt = gatt;
-                    bluetoothGatt.discoverServices();
+                    synchronized (bluetoothGattLock) {
+                        if (bluetoothGatt != null) {
+                            Logger.i(TAG, "  Start service discovery...");
+                            bluetoothGatt.discoverServices();
+                        }
+                        else {
+                            Logger.w(TAG, "  Disconnect has been called, skipping service discovery.");
+                        }
+                    }
                     break;
 
                 case BluetoothProfile.STATE_DISCONNECTING:
                     Logger.i(TAG, "  Disconnecting.");
-                    //setState(State.DISCONNECTING, false);
+                    synchronized (bluetoothGattLock) {
+                        if (bluetoothGatt == null) {
+                            Logger.w(TAG, "  Disconnect has been called.");
+                            return;
+                        }
+
+                        setState(State.DISCONNECTING, false);
+                    }
                     break;
 
                 case BluetoothProfile.STATE_DISCONNECTED:
                     Logger.i(TAG, "  Disconnected.");
-                    setState(State.DISCONNECTED, false);
+                    synchronized (bluetoothGattLock) {
+                        if (bluetoothGatt == null) {
+                            Logger.w(TAG, "  Disconnect has been called.");
+                            return;
+                        }
+
+                        setState(State.DISCONNECTED, false);
+                    }
                     break;
             }
         }
@@ -205,8 +232,21 @@ abstract class BluetoothDevice extends Device {
                 return;
             }
 
-            onServiceDiscovered(gatt);
-            setState(State.CONNECTED, false);
+            synchronized (bluetoothGattLock) {
+                if (bluetoothGatt == null) {
+                    Logger.w(TAG, "  Disconnect has been called.");
+                    return;
+                }
+
+                if (!BluetoothDevice.this.onServiceDiscovered(gatt)) {
+                    Logger.w(TAG, "  Service discovery failed, trying to reconnect...");
+                    gatt.disconnect();
+                    gatt.connect();
+                    return;
+                }
+
+                setState(State.CONNECTED, false);
+            }
         }
 
         @Override
