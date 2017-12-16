@@ -15,5 +15,7 @@ import android.arch.persistence.room.TypeConverters;
 })
 public abstract class DeviceDatabase extends RoomDatabase {
 
+    public static final String DatabaseName = "brickcontroller_device_db";
+
     public abstract DeviceDao deviceDao();
 }

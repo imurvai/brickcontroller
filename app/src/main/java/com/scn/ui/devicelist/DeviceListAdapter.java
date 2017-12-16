@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -26,6 +27,7 @@ final class DeviceListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public interface OnDeviceClickListener {
         void onClick(Device device);
+        void onRemoveClick(Device device);
     }
 
     //
@@ -126,6 +128,7 @@ final class DeviceListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         @BindView(R.id.vendor_image) ImageView vendorImage;
         @BindView(R.id.device_name) TextView deviceName;
         @BindView(R.id.device_address) TextView deviceAddress;
+        @BindView(R.id.remove_device) Button removeDeviceButton;
 
         public DeviceItemViewHolder(View itemView) {
             super(itemView);
@@ -150,6 +153,10 @@ final class DeviceListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
             itemView.setOnClickListener(view -> {
                 if (deviceClickListener != null) deviceClickListener.onClick(device);
+            });
+
+            removeDeviceButton.setOnClickListener(view -> {
+                if (deviceClickListener != null) deviceClickListener.onRemoveClick(device);
             });
         }
     }

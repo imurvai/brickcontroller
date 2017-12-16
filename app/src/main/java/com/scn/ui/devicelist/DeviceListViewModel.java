@@ -85,4 +85,10 @@ public class DeviceListViewModel extends ViewModel {
         Logger.i(TAG, "deleteAllDevices...");
         deviceManager.removeAllDevicesAsync();
     }
+
+    @MainThread
+    void removeDevice(Device device) {
+        Logger.i(TAG, "deleteDevice - " + device);
+        deviceManager.removeDeviceAsync(device);
+    }
 }

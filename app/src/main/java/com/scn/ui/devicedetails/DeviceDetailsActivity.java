@@ -75,17 +75,6 @@ public class DeviceDetailsActivity extends BaseActivity {
         Logger.i(TAG, "onOptionsItemSelected...");
 
         switch (item.getItemId()) {
-            case R.id.menu_item_delete:
-                Logger.i(TAG, "  delete selected.");
-
-                showQuestionDialog(
-                        getString(R.string.are_you_sure_you_want_to_remove),
-                        getString(R.string.yes),
-                        getString(R.string.no),
-                        (dialogInterface, i) -> viewModel.removeDevice(),
-                        (dialogInterface, i) -> {});
-                return true;
-
             case R.id.menu_item_edit:
                 Logger.i(TAG, "  edit selected.");
 
@@ -133,19 +122,6 @@ public class DeviceDetailsActivity extends BaseActivity {
                             }
                             else {
                                 deviceDetailsAdapter.setDevice(viewModel.getDevice());
-                            }
-                            break;
-
-                        case REMOVING:
-                            if (stateChange.isError()) {
-                                showAlertDialog(
-                                        getString(R.string.failed_to_remove_device),
-                                        dialogInterface -> stateChange.resetPreviousState());
-                            }
-                            else {
-                                dismissDialog();
-                                stateChange.resetPreviousState();
-                                onBackPressed();
                             }
                             break;
                     }

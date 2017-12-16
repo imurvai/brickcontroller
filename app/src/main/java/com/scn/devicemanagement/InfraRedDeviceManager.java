@@ -36,7 +36,7 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
     private int numConnectedDevices = 0;
 
     private Thread irThread = null;
-    private boolean stopIrThread = false;
+    private final Object irThreadLock = new Object();
 
     private final int outputValues[][] = new int[4][2];
     private final boolean isContinueSending[] = new boolean[4];
@@ -92,6 +92,11 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
     synchronized void connectDevice(@NonNull Device device) {
         Logger.i(TAG, "connectDevice - " + device);
 
+        if (numConnectedDevices == 4) {
+            Logger.i(TAG, "  4 devices have already connected.");
+            return;
+        }
+
         numConnectedDevices++;
         if (numConnectedDevices == 1) {
             startIrThread();
@@ -102,10 +107,14 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
     synchronized void disconnectDevice(@NonNull Device device) {
         Logger.i(TAG, "disconnectDevice - " + device);
 
+        if (numConnectedDevices == 0) {
+            Logger.i(TAG, "  All devices have already been disconnected.");
+            return;
+        }
+
         numConnectedDevices--;
         if (numConnectedDevices == 0) {
-            Logger.i(TAG, "  Stopping IR thread...");
-            stopIrThread = true;
+            stopIrThread();
         }
     }
 
@@ -188,22 +197,47 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
     private void startIrThread() {
         Logger.i(TAG, "startIrThread...");
 
-        resetOutputs();
+        synchronized (irThreadLock) {
+            stopIrThread();
+            resetOutputs();
 
-        stopIrThread = false;
-        irThread = new Thread(() -> {
-            Logger.i(TAG, "entering IR thread...");
+            irThread = new Thread(() -> {
+                Logger.i(TAG, "Entering IR thread...");
 
-            while (!stopIrThread) {
-                sendIrData();
+                while (!Thread.currentThread().isInterrupted()) {
+                    sendIrData();
 
-                try { Thread.sleep(20); } catch (InterruptedException e) {}
+                    try {
+                        Thread.sleep(20);
+                    }
+                    catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+
+                Logger.i(TAG, "Exiting from IR thread.");
+            });
+            irThread.start();
+        }
+    }
+
+    private void stopIrThread() {
+        Logger.i(TAG, "stopIrThread...");
+
+        synchronized (irThreadLock) {
+            if (irThread == null) {
+                Logger.i(TAG, "  IR thread is already null.");
+                return;
             }
 
-            resetOutputs();
-            Logger.i(TAG, "exiting from IR thread.");
-        });
-        irThread.start();
+            if (!irThread.isInterrupted()) {
+                Logger.i(TAG, "  Interrupting the IR thread...");
+                irThread.interrupt();
+                try { irThread.join(); } catch (InterruptedException e) {}
+            }
+
+            irThread = null;
+        }
     }
 
     private void sendIrData() {

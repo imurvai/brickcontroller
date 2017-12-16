@@ -1,5 +1,7 @@
 package com.scn.creationmanagement;
 
+import android.support.annotation.NonNull;
+
 /**
  * Created by imurvai on 2017-12-16.
  */
@@ -12,7 +14,7 @@ public final class ControllerAction {
     private boolean isToggle;
     private int maxOtput;
 
-    public ControllerAction(String deviceId, int channel, boolean isRevert, boolean isToggle, int maxOtput) {
+    public ControllerAction(@NonNull String deviceId, int channel, boolean isRevert, boolean isToggle, int maxOtput) {
         this.deviceId = deviceId;
         this.channel = channel;
         this.isRevert = isRevert;
@@ -25,4 +27,12 @@ public final class ControllerAction {
     public boolean getIsRevert() { return isRevert; }
     public boolean getIsToggle() { return isToggle; }
     public int getMaxOtput() { return maxOtput; }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null || !(other instanceof ControllerAction)) return false;
+
+        ControllerAction oca = (ControllerAction)other;
+        return oca.deviceId == deviceId && oca.channel == channel;
+    }
 }

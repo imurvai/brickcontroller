@@ -46,7 +46,7 @@ public class DeviceRepository {
     public DeviceRepository(@NonNull Context context) {
         Logger.i(TAG, "constructor...");
 
-        DeviceDatabase database = Room.databaseBuilder(context, DeviceDatabase.class, "brickcontroller_device_db").build();
+        DeviceDatabase database = Room.databaseBuilder(context, DeviceDatabase.class, DeviceDatabase.DatabaseName).build();
         deviceDao = database.deviceDao();
 
         deviceListLiveData.setValue(getDeviceList());
@@ -113,6 +113,7 @@ public class DeviceRepository {
 
         deviceDao.delete(DeviceEntity.fromDevice(device));
         deviceMap.remove(device.getId());
+        deviceListLiveData.postValue(getDeviceList());
     }
 
     @WorkerThread

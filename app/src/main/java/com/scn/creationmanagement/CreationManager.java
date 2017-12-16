@@ -1,6 +1,7 @@
 package com.scn.creationmanagement;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import com.scn.logger.Logger;
 
@@ -22,7 +23,7 @@ public final class CreationManager {
     // Constructor
     //
 
-    public CreationManager(Context context) {
+    public CreationManager(@NonNull Context context) {
         Logger.i(TAG, "constructor...");
 
         this.context = context;
@@ -32,11 +33,23 @@ public final class CreationManager {
     // API
     //
 
-    public void loadCreations() {
+    public void loadCreationsAsync() {
+        Logger.i(TAG, "loadCreationsAsync...");
 
     }
 
-    public void saveCreations() {
+    public void saveCreationsAsync() {
+        Logger.i(TAG, "loadsaveCreationsAsync...");
 
+    }
+
+    public void removeCreationAsync() {
+        Logger.i(TAG, "removeCreationAsync...");
+
+    }
+
+    public boolean checkCreationName(String name) {
+        Logger.i(TAG, "checkCreationName - " + name);
+        return false;
     }
 }

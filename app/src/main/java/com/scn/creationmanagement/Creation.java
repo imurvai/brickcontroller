@@ -18,8 +18,7 @@ public final class Creation {
     private static final String TAG = Creation.class.getSimpleName();
 
     private String name;
-
-    private List<String> deviceIds = new ArrayList<>();
+    private final List<ControllerProfile> controllerProfiles = new ArrayList<>();
 
     //
     // Constructor

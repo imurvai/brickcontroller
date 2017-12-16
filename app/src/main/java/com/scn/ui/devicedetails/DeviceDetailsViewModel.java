@@ -84,12 +84,6 @@ public class DeviceDetailsViewModel extends ViewModel {
     }
 
     @MainThread
-    void removeDevice() {
-        Logger.i(TAG, "deleteDevice - " + device);
-        deviceManager.removeDeviceAsync(device);
-    }
-
-    @MainThread
     void connectDevice() {
         Logger.i(TAG, "connectDevice - " + device);
         device.connect();

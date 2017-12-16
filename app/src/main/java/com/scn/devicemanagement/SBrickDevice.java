@@ -32,7 +32,7 @@ final class SBrickDevice extends BluetoothDevice {
     private BluetoothGattCharacteristic quickDriveCharacteristic;
 
     private Thread outputThread = null;
-    private boolean stopOutputThread = false;
+    private final Object outputThreadLock = new Object();
 
     private final int[] outputValues = new int[4];
     private boolean continueSending = true;
@@ -103,7 +103,7 @@ final class SBrickDevice extends BluetoothDevice {
     protected void disconnectInternal() {
         Logger.i(TAG, "disconnectInternal - device: " + SBrickDevice.this);
         Logger.i(TAG, "  Stopping output thread...");
-        stopOutputThread = true;
+        stopOutputThread();
     }
 
     //
@@ -113,28 +113,55 @@ final class SBrickDevice extends BluetoothDevice {
     private void startOutputThread() {
         Logger.i(TAG, "startOutputThread - device: " + this);
 
-        stopOutputThread = false;
-        outputThread = new Thread(() -> {
-            Logger.i(TAG, "Entering the output thread - device: " + SBrickDevice.this);
+        synchronized (outputThreadLock) {
+            stopOutputThread();
 
-            while (!stopOutputThread) {
-                if (continueSending) {
-                    int value0 = outputValues[0];
-                    int value1 = outputValues[1];
-                    int value2 = outputValues[2];
-                    int value3 = outputValues[3];
+            outputThread = new Thread(() -> {
+                Logger.i(TAG, "Entering the output thread - device: " + SBrickDevice.this);
 
-                    sendOutputValues(value0, value1, value2, value3);
+                while (!Thread.currentThread().isInterrupted()) {
+                    if (continueSending) {
+                        int value0 = outputValues[0];
+                        int value1 = outputValues[1];
+                        int value2 = outputValues[2];
+                        int value3 = outputValues[3];
 
-                    continueSending = value0 != 0 || value1 != 0 || value2 != 0 || value3 != 0;
+                        sendOutputValues(value0, value1, value2, value3);
+
+                        continueSending = value0 != 0 || value1 != 0 || value2 != 0 || value3 != 0;
+                    }
+
+                    try {
+                        Thread.sleep(60);
+                    }
+                    catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
                 }
 
-                try { Thread.sleep(60); } catch (InterruptedException ignored) {}
+                Logger.i(TAG, "Exiting from output thread - device: " + SBrickDevice.this);
+            });
+            outputThread.start();
+        }
+    }
+
+    private void stopOutputThread() {
+        Logger.i(TAG, "stopOtuputThread...");
+
+        synchronized (outputThreadLock) {
+            if (outputThread == null) {
+                Logger.i(TAG, "  Output thread is already null.");
+                return;
             }
 
-            Logger.i(TAG, "Exiting from output thread - device: " + SBrickDevice.this);
-        });
-        outputThread.start();
+            if (!outputThread.isInterrupted()) {
+                Logger.i(TAG, "  Interrupting the output thread...");
+                outputThread.interrupt();
+                try { outputThread.join(); } catch (InterruptedException e) {}
+            }
+
+            outputThread = null;
+        }
     }
 
     private void sendOutputValues(int v0, int v1, int v2, int v3) {
