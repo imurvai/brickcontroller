@@ -1,6 +1,7 @@
 package com.scn.creationmanagement.creationrepository;
 
 import android.arch.persistence.room.Database;
+import android.arch.persistence.room.RoomDatabase;
 import android.arch.persistence.room.TypeConverters;
 
 /**
@@ -9,7 +10,7 @@ import android.arch.persistence.room.TypeConverters;
 
 @Database(entities = {}, version = 1)
 @TypeConverters({})
-public abstract class CreationDatabase {
+abstract class CreationDatabase extends RoomDatabase {
 
     public static final String DatabaseName = "brickcontroller_creation_db";
 

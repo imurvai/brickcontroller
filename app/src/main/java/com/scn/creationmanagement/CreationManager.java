@@ -38,11 +38,6 @@ public final class CreationManager {
 
     }
 
-    public void saveCreationsAsync() {
-        Logger.i(TAG, "loadsaveCreationsAsync...");
-
-    }
-
     public void removeCreationAsync() {
         Logger.i(TAG, "removeCreationAsync...");
 
@@ -51,5 +46,10 @@ public final class CreationManager {
     public boolean checkCreationName(String name) {
         Logger.i(TAG, "checkCreationName - " + name);
         return false;
+    }
+
+    public Creation getCreation(String creationName) {
+        Logger.i(TAG, "getCreation - " + creationName);
+        throw new RuntimeException("not implemented.");
     }
 }

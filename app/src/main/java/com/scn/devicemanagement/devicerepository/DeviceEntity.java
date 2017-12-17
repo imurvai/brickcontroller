@@ -11,7 +11,7 @@ import com.scn.devicemanagement.DeviceType;
  */
 
 @Entity(tableName = "devices", primaryKeys = { "type", "address" })
-public class DeviceEntity {
+final class DeviceEntity {
 
     @NonNull public DeviceType type;
     @NonNull public String name;
@@ -25,7 +25,7 @@ public class DeviceEntity {
         this.outputLevel = outputLevel;
     }
 
-    public static DeviceEntity fromDevice(Device device) {
+    public static DeviceEntity fromDevice(@NonNull Device device) {
         return new DeviceEntity(device.getType(), device.getName(), device.getAddress(), device.getOutputLevel());
     }
 

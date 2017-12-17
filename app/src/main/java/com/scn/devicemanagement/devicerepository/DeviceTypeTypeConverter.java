@@ -8,7 +8,7 @@ import com.scn.devicemanagement.DeviceType;
  * Created by steve on 2017. 11. 20..
  */
 
-public class DeviceTypeTypeConverter {
+final class DeviceTypeTypeConverter {
 
     @TypeConverter
     public static int deviceTypeToInt(DeviceType deviceType) {
