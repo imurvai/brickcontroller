@@ -1,4 +1,4 @@
-package com.scn.devicemanagement.devicerepository;
+package com.scn.devicemanagement;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
@@ -7,8 +7,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.WorkerThread;
 
-import com.scn.devicemanagement.Device;
-import com.scn.devicemanagement.DeviceFactory;
 import com.scn.logger.Logger;
 
 import java.util.ArrayList;
@@ -25,7 +23,7 @@ import javax.inject.Singleton;
  */
 
 @Singleton
-public class DeviceRepository {
+final class DeviceRepository {
 
     //
     // Private members

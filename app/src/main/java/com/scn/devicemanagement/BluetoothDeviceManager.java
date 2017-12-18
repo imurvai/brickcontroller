@@ -26,7 +26,7 @@ import io.reactivex.ObservableEmitter;
  */
 
 @Singleton
-public final class BluetoothDeviceManager extends SpecificDeviceManager {
+final class BluetoothDeviceManager extends SpecificDeviceManager {
 
     //
     // Private members
@@ -146,7 +146,7 @@ public final class BluetoothDeviceManager extends SpecificDeviceManager {
     }
 
     @Override
-    Device createDevice(DeviceType type, String name, String address, Device.OutputLevel outputLevel) {
+    Device createDevice(Device.DeviceType type, String name, String address, Device.OutputLevel outputLevel) {
         Logger.i(TAG, "createDevice...");
 
         if (!isBluetoothLESupported()) {
@@ -193,10 +193,10 @@ public final class BluetoothDeviceManager extends SpecificDeviceManager {
             synchronized (deviceEmitterLock) {
                 if (deviceEmitter != null) {
                     if (manufacturerData.startsWith("98 01")) {
-                        deviceEmitter.onNext(createDevice(DeviceType.SBRICK, device.getName(), device.getAddress(), Device.OutputLevel.NORMAL));
+                        deviceEmitter.onNext(createDevice(Device.DeviceType.SBRICK, device.getName(), device.getAddress(), Device.OutputLevel.NORMAL));
                     }
                     else if (manufacturerData.startsWith("48 4D")) {
-                        deviceEmitter.onNext(createDevice(DeviceType.BUWIZZ, device.getName(), device.getAddress(), Device.OutputLevel.NORMAL));
+                        deviceEmitter.onNext(createDevice(Device.DeviceType.BUWIZZ, device.getName(), device.getAddress(), Device.OutputLevel.NORMAL));
                     }
                     else {
                         Logger.i(TAG, "  Unknown bluetooth device.");

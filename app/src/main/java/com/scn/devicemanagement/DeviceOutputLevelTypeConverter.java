@@ -1,4 +1,4 @@
-package com.scn.devicemanagement.devicerepository;
+package com.scn.devicemanagement;
 
 import android.arch.persistence.room.TypeConverter;
 
@@ -8,7 +8,7 @@ import com.scn.devicemanagement.Device;
  * Created by imurvai on 2017-12-14.
  */
 
-public final class DeviceOutputLevelTypeConverter {
+final class DeviceOutputLevelTypeConverter {
 
     @TypeConverter
     public static int outputLevelToInt(Device.OutputLevel outputLevel) {

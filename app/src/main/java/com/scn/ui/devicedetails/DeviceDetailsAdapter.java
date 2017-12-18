@@ -12,8 +12,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.scn.devicemanagement.Device;
-import com.scn.devicemanagement.DeviceType;
-import com.scn.logger.Logger;
 import com.scn.ui.R;
 
 import javax.inject.Inject;
@@ -125,7 +123,7 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 break;
 
             case VIEWTYPE_OUTPUT_SEEKBAR:
-                int channel = device.getType() == DeviceType.BUWIZZ ? position - 2 : position -1;
+                int channel = device.getType() == Device.DeviceType.BUWIZZ ? position - 2 : position -1;
                 ((OutputViewHolder)holder).bind(device, channel, outputChangedListener);
                 break;
 
@@ -141,7 +139,7 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             return 0;
         }
         else {
-            if (device.getType() == DeviceType.BUWIZZ)
+            if (device.getType() == Device.DeviceType.BUWIZZ)
                 return device.getNumberOfChannels() + 2;
             else
                 return device.getNumberOfChannels() + 1;

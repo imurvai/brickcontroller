@@ -23,10 +23,4 @@ public class ApplicationModule {
     Context provideContext(Application application) {
         return application;
     }
-
-    @Provides
-    @Singleton
-    CreationManager provideCreationManager(Application application) {
-        return new CreationManager(application);
-    }
 }

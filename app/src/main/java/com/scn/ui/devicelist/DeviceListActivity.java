@@ -10,7 +10,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.scn.devicemanagement.Device;
-import com.scn.devicemanagement.DeviceType;
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
 import com.scn.ui.R;

@@ -1,40 +1,56 @@
 package com.scn.creationmanagement;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
 
 import com.scn.logger.Logger;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by imurvai on 2017-12-13.
  */
 
+@Entity(tableName = "controller_profiles",
+        foreignKeys = @ForeignKey(
+                entity = Creation.class,
+                parentColumns = { "id" },
+                childColumns = { "creation_id" }
+        ))
 public final class ControllerProfile {
 
     //
     // Members
     //
 
+    @Ignore
     private static final String TAG = ControllerProfile.class.getSimpleName();
 
+    @PrimaryKey(autoGenerate = true)
     private long id;
+
+    @ColumnInfo(name = "creation_id")
+    private long creationId;
+
+    @ColumnInfo(name = "name")
     private String name;
+
+    @Ignore
     private List<ControllerEvent> controllerEvents = new ArrayList<>();
 
     //
     // Constructor
     //
 
-    public ControllerProfile(long id, @NonNull String name) {
+    ControllerProfile(long id, long creationId, @NonNull String name) {
         Logger.i(TAG, "constructor - " + name);
+        this.id = id;
+        this.creationId = creationId;
         this.name = name;
     }
 
@@ -43,12 +59,15 @@ public final class ControllerProfile {
     //
 
     public long getId() { return id; }
-    public void setId(long value) { id = value; }
+    void setId(long value) { id = value; }
+
+    public long getCreationId() { return creationId; }
+    void setCreationId(long value) { creationId = value; }
 
     public String getName() { return name; }
-    public void setName(String value) { name = value; }
+    void setName(String value) { name = value; }
 
-    public boolean addControllerEvent(ControllerEvent controllerEvent) {
+    boolean addControllerEvent(ControllerEvent controllerEvent) {
         Logger.i(TAG, "addControllerEvent - " + controllerEvent);
 
         if (controllerEvents.contains(controllerEvent)) {
@@ -60,10 +79,21 @@ public final class ControllerProfile {
         return true;
     }
 
+    boolean removeControllerEvent(ControllerEvent controllerEvent) {
+        Logger.i(TAG, "removeControllerEvent - " + controllerEvent);
+
+        if (!controllerEvents.contains(controllerEvent)) {
+            Logger.w(TAG, "  No such controller event.");
+            return false;
+        }
+
+        controllerEvents.remove(controllerEvent);
+        return true;
+    }
+
     //
     // Object overrides
     //
-
 
     @Override
     public boolean equals(Object obj) {

@@ -1,5 +1,9 @@
 package com.scn.creationmanagement;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
 import com.scn.logger.Logger;
@@ -11,25 +15,32 @@ import java.util.List;
  * Created by steve on 2017. 11. 01..
  */
 
+@Entity(tableName = "creations")
 public final class Creation {
 
     //
     // Members
     //
 
+    @Ignore
     private static final String TAG = Creation.class.getSimpleName();
 
+    @PrimaryKey(autoGenerate = true)
     private long id;
+
+    @ColumnInfo(name = "name")
     private String name;
 
+    @Ignore
     private final List<ControllerProfile> controllerProfiles = new ArrayList<>();
 
     //
     // Constructor
     //
 
-    public Creation(String name) {
-        Logger.i(TAG, "constructor...");
+    Creation(long id, @NonNull String name) {
+        Logger.i(TAG, "constructor - " + name);
+        this.id = id;
         this.name = name;
     }
 
@@ -38,10 +49,10 @@ public final class Creation {
     //
 
     public long getId() { return id; }
-    public void setId(long value) { id = value; }
+    void setId(long value) { id = value; }
 
     public String getName() { return name; }
-    public void setName(@NonNull String value) { name = value; }
+    void setName(@NonNull String value) { name = value; }
 
     public List<ControllerProfile> getControllerProfiles() {
         Logger.i(TAG, "getControllerProfiles...");
@@ -61,7 +72,7 @@ public final class Creation {
         return true;
     }
 
-    public boolean addControllerProfile(ControllerProfile controllerProfile) {
+    boolean addControllerProfile(ControllerProfile controllerProfile) {
         Logger.i(TAG, "addControllerProfile - " + controllerProfile);
 
         if (controllerProfiles.contains(controllerProfile)) {
@@ -73,7 +84,7 @@ public final class Creation {
         return true;
     }
 
-    public boolean removeControllerProfile(ControllerProfile controllerProfile) {
+    boolean removeControllerProfile(ControllerProfile controllerProfile) {
         Logger.i(TAG, "removeControllerProfile - " + controllerProfile);
 
         if (!controllerProfiles.contains(controllerProfile)) {

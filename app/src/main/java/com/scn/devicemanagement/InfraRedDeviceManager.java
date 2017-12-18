@@ -17,7 +17,7 @@ import io.reactivex.Observable;
  */
 
 @Singleton
-public final class InfraRedDeviceManager extends SpecificDeviceManager {
+final class InfraRedDeviceManager extends SpecificDeviceManager {
 
     //
     // Private members
@@ -141,10 +141,10 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
         }
 
         return Observable.fromArray(
-                createDevice(DeviceType.INFRARED, "PF Infra 1", "1", Device.OutputLevel.NORMAL),
-                createDevice(DeviceType.INFRARED, "PF Infra 2", "2", Device.OutputLevel.NORMAL),
-                createDevice(DeviceType.INFRARED, "PF Infra 3", "3", Device.OutputLevel.NORMAL),
-                createDevice(DeviceType.INFRARED, "PF Infra 4", "4", Device.OutputLevel.NORMAL));
+                createDevice(Device.DeviceType.INFRARED, "PF Infra 1", "1", Device.OutputLevel.NORMAL),
+                createDevice(Device.DeviceType.INFRARED, "PF Infra 2", "2", Device.OutputLevel.NORMAL),
+                createDevice(Device.DeviceType.INFRARED, "PF Infra 3", "3", Device.OutputLevel.NORMAL),
+                createDevice(Device.DeviceType.INFRARED, "PF Infra 4", "4", Device.OutputLevel.NORMAL));
     }
 
     @MainThread
@@ -154,14 +154,14 @@ public final class InfraRedDeviceManager extends SpecificDeviceManager {
     }
 
     @Override
-    Device createDevice(@NonNull DeviceType type, @NonNull String name, @NonNull String address, @NonNull Device.OutputLevel outputLevel) {
+    Device createDevice(@NonNull Device.DeviceType type, @NonNull String name, @NonNull String address, @NonNull Device.OutputLevel outputLevel) {
         Logger.i(TAG, "createDevice...");
 
         if (!isInfraRedSupported()) {
             return null;
         }
 
-        if (type != DeviceType.INFRARED) {
+        if (type != Device.DeviceType.INFRARED) {
             Logger.i(TAG, "  Not infrared device.");
             return null;
         }

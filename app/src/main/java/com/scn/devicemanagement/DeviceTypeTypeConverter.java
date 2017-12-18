@@ -1,8 +1,6 @@
-package com.scn.devicemanagement.devicerepository;
+package com.scn.devicemanagement;
 
 import android.arch.persistence.room.TypeConverter;
-
-import com.scn.devicemanagement.DeviceType;
 
 /**
  * Created by steve on 2017. 11. 20..
@@ -11,7 +9,7 @@ import com.scn.devicemanagement.DeviceType;
 final class DeviceTypeTypeConverter {
 
     @TypeConverter
-    public static int deviceTypeToInt(DeviceType deviceType) {
+    public static int deviceTypeToInt(Device.DeviceType deviceType) {
         switch (deviceType) {
             case BUWIZZ: return 0;
             case SBRICK: return 1;
@@ -21,11 +19,11 @@ final class DeviceTypeTypeConverter {
     }
 
     @TypeConverter
-    public static DeviceType intToDeviceType(int type) {
+    public static Device.DeviceType intToDeviceType(int type) {
         switch (type) {
-            case 0: return DeviceType.BUWIZZ;
-            case 1: return DeviceType.SBRICK;
-            case 2: return DeviceType.INFRARED;
+            case 0: return Device.DeviceType.BUWIZZ;
+            case 1: return Device.DeviceType.SBRICK;
+            case 2: return Device.DeviceType.INFRARED;
             default: throw new IllegalArgumentException("Invalid device type.");
         }
     }

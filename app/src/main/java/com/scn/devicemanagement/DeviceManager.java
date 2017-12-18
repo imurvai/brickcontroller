@@ -7,7 +7,6 @@ import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 
 import com.scn.common.StateChange;
-import com.scn.devicemanagement.devicerepository.DeviceRepository;
 import com.scn.logger.Logger;
 
 import java.util.ArrayList;
@@ -76,7 +75,7 @@ public final class DeviceManager implements DeviceFactory {
     // DeviceFactory methods
     //
 
-    public Device createDevice(DeviceType type, @NonNull String name, @NonNull String address, @NonNull Device.OutputLevel outputLevel) {
+    public Device createDevice(Device.DeviceType type, @NonNull String name, @NonNull String address, @NonNull Device.OutputLevel outputLevel) {
         Logger.i(TAG, "createDevice - type: " + type.toString() + ", name: " + name + ", address: " + address + ", outputlevel: " + outputLevel);
 
         Device device = null;

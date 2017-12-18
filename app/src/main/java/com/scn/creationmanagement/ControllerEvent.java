@@ -1,5 +1,10 @@
 package com.scn.creationmanagement;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -13,6 +18,12 @@ import java.util.List;
  * Created by imurvai on 2017-12-17.
  */
 
+@Entity(tableName = "controller_events",
+        foreignKeys = @ForeignKey(
+                entity = ControllerProfile.class,
+                parentColumns = { "id" },
+                childColumns = { "controller_profile_id" }
+        ))
 public final class ControllerEvent {
 
     //
@@ -28,21 +39,32 @@ public final class ControllerEvent {
     // Private members
     //
 
+    @Ignore
     private static final String TAG = ControllerEvent.class.getSimpleName();
 
+    @PrimaryKey(autoGenerate = true)
     private long id;
+
+    @ColumnInfo(name = "controller_profile_id")
+    private long controllerProfileId;
+
+    @ColumnInfo(name = "event_type")
     private ControllerEventType eventType;
+
+    @ColumnInfo(name = "event_code")
     private int eventCode;
 
+    @Ignore
     private List<ControllerAction> controllerActions = new ArrayList<>();
 
     //
     // Constructor
     //
 
-    public ControllerEvent(long id, @NonNull ControllerEventType eventType, int eventCode) {
+    ControllerEvent(long id, long controllerProfileId, @NonNull ControllerEventType eventType, int eventCode) {
         Logger.i(TAG, "constructor - eventType: " + eventType + ", eventCode: " + eventCode);
         this.id = id;
+        this.controllerProfileId = controllerProfileId;
         this.eventType = eventType;
         this.eventCode = eventCode;
     }
@@ -52,12 +74,18 @@ public final class ControllerEvent {
     //
 
     public long getId() { return id; }
-    public void setId(long value) { id = value; }
+    void setId(long value) { id = value; }
+
+    public long getControllerProfileId() { return controllerProfileId; }
+    void setControllerProfileId(long value) { controllerProfileId = value; }
 
     public ControllerEventType getEventType() { return eventType; }
-    public int getEventCode() { return eventCode; }
+    void setEventType(ControllerEventType value) { eventType = value; }
 
-    public boolean addControllerAction(ControllerAction controllerAction) {
+    public int getEventCode() { return eventCode; }
+    void setEventCode(int value) { eventCode = value; }
+
+    boolean addControllerAction(ControllerAction controllerAction) {
         Logger.i(TAG, "addControllerAction - " + controllerAction);
 
         if (controllerActions.contains(controllerAction)) {
@@ -66,6 +94,18 @@ public final class ControllerEvent {
         }
 
         controllerActions.add(controllerAction);
+        return true;
+    }
+
+    boolean removeControllerAction(ControllerAction controllerAction) {
+        Logger.i(TAG, "removeControllerAction - " + controllerAction);
+
+        if (!controllerActions.contains(controllerAction)) {
+            Logger.w(TAG, "  No such controller action.");
+            return false;
+        }
+
+        controllerActions.remove(controllerAction);
         return true;
     }
 

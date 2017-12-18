@@ -1,4 +1,4 @@
-package com.scn.devicemanagement.devicerepository;
+package com.scn.devicemanagement;
 
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.RoomDatabase;

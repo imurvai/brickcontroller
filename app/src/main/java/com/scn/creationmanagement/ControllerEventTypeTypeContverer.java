@@ -1,8 +1,6 @@
-package com.scn.creationmanagement.creationrepository;
+package com.scn.creationmanagement;
 
 import android.arch.persistence.room.TypeConverter;
-
-import com.scn.creationmanagement.ControllerEvent;
 
 /**
  * Created by imurvai on 2017-12-17.

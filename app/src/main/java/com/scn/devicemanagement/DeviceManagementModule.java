@@ -1,12 +1,11 @@
-package com.scn.devicemanagement.dagger;
+package com.scn.devicemanagement;
 
 import android.content.Context;
 
 import com.scn.devicemanagement.BluetoothDeviceManager;
-import com.scn.devicemanagement.Device;
 import com.scn.devicemanagement.DeviceManager;
 import com.scn.devicemanagement.InfraRedDeviceManager;
-import com.scn.devicemanagement.devicerepository.DeviceRepository;
+import com.scn.devicemanagement.DeviceRepository;
 
 import javax.inject.Singleton;
 

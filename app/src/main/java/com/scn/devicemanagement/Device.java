@@ -23,6 +23,12 @@ public abstract class Device implements Comparable<Device> {
     // Constants
     //
 
+    public enum DeviceType {
+        INFRARED,
+        SBRICK,
+        BUWIZZ
+    }
+
     public enum State {
         DISCONNECTED,
         CONNECTING,
@@ -89,7 +95,7 @@ public abstract class Device implements Comparable<Device> {
     public String getId() { return String.format("%s-%s", getType(), getAddress()); }
     public abstract DeviceType getType();
     public String getName() { return name; }
-    public void setName(String value) { name = value; }
+    void setName(String value) { name = value; }
     public String getAddress() { return address; }
 
     public LiveData<StateChange<Device.State>> getStateChangeLiveData() { return stateChangeLiveData; }
