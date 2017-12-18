@@ -90,26 +90,27 @@ public class DeviceListActivity extends BaseActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(DeviceListActivity.this));
         recyclerView.addItemDecoration(new DividerItemDecoration(DeviceListActivity.this, DividerItemDecoration.VERTICAL));
         recyclerView.setAdapter(deviceListAdapter);
-        deviceListAdapter.setDeviceClickListener(new DeviceListAdapter.OnDeviceClickListener() {
-                                                     @Override
-                                                     public void onClick(final Device device) {
-                                                         Logger.i(TAG, "onClick - device: " + device);
-                                                         Intent intent = new Intent(DeviceListActivity.this, DeviceDetailsActivity.class);
-                                                         intent.putExtra(EXTRA_DEVICE_ID, device.getId());
-                                                         startActivity(intent);
-                                                     }
 
-                                                     @Override
-                                                     public void onRemoveClick(final Device device) {
-                                                         Logger.i(TAG, "onRemoveClick - device: " + device);
-                                                         showQuestionDialog(
-                                                                 getString(R.string.are_you_sure_you_want_to_remove),
-                                                                 getString(R.string.yes),
-                                                                 getString(R.string.no),
-                                                                 (dialogInterface, i) -> viewModel.removeDevice(device),
-                                                                 (dialogInterface, i) -> {});
-                                                     }
-                                                 });
+        deviceListAdapter.setDeviceClickListener(new DeviceListAdapter.OnDeviceClickListener() {
+            @Override
+            public void onClick(final Device device) {
+                Logger.i(TAG, "onClick - device: " + device);
+                Intent intent = new Intent(DeviceListActivity.this, DeviceDetailsActivity.class);
+                intent.putExtra(EXTRA_DEVICE_ID, device.getId());
+                startActivity(intent);
+            }
+
+            @Override
+            public void onRemoveClick(final Device device) {
+                Logger.i(TAG, "onRemoveClick - device: " + device);
+                showQuestionDialog(
+                     getString(R.string.are_you_sure_you_want_to_remove),
+                     getString(R.string.yes),
+                     getString(R.string.no),
+                     (dialogInterface, i) -> viewModel.removeDevice(device),
+                     (dialogInterface, i) -> {});
+            }
+        });
     }
 
     private void setupViewModel() {

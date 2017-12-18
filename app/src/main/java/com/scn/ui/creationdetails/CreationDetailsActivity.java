@@ -9,6 +9,8 @@ import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
 import com.scn.ui.R;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -25,11 +27,10 @@ public class CreationDetailsActivity extends BaseActivity {
     private static final String TAG = CreationDetailsActivity.class.getSimpleName();
 
     public CreationDetailsViewModel viewModel;
+    @Inject CreationDetailsAdapter creationDetailsAdapter;
 
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R.id.recyclerview)
-    RecyclerView recyclerView;
+    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.recyclerview) RecyclerView recyclerView;
 
     //
     // Activity overrides

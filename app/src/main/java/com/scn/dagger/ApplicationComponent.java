@@ -3,7 +3,7 @@ package com.scn.dagger;
 import android.app.Application;
 
 import com.scn.app.BrickControllerApplication;
-import com.scn.creationmanagement.dagger.CreationManagementModule;
+import com.scn.creationmanagement.CreationManagementModule;
 import com.scn.devicemanagement.DeviceManagementModule;
 
 import javax.inject.Singleton;

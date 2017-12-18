@@ -5,18 +5,18 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
+import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 
+import com.scn.devicemanagement.DeviceManager;
 import com.scn.logger.Logger;
 
 import javax.inject.Inject;
@@ -35,12 +35,14 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     private static final String TAG = BaseActivity.class.getSimpleName();
 
+    protected static final int REQUEST_BT_ENABLE = 0x0001;
+
     protected static final String EXTRA_DEVICE_ID = "EXTRA_DEVICE_ID";
     protected static final String EXTRA_CREATION_NAME = "EXTRA_CREATION_NAME";
     protected static final String EXTRA_CONTROLLER_PROFILE_ID = "EXTRA_CONTROLLER_PROFILE_ID";
 
-    @Inject
-    ViewModelProvider.Factory viewModelFactory;
+    @Inject ViewModelProvider.Factory viewModelFactory;
+    @Inject DeviceManager deviceManager;
 
     private Dialog dialog;
 
@@ -56,6 +58,17 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        Logger.i(TAG, "onResume...");
+        super.onResume();
+
+        if (!deviceManager.isBluetoothOn()) {
+            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(intent, REQUEST_BT_ENABLE);
+        }
+    }
+
+    @Override
     protected void onPause() {
         Logger.i(TAG, "onPause...");
 
@@ -64,6 +77,16 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
 
         super.onPause();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Logger.i(TAG, "onActivityResult...");
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_BT_ENABLE && requestCode != RESULT_OK) {
+            BaseActivity.this.finish();
+        }
     }
 
     //

@@ -1,9 +1,11 @@
 package com.scn.ui.creationlist;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.scn.creationmanagement.Creation;
@@ -21,6 +23,11 @@ import butterknife.ButterKnife;
 
 final class CreationListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    public interface OnCreationClickListener {
+        void onClick(Creation creation);
+        void onRemoveClick(Creation creation);
+    }
+
     //
     // Private members
     //
@@ -28,12 +35,12 @@ final class CreationListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private static final int VIEWTYPE_CREATION = 1;
     private static final int VIEWTYPE_DEFAULT = 2;
 
-    List<Creation> creationList = new ArrayList<>();
+    private List<Creation> creationList = new ArrayList<>();
+    private OnCreationClickListener creationClickListener = null;
 
     //
     // RecyclerView.Adapter overrides
     //
-
 
     @Override
     public int getItemViewType(int position) {
@@ -70,7 +77,7 @@ final class CreationListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         int viewType = getItemViewType(position);
         switch (viewType) {
             case VIEWTYPE_CREATION:
-                ((CreationItemViewHolder)holder).bind(creationList.get(position));
+                ((CreationItemViewHolder)holder).bind(creationList.get(position), creationClickListener);
                 break;
 
             case VIEWTYPE_DEFAULT:
@@ -89,11 +96,17 @@ final class CreationListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     //
-    // Api
+    // API
     //
 
-    public void setCreationList(List<Creation> creationList) {
+    public void setCreationList(@NonNull List<Creation> creationList) {
         this.creationList = creationList;
+        notifyDataSetChanged();
+    }
+
+    public void setCreationClickListener(@NonNull OnCreationClickListener creationClickListener) {
+        this.creationClickListener = creationClickListener;
+        notifyDataSetChanged();
     }
 
     //
@@ -103,14 +116,23 @@ final class CreationListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public class CreationItemViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.creation_name) TextView creationName;
+        @BindView(R.id.remove_creation) Button removeCreationButton;
 
         public CreationItemViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(Creation creation) {
+        public void bind(Creation creation, final OnCreationClickListener creationClickListener) {
             creationName.setText(creation.getName());
+
+            itemView.setOnClickListener(view -> {
+                if (creationClickListener != null) creationClickListener.onClick(creation);
+            });
+
+            removeCreationButton.setOnClickListener(view -> {
+                if (creationClickListener != null) creationClickListener.onRemoveClick(creation);
+            });
         }
     }
 

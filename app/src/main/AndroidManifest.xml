@@ -50,6 +50,11 @@
             android:name="com.scn.ui.controller.ControllerActivity"
             android:label="@string/title_activity_controller"
             android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity
+            android:name="com.scn.ui.about.AboutActivity"
+            android:label="@string/title_activity_about"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

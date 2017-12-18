@@ -1,5 +1,7 @@
 package com.scn.creationmanagement;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -10,11 +12,15 @@ import com.scn.logger.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 /**
  * Created by imurvai on 2017-12-17.
  */
 
-public final class CreationRepository {
+@Singleton
+final class CreationRepository {
 
     //
     // Members
@@ -24,16 +30,20 @@ public final class CreationRepository {
 
     private final CreationDao creationDao;
     private final List<Creation> creationList = new ArrayList<>();
+    private final MutableLiveData<List<Creation>> creationListLiveData = new MutableLiveData<>();
 
     //
     // Constructor
     //
 
-    public CreationRepository(@NonNull Context context) {
+    @Inject
+    CreationRepository(@NonNull Context context) {
         Logger.i(TAG, "constructor...");
 
         CreationDatabase database = Room.databaseBuilder(context, CreationDatabase.class, CreationDatabase.DatabaseName).build();
         creationDao = database.creationDao();
+
+        creationListLiveData.setValue(new ArrayList<>());
     }
 
     //
@@ -64,9 +74,11 @@ public final class CreationRepository {
 
                 creation.addControllerProfile(controllerProfile);
             }
+
+            creationList.add(creation);
         }
 
-        // TODO: set creationList
+        creationListLiveData.postValue(creationList);
     }
 
     @WorkerThread
@@ -74,6 +86,7 @@ public final class CreationRepository {
         Logger.i(TAG, "saveCreation - " + creation);
         creation.setId(creationDao.insertCreation(creation));
         creationList.add(creation);
+        creationListLiveData.postValue(creationList);
     }
 
     @WorkerThread
@@ -90,6 +103,8 @@ public final class CreationRepository {
             creation.setName(originalName);
             throw e;
         }
+
+        creationListLiveData.postValue(creationList);
     }
 
     @WorkerThread
@@ -97,6 +112,7 @@ public final class CreationRepository {
         Logger.i(TAG, "removeCreation - " + creation);
         creationDao.deleteCreationRecursive(creation.getId());
         creationList.remove(creation);
+        creationListLiveData.postValue(creationList);
     }
 
     @WorkerThread
@@ -133,5 +149,21 @@ public final class CreationRepository {
         Logger.i(TAG, "insertControllerEvent - " + controllerEvent);
         controllerEvent.setId(creationDao.insertControllerEvent(controllerEvent));
         controllerProfile.addControllerEvent(controllerEvent);
+    }
+
+    public synchronized Creation getCreation(@NonNull String creationName) {
+        Logger.i(TAG, "getCreation - " + creationName);
+
+        for (Creation creation : creationList) {
+            if (creation.getName() == creationName) return creation;
+        }
+
+        Logger.w(TAG, "  Could not find creation.");
+        return null;
+    }
+
+    public synchronized LiveData<List<Creation>> getCreationListLiveData() {
+        Logger.i(TAG, "getCreationListLiveData...");
+        return creationListLiveData;
     }
 }

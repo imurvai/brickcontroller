@@ -27,13 +27,18 @@
     <string name="manufacturer">Manufacturer</string>
     <string name="address">Address</string>
     <string name="failed_to_connect">Failed to connect.</string>
+    <string name="ble_not_supported">Your device does not support bluetooth low energy.</string>
 
     <!-- Creation list activity -->
     <string name="title_activity_creation_list">Creation list</string>
     <string name="error_during_loading_devices">Error during loading devices.</string>
     <string name="error_during_loading_creations">Error during loading creations.</string>
+    <string name="error_during_adding_creation">Error during adding creation.</string>
+    <string name="error_during_removing_creation">Error during removing creation.</string>
     <string name="add_creation">Please add a creation</string>
     <string name="enter_creation_name">Enter the creation name</string>
+    <string name="creation_name_empty">Creation name can not be empty.</string>
+    <string name="creation_name_exists">There is already a creation with this name.</string>
 
     <string name="device_management">Device management</string>
     <string name="settings">Settings</string>
@@ -67,5 +72,8 @@
 
     <!-- Controller activity -->
     <string name="title_activity_controller">Controller</string>
+
+    <!-- About activity -->
+    <string name="title_activity_about">About</string>
 
 </resources>

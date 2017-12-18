@@ -1,5 +1,7 @@
 package com.scn.dagger;
 
+import com.scn.ui.about.AboutActivity;
+import com.scn.ui.about.AboutActivityModule;
 import com.scn.ui.controller.ControllerActivity;
 import com.scn.ui.controller.ControllerActivityModule;
 import com.scn.ui.controller.ControllerViewModel;
@@ -36,4 +38,7 @@ public abstract class ActivityBuilderModule {
 
     @ContributesAndroidInjector(modules = ControllerActivityModule.class)
     abstract ControllerActivity bindControllerActivity();
+
+    @ContributesAndroidInjector(modules = AboutActivityModule.class)
+    abstract AboutActivity bindAboutActivity();
 }
