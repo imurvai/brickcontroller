@@ -155,7 +155,7 @@ final class CreationRepository {
         Logger.i(TAG, "getCreation - " + creationName);
 
         for (Creation creation : creationList) {
-            if (creation.getName() == creationName) return creation;
+            if (creation.getName().equals(creationName)) return creation;
         }
 
         Logger.w(TAG, "  Could not find creation.");

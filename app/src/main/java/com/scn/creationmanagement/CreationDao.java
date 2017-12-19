@@ -87,6 +87,34 @@ abstract class CreationDao {
     //
 
     @Transaction
+    long insertCreationRecursive(Creation creation) {
+        long creationId = insertCreation(creation);
+        creation.setId(creationId);
+
+        for (ControllerProfile controllerProfile : creation.getControllerProfiles()) {
+            controllerProfile.setCreationId(creationId);
+
+            long controllerProfileId = insertControllerProfile(controllerProfile);
+            controllerProfile.setId(controllerProfileId);
+
+            for (ControllerEvent controllerEvent : controllerProfile.getControllerEvents()) {
+                controllerEvent.setControllerProfileId(controllerProfileId);
+
+                long controllerEventId = insertControllerEvent(controllerEvent);
+                controllerEvent.setId(controllerEventId);
+
+                for (ControllerAction controllerAction : controllerEvent.getControllerActions()) {
+                    controllerAction.setControllerEventId(controllerEventId);
+
+                    controllerAction.setId(insertControllerAction(controllerAction));
+                }
+            }
+        }
+
+        return creationId;
+    }
+
+    @Transaction
     void deleteCreationRecursive(long creationId) {
         List<ControllerProfile> controllerProfiles = getControllerProfiles(creationId);
 

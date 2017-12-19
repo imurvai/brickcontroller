@@ -119,6 +119,13 @@ public final class CreationManager {
         Single.fromCallable(() -> {
             Creation creation = new Creation(0, creationName);
             creationRepository.insertCreation(creation);
+
+//            if (controllerProfileName != null) {
+//                ControllerProfile controllerProfile = new ControllerProfile(0, creation.getId(), controllerProfileName);
+//                creationRepository.insertControllerProfile(creation, controllerProfile);
+//                creation.addControllerProfile(controllerProfile);
+//            }
+
             return true;
         })
                 .subscribeOn(Schedulers.io())
@@ -160,6 +167,36 @@ public final class CreationManager {
                         },
                         error -> {
                             Logger.e(TAG, "Remove creation onError...", error);
+                            setState(State.OK, true);
+                        });
+
+        return true;
+    }
+
+    @MainThread
+    public boolean updateCreationAsync(@NonNull final Creation creation, @NonNull String newName) {
+        Logger.i(TAG, "removeCreationAsync - " + creation);
+
+        if (getCurrentState() != State.OK) {
+            Logger.w(TAG, "  wrong state - " + getCurrentState().toString());
+            return false;
+        }
+
+        setState(State.UPDATING, false);
+
+        Single.fromCallable(() -> {
+            creationRepository.updateCreation(creation, newName);
+            return true;
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        x -> {
+                            Logger.i(TAG, "Update creation onSuccess...");
+                            setState(State.OK, false, newName);
+                        },
+                        error -> {
+                            Logger.e(TAG, "Update creation onError...", error);
                             setState(State.OK, true);
                         });
 

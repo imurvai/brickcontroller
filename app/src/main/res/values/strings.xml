@@ -15,6 +15,7 @@
     <string name="rename">Rename</string>
     <string name="remove">Remove</string>
     <string name="removing">Removing...</string>
+    <string name="updating">Updating...</string>
     <string name="connecting">Connecting...</string>
     <string name="reconnecting">Reconnecting...</string>
     <string name="disconnecting">Disconnecting...</string>
@@ -39,6 +40,7 @@
     <string name="enter_creation_name">Enter the creation name</string>
     <string name="creation_name_empty">Creation name can not be empty.</string>
     <string name="creation_name_exists">There is already a creation with this name.</string>
+    <string name="default_controller_profile">Default controller profile</string>
 
     <string name="device_management">Device management</string>
     <string name="settings">Settings</string>
@@ -50,16 +52,16 @@
     <string name="scanning">Scanning for devices...</string>
     <string name="are_you_sure_you_want_to_remove_all_devices">Are you sure you want to remove all the devices?</string>
     <string name="error_during_scanning_for_devices">Error during scanning for devices.</string>
-    <string name="failed_to_save_devices">Failed to save devices.</string>
-    <string name="failed_to_remove_devices">Failed to remove devices.</string>
+    <string name="error_during_saving_devices">Error during saving devices.</string>
+    <string name="error_during_removing_devices">Error during removing devices.</string>
     <string name="device_type_is_not_supported_yet">This type of device is not supported yet.</string>
     <string name="scan_devices">Please scan for devices</string>
     <string name="enter_device_name">Enter device name</string>
 
     <!-- Device details activity -->
     <string name="title_activity_device_details">Device details</string>
-    <string name="failed_to_update_device">Failed to update device name.</string>
-    <string name="failed_to_remove_device">Failed to remove device.</string>
+    <string name="error_during_updating_device">Error during updating device.</string>
+    <string name="error_during_removing_device">Error during removing device.</string>
     <string name="new_name">New name:</string>
     <string name="name_cannot_be_empty">The name cannot be empty.</string>
     <string name="output_level">Output level</string>
@@ -69,6 +71,19 @@
 
     <!-- Creation details activity -->
     <string name="title_activity_creation_details">Creation details</string>
+    <string name="play">Play</string>
+    <string name="creation_name">Creation name:</string>
+    <string name="controller_profiles">Controller profiles:</string>
+    <string name="enter_controller_profile_name">Enter the controller profile name</string>
+    <string name="controller_profile_name_empty">Controller profile name can not be empty.</string>
+    <string name="controller_profile_name_exists">There is already a controller profile with this name.</string>
+    <string name="error_during_updating_creation">Error during updating creation.</string>
+    <string name="error_during_adding_controller_profile">Error during adding controller profile.</string>
+    <string name="error_during_removing_controller_profile">Error during removing controller profile.</string>
+
+    <!-- Creation details activity -->
+    <string name="title_activity_controller_profile_details">Controller profile details</string>
+    <string name="press_controller_button">Press a button on the controller</string>
 
     <!-- Controller activity -->
     <string name="title_activity_controller">Controller</string>

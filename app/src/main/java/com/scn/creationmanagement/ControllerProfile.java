@@ -67,6 +67,8 @@ public final class ControllerProfile {
     public String getName() { return name; }
     void setName(String value) { name = value; }
 
+    public List<ControllerEvent> getControllerEvents() { return controllerEvents; }
+
     boolean addControllerEvent(ControllerEvent controllerEvent) {
         Logger.i(TAG, "addControllerEvent - " + controllerEvent);
 

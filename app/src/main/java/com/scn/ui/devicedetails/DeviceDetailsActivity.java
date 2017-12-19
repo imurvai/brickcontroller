@@ -8,7 +8,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.scn.devicemanagement.Device;
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
 import com.scn.ui.R;
@@ -47,6 +46,7 @@ public class DeviceDetailsActivity extends BaseActivity {
 
         setContentView(R.layout.activity_device_details);
         ButterKnife.bind(this);
+
         setSupportActionBar(toolbar);
 
         String deviceId = getIntent().getStringExtra(EXTRA_DEVICE_ID);
@@ -84,6 +84,7 @@ public class DeviceDetailsActivity extends BaseActivity {
                         newName -> {
                             if (newName.length() == 0) {
                                 showAlertDialog(getString(R.string.name_cannot_be_empty));
+                                return;
                             }
                             viewModel.updateDevice(newName);
                         });
@@ -117,7 +118,7 @@ public class DeviceDetailsActivity extends BaseActivity {
                         case UPDATING:
                             if (stateChange.isError()) {
                                 showAlertDialog(
-                                        getString(R.string.failed_to_update_device),
+                                        getString(R.string.error_during_updating_device),
                                         dialogInterface -> stateChange.resetPreviousState());
                             }
                             else {

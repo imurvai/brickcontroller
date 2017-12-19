@@ -85,6 +85,8 @@ public final class ControllerEvent {
     public int getEventCode() { return eventCode; }
     void setEventCode(int value) { eventCode = value; }
 
+    public List<ControllerAction> getControllerActions() { return controllerActions; }
+
     boolean addControllerAction(ControllerAction controllerAction) {
         Logger.i(TAG, "addControllerAction - " + controllerAction);
 

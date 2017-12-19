@@ -166,7 +166,7 @@ public class CreationListActivity extends BaseActivity implements NavigationView
             public void onClick(Creation creation) {
                 Logger.i(TAG, "onClick - creation: " + creation);
                 Intent intent = new Intent(CreationListActivity.this, CreationDetailsActivity.class);
-                intent.putExtra(EXTRA_DEVICE_ID, creation.getName());
+                intent.putExtra(EXTRA_CREATION_NAME, creation.getName());
                 startActivity(intent);
             }
 

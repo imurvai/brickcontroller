@@ -126,7 +126,7 @@ public class DeviceListActivity extends BaseActivity {
                         case REMOVING:
                             if (stateChange.isError()) {
                                 showAlertDialog(
-                                        getString(R.string.failed_to_remove_device),
+                                        getString(R.string.error_during_removing_device),
                                         dialogInterface -> stateChange.resetPreviousState());
                             }
                             else {
