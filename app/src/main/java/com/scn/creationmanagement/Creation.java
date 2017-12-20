@@ -59,8 +59,8 @@ public final class Creation {
         return controllerProfiles;
     }
 
-    public boolean checkControllerProfilerName(@NonNull String name) {
-        Logger.i(TAG, "checkControllerProfilerName - " + name);
+    public boolean checkControllerProfileName(@NonNull String name) {
+        Logger.i(TAG, "checkControllerProfileName - " + name);
 
         for (ControllerProfile controllerProfile : controllerProfiles) {
             if (controllerProfile.getName().equals(name)) {
@@ -72,7 +72,7 @@ public final class Creation {
         return true;
     }
 
-    boolean addControllerProfile(ControllerProfile controllerProfile) {
+    boolean addControllerProfile(@NonNull ControllerProfile controllerProfile) {
         Logger.i(TAG, "addControllerProfile - " + controllerProfile);
 
         if (controllerProfiles.contains(controllerProfile)) {
@@ -84,7 +84,7 @@ public final class Creation {
         return true;
     }
 
-    boolean removeControllerProfile(ControllerProfile controllerProfile) {
+    boolean removeControllerProfile(@NonNull ControllerProfile controllerProfile) {
         Logger.i(TAG, "removeControllerProfile - " + controllerProfile);
 
         if (!controllerProfiles.contains(controllerProfile)) {

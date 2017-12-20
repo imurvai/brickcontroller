@@ -80,10 +80,14 @@
     <string name="error_during_updating_creation">Error during updating creation.</string>
     <string name="error_during_adding_controller_profile">Error during adding controller profile.</string>
     <string name="error_during_removing_controller_profile">Error during removing controller profile.</string>
+    <string name="add_controller_profile">Please add a controller profile</string>
 
-    <!-- Creation details activity -->
+    <!-- Controller profile details activity -->
     <string name="title_activity_controller_profile_details">Controller profile details</string>
     <string name="press_controller_button">Press a button on the controller</string>
+
+    <!-- Controller action activity -->
+    <string name="title_activity_controller_action">Controller action</string>
 
     <!-- Controller activity -->
     <string name="title_activity_controller">Controller</string>

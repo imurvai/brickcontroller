@@ -215,6 +215,104 @@ public final class CreationManager {
         return creationRepository.getCreation(creationName);
     }
 
+    @MainThread
+    public boolean addControllerProfileAsync(@NonNull final Creation creation, @NonNull final String controllerProfileName) {
+        Logger.i(TAG, "addControllerProfileAsync - " + controllerProfileName);
+
+        if (getCurrentState() != State.OK) {
+            Logger.w(TAG, "  wrong state - " + getCurrentState().toString());
+            return false;
+        }
+
+        setState(State.INSERTING, false);
+
+        Single.fromCallable(() -> {
+            ControllerProfile controllerProfile = new ControllerProfile(0, creation.getId(), controllerProfileName);
+            creationRepository.insertControllerProfile(creation, controllerProfile);
+
+//            if (controllerProfileName != null) {
+//                ControllerProfile controllerProfile = new ControllerProfile(0, creation.getId(), controllerProfileName);
+//                creationRepository.insertControllerProfile(creation, controllerProfile);
+//                creation.addControllerProfile(controllerProfile);
+//            }
+
+            return true;
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        x -> {
+                            Logger.i(TAG, "Insert controller profile onSuccess...");
+                            setState(State.OK, false, controllerProfileName);
+                        },
+                        error -> {
+                            Logger.e(TAG, "Insert controller profile onError...", error);
+                            setState(State.OK, true);
+                        });
+
+        return true;
+    }
+
+    @MainThread
+    public boolean removeControllerProfileAsync(@NonNull final Creation creation, @NonNull final ControllerProfile controllerProfile) {
+        Logger.i(TAG, "removeControllerProfileAsync - " + controllerProfile);
+
+        if (getCurrentState() != State.OK) {
+            Logger.w(TAG, "  wrong state - " + getCurrentState().toString());
+            return false;
+        }
+
+        setState(State.REMOVING, false);
+
+        Single.fromCallable(() -> {
+            creationRepository.removeControllerProfile(creation, controllerProfile);
+            return true;
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        x -> {
+                            Logger.i(TAG, "Remove controller profile onSuccess...");
+                            setState(State.OK, false);
+                        },
+                        error -> {
+                            Logger.e(TAG, "Remove controller profile onError...", error);
+                            setState(State.OK, true);
+                        });
+
+        return true;
+    }
+
+    @MainThread
+    public boolean updateControllerProfileAsync(@NonNull final ControllerProfile controllerProfile, @NonNull String newName) {
+        Logger.i(TAG, "updateControllerProfileAsync - " + controllerProfile);
+
+        if (getCurrentState() != State.OK) {
+            Logger.w(TAG, "  wrong state - " + getCurrentState().toString());
+            return false;
+        }
+
+        setState(State.UPDATING, false);
+
+        Single.fromCallable(() -> {
+            creationRepository.updateControllerProfile(controllerProfile, newName);
+            return true;
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        x -> {
+                            Logger.i(TAG, "Update controller profile onSuccess...");
+                            setState(State.OK, false, newName);
+                        },
+                        error -> {
+                            Logger.e(TAG, "Update controller profile onError...", error);
+                            setState(State.OK, true);
+                        });
+
+        return true;
+    }
+
     //
     // Private methods
     //

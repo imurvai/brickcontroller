@@ -120,10 +120,11 @@ final class CreationRepository {
         Logger.i(TAG, "insertControllerProfile - " + controllerProfile);
         controllerProfile.setId(creationDao.insertControllerProfile(controllerProfile));
         creation.addControllerProfile(controllerProfile);
+        creationListLiveData.postValue(creationList);
     }
 
     @WorkerThread
-    public synchronized void updateControllerProfile(@NonNull Creation creation, @NonNull ControllerProfile controllerProfile, @NonNull String newName) {
+    public synchronized void updateControllerProfile(@NonNull ControllerProfile controllerProfile, @NonNull String newName) {
         Logger.i(TAG, "updateControllerProfile - " + controllerProfile + ", new name: " + newName);
 
         String originalName = controllerProfile.getName();
@@ -135,6 +136,8 @@ final class CreationRepository {
             Logger.e(TAG, "  Could not update controller profile - " + controllerProfile);
             controllerProfile.setName(originalName);
         }
+
+        creationListLiveData.postValue(creationList);
     }
 
     @WorkerThread
@@ -142,6 +145,7 @@ final class CreationRepository {
         Logger.i(TAG, "removeControllerProfile - " + controllerProfile);
         creationDao.deleteControllerProfileRecursive(controllerProfile.getId());
         creation.removeControllerProfile(controllerProfile);
+        creationListLiveData.postValue(creationList);
     }
 
     @WorkerThread
@@ -149,6 +153,7 @@ final class CreationRepository {
         Logger.i(TAG, "insertControllerEvent - " + controllerEvent);
         controllerEvent.setId(creationDao.insertControllerEvent(controllerEvent));
         controllerProfile.addControllerEvent(controllerEvent);
+        creationListLiveData.postValue(creationList);
     }
 
     public synchronized Creation getCreation(@NonNull String creationName) {

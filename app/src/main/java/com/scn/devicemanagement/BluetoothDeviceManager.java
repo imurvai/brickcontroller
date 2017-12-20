@@ -35,7 +35,7 @@ final class BluetoothDeviceManager extends SpecificDeviceManager {
     private static final String TAG = BluetoothDeviceManager.class.getSimpleName();
 
     private BluetoothAdapter bluetoothAdapter;
-    private BluetoothLeScanner bluetoothLeScanner;
+    private BluetoothLeScanner bluetoothLeScanner = null;
 
     private ObservableEmitter<Device> deviceEmitter;
     private Object deviceEmitterLock = new Object();
@@ -56,10 +56,6 @@ final class BluetoothDeviceManager extends SpecificDeviceManager {
         bluetoothAdapter = bluetoothManager.getAdapter();
         if (bluetoothAdapter == null)
             throw new RuntimeException("Can't find bluetooth adapter.");
-
-        bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
-        if (bluetoothLeScanner == null)
-            throw new RuntimeException("Can't find bluetooth LE scanner.");
     }
 
     //
@@ -116,7 +112,7 @@ final class BluetoothDeviceManager extends SpecificDeviceManager {
 
                 synchronized (deviceEmitterLock) {
                     if (deviceEmitter == null) {
-                        bluetoothLeScanner.startScan(scanCallback);
+                        getBluetoothLeScanner().startScan(scanCallback);
                         deviceEmitter = emitter;
                     }
                 }
@@ -136,7 +132,7 @@ final class BluetoothDeviceManager extends SpecificDeviceManager {
             }
 
             try {
-                bluetoothLeScanner.stopScan(scanCallback);
+                getBluetoothLeScanner().stopScan(scanCallback);
             }
             finally {
                 deviceEmitter.onComplete();
@@ -167,6 +163,14 @@ final class BluetoothDeviceManager extends SpecificDeviceManager {
     //
     // Private
     //
+
+    private BluetoothLeScanner getBluetoothLeScanner() {
+        Logger.i(TAG, "getBluetoothLeScanner...");
+        if (bluetoothLeScanner == null) {
+            bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
+        }
+        return bluetoothLeScanner;
+    }
 
     private ScanCallback scanCallback = new ScanCallback() {
         @Override

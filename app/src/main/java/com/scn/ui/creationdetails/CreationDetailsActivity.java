@@ -12,6 +12,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.scn.creationmanagement.ControllerProfile;
+import com.scn.creationmanagement.Creation;
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
 import com.scn.ui.R;
@@ -174,7 +176,7 @@ public class CreationDetailsActivity extends BaseActivity {
                                         dialogInterface -> stateChange.resetPreviousState());
                             }
                             else {
-                                creationNameTextView.setText(viewModel.getCreation().getName());
+                                //creationNameTextView.setText(viewModel.getCreation().getName());
                                 stateChange.resetPreviousState();
                             }
                             break;
@@ -194,6 +196,12 @@ public class CreationDetailsActivity extends BaseActivity {
                     break;
             }
         });
+
+        viewModel.getCreationListLiveData().observe(CreationDetailsActivity.this, creations -> {
+            Creation creation = viewModel.getCreation();
+            creationNameTextView.setText(creation.getName());
+            creationDetailsAdapter.setControllerProfile(creation.getControllerProfiles());
+        });
     }
 
     private void setupRecyclerView() {
@@ -201,6 +209,24 @@ public class CreationDetailsActivity extends BaseActivity {
         recyclerView.addItemDecoration(new DividerItemDecoration(CreationDetailsActivity.this, DividerItemDecoration.VERTICAL));
         recyclerView.setAdapter(creationDetailsAdapter);
 
+        creationDetailsAdapter.setControllerProfileClickListener(new CreationDetailsAdapter.OnControllerProfileClickListener() {
+            @Override
+            public void onClick(ControllerProfile controllerProfile) {
+                Logger.i(TAG, "onClick - " + controllerProfile);
 
+                showAlertDialog("not implemented.");
+            }
+
+            @Override
+            public void onRemoveClick(ControllerProfile controllerProfile) {
+                Logger.i(TAG, "onRemoveClick - " + controllerProfile);
+                showQuestionDialog(
+                        getString(R.string.are_you_sure_you_want_to_remove),
+                        getString(R.string.yes),
+                        getString(R.string.no),
+                        (dialogInterface, i) -> viewModel.removeControllerProfile(controllerProfile),
+                        (dialogInterface, i) -> {});
+            }
+        });
     }
 }

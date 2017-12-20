@@ -1,7 +1,6 @@
 package com.scn.ui.creationdetails;
 
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
@@ -12,7 +11,6 @@ import com.scn.creationmanagement.Creation;
 import com.scn.creationmanagement.CreationManager;
 import com.scn.logger.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -32,7 +30,6 @@ public class CreationDetailsViewModel extends ViewModel {
     private CreationManager creationManager;
 
     private Creation creation;
-    private MutableLiveData<List<ControllerProfile>> controllerProfileListLiveData = new MutableLiveData<>();
 
     //
     // Constructor
@@ -42,7 +39,6 @@ public class CreationDetailsViewModel extends ViewModel {
     public CreationDetailsViewModel(CreationManager creationManager) {
         Logger.i(TAG, "constructor...");
         this.creationManager = creationManager;
-        this.controllerProfileListLiveData.setValue(new ArrayList<>());
     }
 
     //
@@ -82,8 +78,8 @@ public class CreationDetailsViewModel extends ViewModel {
     }
 
     @MainThread
-    LiveData<List<ControllerProfile>> getControllerProfileLiveData() {
-        return controllerProfileListLiveData;
+    LiveData<List<Creation>> getCreationListLiveData() {
+        return creationManager.getCreationListLiveData();
     }
 
     @MainThread
@@ -101,18 +97,18 @@ public class CreationDetailsViewModel extends ViewModel {
     @MainThread
     boolean checkControllerProfileName(@NonNull String name) {
         Logger.i(TAG, "checkControllerProfileName - " + name);
-        return false;
+        return creation.checkControllerProfileName(name);
     }
 
     @MainThread
     boolean addControllerProfile(@NonNull String name) {
         Logger.i(TAG, "addControllerProfile - " + name);
-        return false;
+        return creationManager.addControllerProfileAsync(creation, name);
     }
 
     @MainThread
     boolean removeControllerProfile(ControllerProfile controllerProfile) {
         Logger.i(TAG, "removeControllerProfile - " + controllerProfile);
-        return false;
+        return creationManager.removeControllerProfileAsync(creation, controllerProfile);
     }
 }
