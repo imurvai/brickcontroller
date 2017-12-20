@@ -17,6 +17,8 @@ import com.scn.creationmanagement.Creation;
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
 import com.scn.ui.R;
+import com.scn.ui.controller.ControllerActivity;
+import com.scn.ui.controllerprofiledetails.ControllerProfileDetailsActivity;
 
 import javax.inject.Inject;
 
@@ -58,7 +60,6 @@ public class CreationDetailsActivity extends BaseActivity {
         setupActivityComponents();
 
         String creationName = getIntent().getStringExtra(EXTRA_CREATION_NAME);
-        creationNameTextView.setText(creationName);
         setupViewModel(creationName);
         setupRecyclerView();
     }
@@ -98,7 +99,20 @@ public class CreationDetailsActivity extends BaseActivity {
                 return true;
 
             case R.id.menu_item_play:
-                break;
+                if (!viewModel.checkIfCreationPlayable()) {
+                    showAlertDialog(getString(R.string.no_controller_actions));
+                    return true;
+                }
+
+                if (!viewModel.checkIfDevicesAreAvailable()) {
+                    showAlertDialog(getString(R.string.missing_device));
+                    return true;
+                }
+
+                Intent intent = new Intent(CreationDetailsActivity.this, ControllerActivity.class);
+                intent.putExtra(EXTRA_CREATION_NAME, viewModel.getCreation().getName());
+                startActivity(intent);
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -151,10 +165,7 @@ public class CreationDetailsActivity extends BaseActivity {
                             }
                             else {
                                 stateChange.resetPreviousState();
-
-                                //Intent intent = new Intent(CreationDetailsActivity.this, ControllerProfileDetailsActivity.class);
-                                //intent.putExtra(EXTRA_CONTROLLER_PROFILE_ID, (String)stateChange.getData());
-                                //startActivity(intent);
+                                startControllerProfileDetailsActivity((long)stateChange.getData());
                             }
                             break;
 
@@ -213,8 +224,7 @@ public class CreationDetailsActivity extends BaseActivity {
             @Override
             public void onClick(ControllerProfile controllerProfile) {
                 Logger.i(TAG, "onClick - " + controllerProfile);
-
-                showAlertDialog("not implemented.");
+                startControllerProfileDetailsActivity(controllerProfile.getId());
             }
 
             @Override
@@ -228,5 +238,11 @@ public class CreationDetailsActivity extends BaseActivity {
                         (dialogInterface, i) -> {});
             }
         });
+    }
+
+    private void startControllerProfileDetailsActivity(long controllerProfileId) {
+        Intent intent = new Intent(CreationDetailsActivity.this, ControllerProfileDetailsActivity.class);
+        intent.putExtra(EXTRA_CONTROLLER_PROFILE_ID, controllerProfileId);
+        startActivity(intent);
     }
 }

@@ -59,6 +59,25 @@ public final class Creation {
         return controllerProfiles;
     }
 
+    public List<String> getUsedDeviceIds() {
+        Logger.i(TAG, "getUsedDeviceIds - " + this);
+
+        List<String> deviceIds = new ArrayList<>();
+
+        for (ControllerProfile controllerProfile : controllerProfiles) {
+            for (ControllerEvent controllerEvent : controllerProfile.getControllerEvents()) {
+                for (ControllerAction controllerAction : controllerEvent.getControllerActions()) {
+                    String deviceId = controllerAction.getDeviceId();
+                    if (!deviceIds.contains(deviceId)) {
+                        deviceIds.add(deviceId);
+                    }
+                }
+            }
+        }
+
+        return deviceIds;
+    }
+
     public boolean checkControllerProfileName(@NonNull String name) {
         Logger.i(TAG, "checkControllerProfileName - " + name);
 

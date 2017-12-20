@@ -9,6 +9,7 @@ import com.scn.common.StateChange;
 import com.scn.creationmanagement.ControllerProfile;
 import com.scn.creationmanagement.Creation;
 import com.scn.creationmanagement.CreationManager;
+import com.scn.devicemanagement.DeviceManager;
 import com.scn.logger.Logger;
 
 import java.util.List;
@@ -28,6 +29,7 @@ public class CreationDetailsViewModel extends ViewModel {
     private static final String TAG = CreationDetailsViewModel.class.getSimpleName();
 
     private CreationManager creationManager;
+    private DeviceManager deviceManager;
 
     private Creation creation;
 
@@ -36,9 +38,10 @@ public class CreationDetailsViewModel extends ViewModel {
     //
 
     @Inject
-    public CreationDetailsViewModel(CreationManager creationManager) {
+    public CreationDetailsViewModel(@NonNull CreationManager creationManager, @NonNull DeviceManager deviceManager) {
         Logger.i(TAG, "constructor...");
         this.creationManager = creationManager;
+        this.deviceManager = deviceManager;
     }
 
     //
@@ -86,6 +89,26 @@ public class CreationDetailsViewModel extends ViewModel {
     boolean checkCreationName(@NonNull String name) {
         Logger.i(TAG, "checkCreationName - " + name);
         return creationManager.checkCreationName(name);
+    }
+
+    @MainThread
+    boolean checkIfCreationPlayable() {
+        Logger.i(TAG, "checkCreationPlayability...");
+        return creation.getUsedDeviceIds().size() > 0;
+    }
+
+    @MainThread
+    boolean checkIfDevicesAreAvailable() {
+        Logger.i(TAG, "checkIfDevicesAreAvailable...");
+
+        for (String deviceId : creation.getUsedDeviceIds()) {
+            if (deviceManager.getDevice(deviceId) == null) {
+                Logger.w(TAG, "  Device (" + deviceId + ") is missing.");
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @MainThread

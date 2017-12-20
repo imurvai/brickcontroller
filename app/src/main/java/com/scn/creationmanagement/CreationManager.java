@@ -210,9 +210,21 @@ public final class CreationManager {
     }
 
     @MainThread
+    public Creation getCreation(long creationId) {
+        Logger.i(TAG, "getCreation - " + creationId);
+        return creationRepository.getCreation(creationId);
+    }
+
+    @MainThread
     public Creation getCreation(String creationName) {
         Logger.i(TAG, "getCreation - " + creationName);
         return creationRepository.getCreation(creationName);
+    }
+
+    @MainThread
+    public ControllerProfile getControllerProfile(long controllerProfileId) {
+        Logger.i(TAG, "getControllerProfile - " + controllerProfileId);
+        return creationRepository.getControllerProfile(controllerProfileId);
     }
 
     @MainThread
@@ -229,21 +241,14 @@ public final class CreationManager {
         Single.fromCallable(() -> {
             ControllerProfile controllerProfile = new ControllerProfile(0, creation.getId(), controllerProfileName);
             creationRepository.insertControllerProfile(creation, controllerProfile);
-
-//            if (controllerProfileName != null) {
-//                ControllerProfile controllerProfile = new ControllerProfile(0, creation.getId(), controllerProfileName);
-//                creationRepository.insertControllerProfile(creation, controllerProfile);
-//                creation.addControllerProfile(controllerProfile);
-//            }
-
-            return true;
+            return controllerProfile;
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        x -> {
+                        controllerProfile -> {
                             Logger.i(TAG, "Insert controller profile onSuccess...");
-                            setState(State.OK, false, controllerProfileName);
+                            setState(State.OK, false, controllerProfile.getId());
                         },
                         error -> {
                             Logger.e(TAG, "Insert controller profile onError...", error);

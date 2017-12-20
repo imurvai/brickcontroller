@@ -14,6 +14,7 @@ import com.scn.devicemanagement.DeviceManager;
 import com.scn.logger.Logger;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -34,6 +35,7 @@ public class ControllerViewModel extends ViewModel {
     private CreationManager creationManager;
 
     private Creation creation;
+    private ControllerProfile selectedControllerProfile;
 
     private Map<String, Device> deviceMap = new HashMap<>();
     private Map<Pair<Device, Integer>, Integer> actionMap = new HashMap<>();
@@ -64,8 +66,8 @@ public class ControllerViewModel extends ViewModel {
     //
 
     @MainThread
-    void setCreation(String creationName) {
-        Logger.i(TAG, "setCreation - " + creationName);
+    void initialize(String creationName) {
+        Logger.i(TAG, "initialize - " + creationName);
 
         if (creation != null) {
             Logger.i(TAG, "  Creation has already been set.");
@@ -73,10 +75,24 @@ public class ControllerViewModel extends ViewModel {
         }
 
         creation = creationManager.getCreation(creationName);
+        selectedControllerProfile = creation.getControllerProfiles().get(0);
 
-        for (ControllerProfile controllerProfile : creation.getControllerProfiles()) {
-
+        for (String deviceId : creation.getUsedDeviceIds()) {
+            Device device = deviceManager.getDevice(deviceId);
+            if (device != null && !deviceMap.containsKey(deviceId)) {
+                deviceMap.put(deviceId, device);
+            }
         }
+    }
+
+    @MainThread
+    Creation getCreation() {
+        return creation;
+    }
+
+    @MainThread
+    List<ControllerProfile> getControllerProfiles() {
+        return creation.getControllerProfiles();
     }
 
     @MainThread
@@ -103,7 +119,7 @@ public class ControllerViewModel extends ViewModel {
     }
 
     @MainThread
-    void controllerAction(ControllerEvent controllerEvent, int value) {
+    void controllerAction(ControllerEvent.ControllerEventType eventType, int controllerEventCode, int value) {
 
     }
 

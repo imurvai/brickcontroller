@@ -98,6 +98,7 @@ public class ControllerActivity extends BaseActivity {
     //
 
     private void setupViewModel(String creationName) {
-        viewModel.setCreation(creationName);
+        viewModel = getViewModel(ControllerViewModel.class);
+        viewModel.initialize(creationName);
     }
 }

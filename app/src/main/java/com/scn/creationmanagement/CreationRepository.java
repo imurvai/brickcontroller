@@ -156,6 +156,17 @@ final class CreationRepository {
         creationListLiveData.postValue(creationList);
     }
 
+    public synchronized Creation getCreation(long creationId) {
+        Logger.i(TAG, "getCreation - " + creationId);
+
+        for (Creation creation : creationList) {
+            if (creation.getId() == creationId) return creation;
+        }
+
+        Logger.w(TAG, "  Could not find creation.");
+        return null;
+    }
+
     public synchronized Creation getCreation(@NonNull String creationName) {
         Logger.i(TAG, "getCreation - " + creationName);
 
@@ -164,6 +175,19 @@ final class CreationRepository {
         }
 
         Logger.w(TAG, "  Could not find creation.");
+        return null;
+    }
+
+    public synchronized ControllerProfile getControllerProfile(long controllerProfileId) {
+        Logger.i(TAG, "getControllerProfile - " + controllerProfileId);
+
+        for (Creation creation : creationList) {
+            for (ControllerProfile controllerProfile : creation.getControllerProfiles()) {
+                if (controllerProfile.getId() == controllerProfileId) return controllerProfile;
+            }
+        }
+
+        Logger.w(TAG, "  Could not find controller profile.");
         return null;
     }
 

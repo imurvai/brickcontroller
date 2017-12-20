@@ -31,7 +31,7 @@
     </RelativeLayout>
 
     <LinearLayout
-        android:id="@+id/controller_action_layout"
+        android:id="@+id/controller_action_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">

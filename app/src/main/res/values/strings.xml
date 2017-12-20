@@ -81,12 +81,17 @@
     <string name="error_during_adding_controller_profile">Error during adding controller profile.</string>
     <string name="error_during_removing_controller_profile">Error during removing controller profile.</string>
     <string name="add_controller_profile">Please add a controller profile</string>
+    <string name="no_controller_actions">No controller actions have been added to this creation yet. Please add at least one controller profile, then events with controller actions.</string>
+    <string name="missing_device">Some of the referenced devices are missing.</string>
 
     <!-- Controller profile details activity -->
     <string name="title_activity_controller_profile_details">Controller profile details</string>
     <string name="controller_profile_name">Cotnroller profile name</string>
     <string name="controller_events">Controller events:</string>
     <string name="press_controller_button">Press a button on the controller</string>
+    <string name="error_during_updating_controller_profile">Error during updating controller profile.</string>
+    <string name="error_during_adding_controller_event">Error during adding controller event.</string>
+    <string name="error_during_removing_controller_event">Error during removing controller event.</string>
 
     <!-- Controller action activity -->
     <string name="title_activity_controller_action">Controller action</string>
