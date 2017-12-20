@@ -47,6 +47,11 @@
             android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
+            android:name="com.scn.ui.controllerprofiledetails.ControllerProfileDetailsActivity"
+            android:label="@string/title_activity_controller_profile_details"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity
             android:name="com.scn.ui.controller.ControllerActivity"
             android:label="@string/title_activity_controller"
             android:theme="@style/AppTheme.NoActionBar" />

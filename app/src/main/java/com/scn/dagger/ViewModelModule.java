@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModelProvider;
 
 import com.scn.ui.BrickControllerViewModelFactory;
 import com.scn.ui.controller.ControllerViewModel;
+import com.scn.ui.controllerprofiledetails.ControllerProfileDetailsViewModel;
 import com.scn.ui.creationdetails.CreationDetailsViewModel;
 import com.scn.ui.creationlist.CreationListViewModel;
 import com.scn.ui.devicedetails.DeviceDetailsViewModel;
@@ -40,6 +41,11 @@ public abstract class ViewModelModule {
     @IntoMap
     @ViewModelKey(CreationDetailsViewModel.class)
     abstract ViewModel bindCreationDetailsViewModel(CreationDetailsViewModel vm);
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(ControllerProfileDetailsViewModel.class)
+    abstract ViewModel bindControllerProfileDetailsViewModel(ControllerProfileDetailsViewModel vm);
 
     @Binds
     @IntoMap

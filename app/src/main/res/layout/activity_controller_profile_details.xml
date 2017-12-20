@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.scn.ui.creationdetails.CreationDetailsActivity">
+    tools:context="com.scn.ui.controllerprofiledetails.ControllerProfileDetailsActivity">
 
     <!-- AppBar -->
 
@@ -20,7 +20,7 @@
             android:layout_height="@dimen/action_bar_size"
             android:background="@color/colorAccent"
             app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:title="@string/title_activity_creation_details"/>
+            app:title="@string/title_activity_controller_profile_details"/>
     </android.support.design.widget.AppBarLayout>
 
     <!-- Content -->
@@ -32,7 +32,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context="com.scn.ui.creationdetails.CreationDetailsActivity">
+        tools:context="com.scn.ui.controllerprofiledetails.ControllerProfileDetailsActivity">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -44,22 +44,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
-                android:text="@string/creation_name"/>
+                android:text="@string/controller_profile_name"/>
 
             <TextView
-                android:id="@+id/creation_name"
+                android:id="@+id/controller_profile_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:text="Creation"/>
+                android:text="Controller profile"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="8dp"
                 android:textSize="16sp"
-                android:text="@string/controller_profiles"/>
+                android:text="@string/controller_events"/>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recyclerview"

@@ -45,7 +45,7 @@ public class CreationListActivity extends BaseActivity implements NavigationView
     @BindView(R.id.nav_view) NavigationView navigationView;
     @BindView(R.id.recyclerview) RecyclerView recyclerView;
 
-    CreationListViewModel viewModel;
+    private CreationListViewModel viewModel;
     @Inject CreationListAdapter creationListAdapter;
     @Inject DeviceManager deviceManager;
 

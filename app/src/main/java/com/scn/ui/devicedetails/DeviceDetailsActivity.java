@@ -29,7 +29,7 @@ public class DeviceDetailsActivity extends BaseActivity {
 
     private static final String TAG = DeviceDetailsActivity.class.getSimpleName();
 
-    DeviceDetailsViewModel viewModel;
+    private DeviceDetailsViewModel viewModel;
     @Inject DeviceDetailsAdapter deviceDetailsAdapter;
 
     @BindView(R.id.toolbar) Toolbar toolbar;

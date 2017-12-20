@@ -35,7 +35,7 @@ public class CreationDetailsActivity extends BaseActivity {
 
     private static final String TAG = CreationDetailsActivity.class.getSimpleName();
 
-    public CreationDetailsViewModel viewModel;
+    private CreationDetailsViewModel viewModel;
     @Inject CreationDetailsAdapter creationDetailsAdapter;
 
     @BindView(R.id.toolbar) Toolbar toolbar;

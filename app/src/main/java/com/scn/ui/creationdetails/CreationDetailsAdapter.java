@@ -42,7 +42,6 @@ final class CreationDetailsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     // RecyclerView.Adapter overrides
     //
 
-
     @Override
     public int getItemViewType(int position) {
         if (controllerProfileList == null || controllerProfileList.size() == 0) {
