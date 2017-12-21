@@ -9,6 +9,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.scn.creationmanagement.ControllerProfile;
+import com.scn.ui.DefaultRecyclerViewViewHolder;
+import com.scn.ui.OnListItemClickListener;
 import com.scn.ui.R;
 
 import java.util.ArrayList;
@@ -23,11 +25,6 @@ import butterknife.ButterKnife;
 
 final class CreationDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    public interface OnControllerProfileClickListener {
-        void onClick(ControllerProfile controllerProfile);
-        void onRemoveClick(ControllerProfile controllerProfile);
-    }
-
     //
     // Private members
     //
@@ -36,7 +33,7 @@ final class CreationDetailsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private static final int VIEWTYPE_DEFAULT = 2;
 
     private List<ControllerProfile> controllerProfileList = new ArrayList<>();
-    private OnControllerProfileClickListener controllerProfileClickListener = null;
+    private OnListItemClickListener<ControllerProfile> listItemClickListener = null;
 
     //
     // RecyclerView.Adapter overrides
@@ -64,8 +61,8 @@ final class CreationDetailsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             case VIEWTYPE_DEFAULT: {
                 View view = LayoutInflater
                         .from(parent.getContext())
-                        .inflate(R.layout.list_item_creation_details_default, parent, false);
-                return new CreationDetailsDefaultViewHolder(view);
+                        .inflate(R.layout.list_item_default, parent, false);
+                return new DefaultRecyclerViewViewHolder(view, parent.getContext().getString(R.string.add_controller_profile));
             }
         }
 
@@ -77,11 +74,7 @@ final class CreationDetailsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         int viewType = getItemViewType(position);
         switch (viewType) {
             case VIEWTYPE_CONTROLLER_PROFILE:
-                ((ControllerProfileItemViewHolder)holder).bind(controllerProfileList.get(position), controllerProfileClickListener);
-                break;
-
-            case VIEWTYPE_DEFAULT:
-                ((CreationDetailsDefaultViewHolder)holder).bind();
+                ((ControllerProfileItemViewHolder)holder).bind(controllerProfileList.get(position), listItemClickListener);
                 break;
         }
     }
@@ -104,8 +97,8 @@ final class CreationDetailsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         notifyDataSetChanged();
     }
 
-    public void setControllerProfileClickListener(@NonNull OnControllerProfileClickListener controllerProfileClickListener) {
-        this.controllerProfileClickListener = controllerProfileClickListener;
+    public void setListItemClickListener(@NonNull OnListItemClickListener<ControllerProfile> listItemClickListener) {
+        this.listItemClickListener = listItemClickListener;
         notifyDataSetChanged();
     }
 
@@ -123,25 +116,16 @@ final class CreationDetailsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(final ControllerProfile controllerProfile, final OnControllerProfileClickListener controllerProfileClickListener) {
+        public void bind(final ControllerProfile controllerProfile, final OnListItemClickListener<ControllerProfile> controllerProfileClickListener) {
             controllerProfileNameTextView.setText(controllerProfile.getName());
 
             itemView.setOnClickListener(view -> {
-                if (controllerProfileClickListener != null) controllerProfileClickListener.onClick(controllerProfile);
+                if (controllerProfileClickListener != null) controllerProfileClickListener.onClick(controllerProfile, OnListItemClickListener.ItemClickAction.CLICK, null);
             });
 
             removeControllerProfileButton.setOnClickListener(view -> {
-                if (controllerProfileClickListener != null) controllerProfileClickListener.onRemoveClick(controllerProfile);
+                if (controllerProfileClickListener != null) controllerProfileClickListener.onClick(controllerProfile, OnListItemClickListener.ItemClickAction.REMOVE, null);
             });
         }
-    }
-
-    public class CreationDetailsDefaultViewHolder extends RecyclerView.ViewHolder {
-
-        public CreationDetailsDefaultViewHolder(View itemView) {
-            super(itemView);
-        }
-
-        public void bind() {}
     }
 }

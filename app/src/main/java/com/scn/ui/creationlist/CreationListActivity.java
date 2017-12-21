@@ -20,6 +20,7 @@ import com.scn.creationmanagement.Creation;
 import com.scn.devicemanagement.DeviceManager;
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
+import com.scn.ui.OnListItemClickListener;
 import com.scn.ui.R;
 import com.scn.ui.about.AboutActivity;
 import com.scn.ui.creationdetails.CreationDetailsActivity;
@@ -161,24 +162,23 @@ public class CreationListActivity extends BaseActivity implements NavigationView
         recyclerView.addItemDecoration(new DividerItemDecoration(CreationListActivity.this, DividerItemDecoration.VERTICAL));
         recyclerView.setAdapter(creationListAdapter);
 
-        creationListAdapter.setCreationClickListener(new CreationListAdapter.OnCreationClickListener() {
-            @Override
-            public void onClick(Creation creation) {
-                Logger.i(TAG, "onClick - creation: " + creation);
-                Intent intent = new Intent(CreationListActivity.this, CreationDetailsActivity.class);
-                intent.putExtra(EXTRA_CREATION_NAME, creation.getName());
-                startActivity(intent);
-            }
+        creationListAdapter.setListItemClickListener((creation, itemClickAction, data) -> {
+            Logger.i(TAG, "onClick - creation: " + creation);
+            switch (itemClickAction) {
+                case CLICK:
+                    Intent intent = new Intent(CreationListActivity.this, CreationDetailsActivity.class);
+                    intent.putExtra(EXTRA_CREATION_NAME, creation.getName());
+                    startActivity(intent);
+                    break;
 
-            @Override
-            public void onRemoveClick(Creation creation) {
-                Logger.i(TAG, "onRemoveClick - creation: " + creation);
-                showQuestionDialog(
-                        getString(R.string.are_you_sure_you_want_to_remove),
-                        getString(R.string.yes),
-                        getString(R.string.no),
-                        (dialogInterface, i) -> viewModel.removeCreation(creation),
-                        (dialogInterface, i) -> {});
+                case REMOVE:
+                    showQuestionDialog(
+                            getString(R.string.are_you_sure_you_want_to_remove),
+                            getString(R.string.yes),
+                            getString(R.string.no),
+                            (dialogInterface, i) -> viewModel.removeCreation(creation),
+                            (dialogInterface, i) -> {});
+                    break;
             }
         });
     }

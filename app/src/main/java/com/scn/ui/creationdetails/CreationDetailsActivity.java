@@ -16,6 +16,7 @@ import com.scn.creationmanagement.ControllerProfile;
 import com.scn.creationmanagement.Creation;
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
+import com.scn.ui.OnListItemClickListener;
 import com.scn.ui.R;
 import com.scn.ui.controller.ControllerActivity;
 import com.scn.ui.controllerprofiledetails.ControllerProfileDetailsActivity;
@@ -220,22 +221,21 @@ public class CreationDetailsActivity extends BaseActivity {
         recyclerView.addItemDecoration(new DividerItemDecoration(CreationDetailsActivity.this, DividerItemDecoration.VERTICAL));
         recyclerView.setAdapter(creationDetailsAdapter);
 
-        creationDetailsAdapter.setControllerProfileClickListener(new CreationDetailsAdapter.OnControllerProfileClickListener() {
-            @Override
-            public void onClick(ControllerProfile controllerProfile) {
-                Logger.i(TAG, "onClick - " + controllerProfile);
-                startControllerProfileDetailsActivity(controllerProfile.getId());
-            }
+        creationDetailsAdapter.setListItemClickListener((controllerProfile, itemClickAction, data) -> {
+            Logger.i(TAG, "onClick - " + controllerProfile);
+            switch (itemClickAction) {
+                case CLICK:
+                    startControllerProfileDetailsActivity(controllerProfile.getId());
+                    break;
 
-            @Override
-            public void onRemoveClick(ControllerProfile controllerProfile) {
-                Logger.i(TAG, "onRemoveClick - " + controllerProfile);
-                showQuestionDialog(
-                        getString(R.string.are_you_sure_you_want_to_remove),
-                        getString(R.string.yes),
-                        getString(R.string.no),
-                        (dialogInterface, i) -> viewModel.removeControllerProfile(controllerProfile),
-                        (dialogInterface, i) -> {});
+                case REMOVE:
+                    showQuestionDialog(
+                            getString(R.string.are_you_sure_you_want_to_remove),
+                            getString(R.string.yes),
+                            getString(R.string.no),
+                            (dialogInterface, i) -> viewModel.removeControllerProfile(controllerProfile),
+                            (dialogInterface, i) -> {});
+                    break;
             }
         });
     }

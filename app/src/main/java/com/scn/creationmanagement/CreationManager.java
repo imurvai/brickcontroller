@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import com.scn.common.StateChange;
 import com.scn.devicemanagement.DeviceManager;
 import com.scn.logger.Logger;
+import com.scn.ui.R;
 
 import java.util.List;
 
@@ -106,7 +107,7 @@ public final class CreationManager {
     }
 
     @MainThread
-    public boolean addCreationAsync(@NonNull final String creationName) {
+    public boolean addCreationAsync(@NonNull final String creationName, boolean addDefaultControllerProfile) {
         Logger.i(TAG, "addCreationAsync - " + creationName);
 
         if (getCurrentState() != State.OK) {
@@ -120,20 +121,21 @@ public final class CreationManager {
             Creation creation = new Creation(0, creationName);
             creationRepository.insertCreation(creation);
 
-//            if (controllerProfileName != null) {
-//                ControllerProfile controllerProfile = new ControllerProfile(0, creation.getId(), controllerProfileName);
-//                creationRepository.insertControllerProfile(creation, controllerProfile);
-//                creation.addControllerProfile(controllerProfile);
-//            }
+            if (addDefaultControllerProfile) {
+                String defaultName = context.getString(R.string.default_controller_profile_name);
+                ControllerProfile controllerProfile = new ControllerProfile(0, creation.getId(), defaultName);
+                creationRepository.insertControllerProfile(creation, controllerProfile);
+                creation.addControllerProfile(controllerProfile);
+            }
 
-            return true;
+            return creation;
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        x -> {
+                        creation -> {
                             Logger.i(TAG, "Insert creation onSuccess...");
-                            setState(State.OK, false, creationName);
+                            setState(State.OK, false, creation.getName());
                         },
                         error -> {
                             Logger.e(TAG, "Insert creation onError...", error);

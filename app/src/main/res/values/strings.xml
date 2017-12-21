@@ -29,6 +29,7 @@
     <string name="address">Address</string>
     <string name="failed_to_connect">Failed to connect.</string>
     <string name="ble_not_supported">Your device does not support bluetooth low energy.</string>
+    <string name="default_controller_profile_name">Default profile</string>
 
     <!-- Creation list activity -->
     <string name="title_activity_creation_list">Creation list</string>
@@ -92,6 +93,7 @@
     <string name="error_during_updating_controller_profile">Error during updating controller profile.</string>
     <string name="error_during_adding_controller_event">Error during adding controller event.</string>
     <string name="error_during_removing_controller_event">Error during removing controller event.</string>
+    <string name="add_controller_event">Please add controller events.</string>
 
     <!-- Controller action activity -->
     <string name="title_activity_controller_action">Controller action</string>

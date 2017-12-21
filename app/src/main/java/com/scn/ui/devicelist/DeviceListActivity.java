@@ -1,5 +1,6 @@
 package com.scn.ui.devicelist;
 
+import android.content.ClipData;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
@@ -12,6 +13,7 @@ import android.view.MenuItem;
 import com.scn.devicemanagement.Device;
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
+import com.scn.ui.OnListItemClickListener;
 import com.scn.ui.R;
 import com.scn.ui.devicedetails.DeviceDetailsActivity;
 
@@ -91,24 +93,23 @@ public class DeviceListActivity extends BaseActivity {
         recyclerView.addItemDecoration(new DividerItemDecoration(DeviceListActivity.this, DividerItemDecoration.VERTICAL));
         recyclerView.setAdapter(deviceListAdapter);
 
-        deviceListAdapter.setDeviceClickListener(new DeviceListAdapter.OnDeviceClickListener() {
-            @Override
-            public void onClick(final Device device) {
-                Logger.i(TAG, "onClick - device: " + device);
-                Intent intent = new Intent(DeviceListActivity.this, DeviceDetailsActivity.class);
-                intent.putExtra(EXTRA_DEVICE_ID, device.getId());
-                startActivity(intent);
-            }
+        deviceListAdapter.setListItemClickListener((device, itemClickAction, data) -> {
+            Logger.i(TAG, "onClick - device: " + device);
+            switch (itemClickAction) {
+                case CLICK:
+                    Intent intent = new Intent(DeviceListActivity.this, DeviceDetailsActivity.class);
+                    intent.putExtra(EXTRA_DEVICE_ID, device.getId());
+                    startActivity(intent);
+                    break;
 
-            @Override
-            public void onRemoveClick(final Device device) {
-                Logger.i(TAG, "onRemoveClick - device: " + device);
-                showQuestionDialog(
-                     getString(R.string.are_you_sure_you_want_to_remove),
-                     getString(R.string.yes),
-                     getString(R.string.no),
-                     (dialogInterface, i) -> viewModel.removeDevice(device),
-                     (dialogInterface, i) -> {});
+                case REMOVE:
+                    showQuestionDialog(
+                            getString(R.string.are_you_sure_you_want_to_remove),
+                            getString(R.string.yes),
+                            getString(R.string.no),
+                            (dialogInterface, i) -> viewModel.removeDevice(device),
+                            (dialogInterface, i) -> {});
+                    break;
             }
         });
     }

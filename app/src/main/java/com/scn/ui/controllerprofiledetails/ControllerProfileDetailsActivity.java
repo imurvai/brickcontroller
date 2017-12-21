@@ -15,7 +15,6 @@ import com.scn.creationmanagement.ControllerProfile;
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
 import com.scn.ui.R;
-import com.scn.ui.creationdetails.CreationDetailsActivity;
 
 import javax.inject.Inject;
 

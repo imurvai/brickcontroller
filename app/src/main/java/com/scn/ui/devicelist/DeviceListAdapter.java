@@ -9,6 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.scn.devicemanagement.Device;
+import com.scn.ui.DefaultRecyclerViewViewHolder;
+import com.scn.ui.OnListItemClickListener;
 import com.scn.ui.R;
 
 import java.util.ArrayList;
@@ -25,11 +27,6 @@ import butterknife.ButterKnife;
 
 final class DeviceListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    public interface OnDeviceClickListener {
-        void onClick(Device device);
-        void onRemoveClick(Device device);
-    }
-
     //
     // Private members
     //
@@ -38,7 +35,7 @@ final class DeviceListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private static final int VIEWTYPE_DEFAULTITEM = 2;
 
     private List<Device> deviceList = new ArrayList<>();
-    private OnDeviceClickListener deviceClickListener = null;
+    private OnListItemClickListener<Device> listItemClickListener = null;
 
     //
     // Constructor
@@ -50,7 +47,6 @@ final class DeviceListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     //
     // RecyclerView.Adapter overrides
     //
-
 
     @Override
     public int getItemViewType(int position) {
@@ -74,8 +70,8 @@ final class DeviceListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             case VIEWTYPE_DEFAULTITEM: {
                 View view = LayoutInflater
                         .from(parent.getContext())
-                        .inflate(R.layout.list_item_device_list_default, parent, false);
-                return new DeviceListDefaultViewHolder(view);
+                        .inflate(R.layout.list_item_default, parent, false);
+                return new DefaultRecyclerViewViewHolder(view, parent.getContext().getString(R.string.scan_devices));
             }
         }
 
@@ -87,11 +83,7 @@ final class DeviceListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         int viewType = getItemViewType(position);
         switch (viewType) {
             case VIEWTYPE_DEVICEITEM:
-                ((DeviceItemViewHolder)holder).bind(deviceList.get(position), deviceClickListener);
-                break;
-
-            case VIEWTYPE_DEFAULTITEM:
-                ((DeviceListDefaultViewHolder)holder).bind();
+                ((DeviceItemViewHolder)holder).bind(deviceList.get(position), listItemClickListener);
                 break;
         }
     }
@@ -114,8 +106,8 @@ final class DeviceListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         notifyDataSetChanged();
     }
 
-    public void setDeviceClickListener(OnDeviceClickListener deviceClickListener) {
-        this.deviceClickListener = deviceClickListener;
+    public void setListItemClickListener(OnListItemClickListener<Device> listItemClickListener) {
+        this.listItemClickListener = listItemClickListener;
         notifyDataSetChanged();
     }
 
@@ -135,7 +127,7 @@ final class DeviceListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(final Device device, final OnDeviceClickListener deviceClickListener) {
+        public void bind(final Device device, final OnListItemClickListener<Device> listItemClickListener) {
             switch (device.getType()) {
                 case BUWIZZ:
                     vendorImage.setImageResource(R.drawable.buwizz_list_image);
@@ -152,21 +144,12 @@ final class DeviceListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             deviceAddress.setText(device.getAddress());
 
             itemView.setOnClickListener(view -> {
-                if (deviceClickListener != null) deviceClickListener.onClick(device);
+                if (listItemClickListener != null) listItemClickListener.onClick(device, OnListItemClickListener.ItemClickAction.CLICK, null);
             });
 
             removeDeviceButton.setOnClickListener(view -> {
-                if (deviceClickListener != null) deviceClickListener.onRemoveClick(device);
+                if (listItemClickListener != null) listItemClickListener.onClick(device, OnListItemClickListener.ItemClickAction.REMOVE, null);
             });
         }
-    }
-
-    public class DeviceListDefaultViewHolder extends RecyclerView.ViewHolder {
-
-        public DeviceListDefaultViewHolder(View itemView) {
-            super(itemView);
-        }
-
-        public void bind() {}
     }
 }

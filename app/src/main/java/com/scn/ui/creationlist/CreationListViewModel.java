@@ -93,7 +93,7 @@ public class CreationListViewModel extends ViewModel {
     @MainThread
     boolean addCreation(@NonNull String creationName) {
         Logger.i(TAG, "addCreation - " + creationName);
-        return creationManager.addCreationAsync(creationName);
+        return creationManager.addCreationAsync(creationName, true);
     }
 
     @MainThread
