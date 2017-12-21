@@ -87,7 +87,7 @@
 
     <!-- Controller profile details activity -->
     <string name="title_activity_controller_profile_details">Controller profile details</string>
-    <string name="controller_profile_name">Cotnroller profile name</string>
+    <string name="controller_profile_name">Controller profile name</string>
     <string name="controller_events">Controller events:</string>
     <string name="press_controller_button">Press a button on the controller</string>
     <string name="error_during_updating_controller_profile">Error during updating controller profile.</string>

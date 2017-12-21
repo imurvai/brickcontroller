@@ -156,6 +156,30 @@ final class CreationRepository {
         creationListLiveData.postValue(creationList);
     }
 
+    @WorkerThread
+    public synchronized void removeControllerEvent(@NonNull ControllerProfile controllerProfile, @NonNull ControllerEvent controllerEvent) {
+        Logger.i(TAG, "removeControllerEvent - " + controllerEvent);
+        creationDao.deleteControllerEventRecursive(controllerEvent.getId());
+        controllerProfile.removeControllerEvent(controllerEvent);
+        creationListLiveData.postValue(creationList);
+    }
+
+    @WorkerThread
+    public synchronized void insertControllerAction(@NonNull ControllerEvent controllerEvent, @NonNull ControllerAction controllerAction) {
+        Logger.i(TAG, "insertControllerAction - " + controllerAction);
+        controllerAction.setId(creationDao.insertControllerAction(controllerAction));
+        controllerEvent.addControllerAction(controllerAction);
+        creationListLiveData.postValue(creationList);
+    }
+
+    @WorkerThread
+    public synchronized void removeControllerAction(@NonNull ControllerEvent controllerEvent, @NonNull ControllerAction controllerAction) {
+        Logger.i(TAG, "removeControllerAction - " + controllerAction);
+        creationDao.deleteControllerAction(controllerAction.getId());
+        controllerEvent.removeControllerAction(controllerAction);
+        creationListLiveData.postValue(creationList);
+    }
+
     public synchronized Creation getCreation(long creationId) {
         Logger.i(TAG, "getCreation - " + creationId);
 
@@ -188,6 +212,38 @@ final class CreationRepository {
         }
 
         Logger.w(TAG, "  Could not find controller profile.");
+        return null;
+    }
+
+    public synchronized ControllerEvent getControllerEvent(long controllerEventId) {
+        Logger.i(TAG, "getControllerEvent - " + controllerEventId);
+
+        for (Creation creation : creationList) {
+            for (ControllerProfile controllerProfile : creation.getControllerProfiles()) {
+                for (ControllerEvent controllerEvent : controllerProfile.getControllerEvents()) {
+                    if (controllerEvent.getId() == controllerEventId) return controllerEvent;
+                }
+            }
+        }
+
+        Logger.w(TAG, "  Could not find controller event.");
+        return null;
+    }
+
+    public synchronized ControllerAction getControllerAction(long controllerActionId) {
+        Logger.i(TAG, "getControllerAction - " + controllerActionId);
+
+        for (Creation creation : creationList) {
+            for (ControllerProfile controllerProfile : creation.getControllerProfiles()) {
+                for (ControllerEvent controllerEvent : controllerProfile.getControllerEvents()) {
+                    for (ControllerAction controllerAction : controllerEvent.getControllerActions()) {
+                        if (controllerAction.getId() == controllerActionId) return controllerAction;
+                    }
+                }
+            }
+        }
+
+        Logger.w(TAG, "  Could not find controller event.");
         return null;
     }
 

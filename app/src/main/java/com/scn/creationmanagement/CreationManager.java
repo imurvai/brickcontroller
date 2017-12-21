@@ -77,6 +77,30 @@ public final class CreationManager {
     }
 
     @MainThread
+    public boolean checkCreationName(String name) {
+        Logger.i(TAG, "checkCreationName - " + name);
+        return creationRepository.getCreation(name) == null;
+    }
+
+    @MainThread
+    public Creation getCreation(long creationId) {
+        Logger.i(TAG, "getCreation - " + creationId);
+        return creationRepository.getCreation(creationId);
+    }
+
+    @MainThread
+    public Creation getCreation(String creationName) {
+        Logger.i(TAG, "getCreation - " + creationName);
+        return creationRepository.getCreation(creationName);
+    }
+
+    @MainThread
+    public ControllerProfile getControllerProfile(long controllerProfileId) {
+        Logger.i(TAG, "getControllerProfile - " + controllerProfileId);
+        return creationRepository.getControllerProfile(controllerProfileId);
+    }
+
+    @MainThread
     public boolean loadCreationsAsync() {
         Logger.i(TAG, "loadCreationsAsync...");
 
@@ -206,30 +230,6 @@ public final class CreationManager {
     }
 
     @MainThread
-    public boolean checkCreationName(String name) {
-        Logger.i(TAG, "checkCreationName - " + name);
-        return creationRepository.getCreation(name) == null;
-    }
-
-    @MainThread
-    public Creation getCreation(long creationId) {
-        Logger.i(TAG, "getCreation - " + creationId);
-        return creationRepository.getCreation(creationId);
-    }
-
-    @MainThread
-    public Creation getCreation(String creationName) {
-        Logger.i(TAG, "getCreation - " + creationName);
-        return creationRepository.getCreation(creationName);
-    }
-
-    @MainThread
-    public ControllerProfile getControllerProfile(long controllerProfileId) {
-        Logger.i(TAG, "getControllerProfile - " + controllerProfileId);
-        return creationRepository.getControllerProfile(controllerProfileId);
-    }
-
-    @MainThread
     public boolean addControllerProfileAsync(@NonNull final Creation creation, @NonNull final String controllerProfileName) {
         Logger.i(TAG, "addControllerProfileAsync - " + controllerProfileName);
 
@@ -314,6 +314,133 @@ public final class CreationManager {
                         },
                         error -> {
                             Logger.e(TAG, "Update controller profile onError...", error);
+                            setState(State.OK, true);
+                        });
+
+        return true;
+    }
+
+    @MainThread
+    public boolean addControllerEventAsync(@NonNull final ControllerProfile controllerProfile, @NonNull final ControllerEvent.ControllerEventType eventType, final int eventCode) {
+        Logger.i(TAG, "addControllerEventAsync - " + eventType + ", code: " + eventCode);
+
+        if (getCurrentState() != State.OK) {
+            Logger.w(TAG, "  wrong state - " + getCurrentState().toString());
+            return false;
+        }
+
+        setState(State.INSERTING, false);
+
+        Single.fromCallable(() -> {
+            ControllerEvent controllerEvent = new ControllerEvent(0, controllerProfile.getId(), eventType, eventCode);
+            creationRepository.insertControllerEvent(controllerProfile, controllerEvent);
+            return controllerEvent;
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        controllerEvent -> {
+                            Logger.i(TAG, "Insert controller event onSuccess...");
+                            setState(State.OK, false, controllerEvent.getId());
+                        },
+                        error -> {
+                            Logger.e(TAG, "Insert controller event onError...", error);
+                            setState(State.OK, true);
+                        });
+
+        return true;
+    }
+
+    @MainThread
+    public boolean removeControllerEventAsync(@NonNull final ControllerProfile controllerProfile, @NonNull final ControllerEvent controllerEvent) {
+        Logger.i(TAG, "removeControllerEventAsync - " + controllerEvent);
+
+        if (getCurrentState() != State.OK) {
+            Logger.w(TAG, "  wrong state - " + getCurrentState().toString());
+            return false;
+        }
+
+        setState(State.REMOVING, false);
+
+        Single.fromCallable(() -> {
+            creationRepository.removeControllerEvent(controllerProfile, controllerEvent);
+            return true;
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        x -> {
+                            Logger.i(TAG, "Remove controller event onSuccess...");
+                            setState(State.OK, false);
+                        },
+                        error -> {
+                            Logger.e(TAG, "Remove controller event onError...", error);
+                            setState(State.OK, true);
+                        });
+
+        return true;
+    }
+
+    @MainThread
+    public boolean addControllerActionAsync(@NonNull final ControllerEvent controllerEvent, @NonNull String deviceId, int channel, boolean isRevert, boolean isToggle, int maxOutput) {
+        Logger.i(TAG, "addControllerActionAsync - " + deviceId + ", channel: " + channel);
+
+        if (getCurrentState() != State.OK) {
+            Logger.w(TAG, "  wrong state - " + getCurrentState().toString());
+            return false;
+        }
+
+        setState(State.INSERTING, false);
+
+        Single.fromCallable(() -> {
+            ControllerAction controllerAction = new ControllerAction(0, controllerEvent.getId(), deviceId, channel, isRevert, isToggle, maxOutput);
+            creationRepository.insertControllerAction(controllerEvent, controllerAction);
+            return controllerAction;
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        controllerAction -> {
+                            Logger.i(TAG, "Insert controller action onSuccess...");
+                            setState(State.OK, false, controllerEvent.getId());
+                        },
+                        error -> {
+                            Logger.e(TAG, "Insert controller action onError...", error);
+                            setState(State.OK, true);
+                        });
+
+        return true;
+    }
+
+    @MainThread
+    public boolean removeControllerActionAsync(@NonNull final ControllerProfile controllerProfile, @NonNull final ControllerEvent controllerEvent, @NonNull final ControllerAction controllerAction, boolean removeEmptyControllerEvent) {
+        Logger.i(TAG, "removeControllerActionAsync - " + controllerAction);
+
+        if (getCurrentState() != State.OK) {
+            Logger.w(TAG, "  wrong state - " + getCurrentState().toString());
+            return false;
+        }
+
+        setState(State.REMOVING, false);
+
+        Single.fromCallable(() -> {
+            creationRepository.removeControllerAction(controllerEvent, controllerAction);
+
+            if (removeEmptyControllerEvent && controllerEvent.getControllerActions().size() == 0) {
+                creationRepository.removeControllerEvent(controllerProfile, controllerEvent);
+            }
+
+            return true;
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        x -> {
+                            Logger.i(TAG, "Remove controller action onSuccess...");
+                            setState(State.OK, false);
+                        },
+                        error -> {
+                            Logger.e(TAG, "Remove controller action onError...", error);
                             setState(State.OK, true);
                         });
 

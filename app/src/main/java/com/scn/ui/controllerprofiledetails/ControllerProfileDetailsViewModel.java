@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModel;
 import android.support.annotation.MainThread;
 
 import com.scn.common.StateChange;
+import com.scn.creationmanagement.ControllerEvent;
 import com.scn.creationmanagement.ControllerProfile;
 import com.scn.creationmanagement.Creation;
 import com.scn.creationmanagement.CreationManager;
@@ -76,5 +77,10 @@ public class ControllerProfileDetailsViewModel extends ViewModel {
     @MainThread
     boolean renameControllerProfile(String name) {
         return creationManager.updateControllerProfileAsync(controllerProfile, name);
+    }
+
+    @MainThread
+    boolean addControllerEvent(ControllerEvent.ControllerEventType eventType, int eventCode) {
+        return creationManager.addControllerEventAsync(controllerProfile, eventType, eventCode);
     }
 }

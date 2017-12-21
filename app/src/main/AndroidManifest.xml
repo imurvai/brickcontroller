@@ -52,6 +52,11 @@
             android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
+            android:name="com.scn.ui.controlleraction.ControllerActionActivity"
+            android:label="@string/title_activity_controller_action"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity
             android:name="com.scn.ui.controller.ControllerActivity"
             android:label="@string/title_activity_controller"
             android:theme="@style/AppTheme.NoActionBar" />

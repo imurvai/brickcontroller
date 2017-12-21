@@ -5,6 +5,8 @@ import com.scn.ui.about.AboutActivityModule;
 import com.scn.ui.controller.ControllerActivity;
 import com.scn.ui.controller.ControllerActivityModule;
 import com.scn.ui.controller.ControllerViewModel;
+import com.scn.ui.controlleraction.ControllerActionActivity;
+import com.scn.ui.controlleraction.ControllerActionActivityModule;
 import com.scn.ui.controllerprofiledetails.ControllerProfileDetailsActivity;
 import com.scn.ui.controllerprofiledetails.ControllerProfileDetailsActivityModule;
 import com.scn.ui.creationdetails.CreationDetailsActivity;
@@ -40,6 +42,9 @@ public abstract class ActivityBuilderModule {
 
     @ContributesAndroidInjector(modules = ControllerProfileDetailsActivityModule.class)
     abstract ControllerProfileDetailsActivity bindControllerProfileDetailsActivity();
+
+    @ContributesAndroidInjector(modules = ControllerActionActivityModule.class)
+    abstract ControllerActionActivity bindControllerActionActivity();
 
     @ContributesAndroidInjector(modules = ControllerActivityModule.class)
     abstract ControllerActivity bindControllerActivity();

@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="16dp" >
+    android:padding="16dp"
+    android:background="#ffe0e0e0">
 
     <ImageView
         android:id="@+id/vendor_image"

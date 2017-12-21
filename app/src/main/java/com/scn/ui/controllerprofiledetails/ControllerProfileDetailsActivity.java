@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.scn.creationmanagement.ControllerEvent;
 import com.scn.creationmanagement.ControllerProfile;
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
@@ -105,7 +106,14 @@ public class ControllerProfileDetailsActivity extends BaseActivity {
         setSupportActionBar(toolbar);
 
         floatingActionButton.setOnClickListener(view -> {
-            showAlertDialog("not implemented.");
+            Logger.i(TAG, "Floating action button clicked...");
+            ControllerEventDialog dialog = new ControllerEventDialog(ControllerProfileDetailsActivity.this, (eventType, eventCode) -> {
+                Logger.i(TAG, "onDismiss...");
+                // TODO: add controller event
+            });
+            dialog.setCancelable(false);
+            dialog.setCanceledOnTouchOutside(true);
+            dialog.show();
         });
     }
 
