@@ -76,6 +76,9 @@ abstract class CreationDao {
     @Query("SELECT * FROM controller_actions WHERE controller_event_id = :controllerEventId")
     abstract List<ControllerAction> getControllerActions(long controllerEventId);
 
+    @Update
+    abstract void updateControllerAction(@NonNull ControllerAction controllerAction);
+
     @Query("DELETE FROM controller_actions WHERE id = :id")
     abstract void deleteControllerAction(long id);
 

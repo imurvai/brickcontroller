@@ -91,8 +91,7 @@ public final class ControllerEvent {
         Logger.i(TAG, "addControllerAction - " + controllerAction);
 
         if (controllerActions.contains(controllerAction)) {
-            Logger.w(TAG, "  Controller action with the same name already exists.");
-            return false;
+            Logger.w(TAG, "  Controller action with the same device and channel already exists.");
         }
 
         controllerActions.add(controllerAction);

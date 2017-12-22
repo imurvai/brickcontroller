@@ -80,7 +80,17 @@ public class ControllerProfileDetailsViewModel extends ViewModel {
     }
 
     @MainThread
+    ControllerEvent getControllerEvent(ControllerEvent.ControllerEventType eventType, int eventCode) {
+        return controllerProfile.getControllerEvent(eventType, eventCode);
+    }
+
+    @MainThread
     boolean addControllerEvent(ControllerEvent.ControllerEventType eventType, int eventCode) {
         return creationManager.addControllerEventAsync(controllerProfile, eventType, eventCode);
+    }
+
+    @MainThread
+    boolean removeControllerEvent(ControllerEvent controllerEvent) {
+        return creationManager.removeControllerEventAsync(controllerProfile, controllerEvent);
     }
 }

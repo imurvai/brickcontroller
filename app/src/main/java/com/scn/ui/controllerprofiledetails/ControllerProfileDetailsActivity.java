@@ -1,5 +1,6 @@
 package com.scn.ui.controllerprofiledetails;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -16,6 +17,7 @@ import com.scn.creationmanagement.ControllerProfile;
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
 import com.scn.ui.R;
+import com.scn.ui.controlleraction.ControllerActionActivity;
 
 import javax.inject.Inject;
 
@@ -68,7 +70,7 @@ public class ControllerProfileDetailsActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_creation_details, menu);
+        getMenuInflater().inflate(R.menu.menu_controller_profile_details, menu);
         return true;
     }
 
@@ -108,8 +110,17 @@ public class ControllerProfileDetailsActivity extends BaseActivity {
         floatingActionButton.setOnClickListener(view -> {
             Logger.i(TAG, "Floating action button clicked...");
             ControllerEventDialog dialog = new ControllerEventDialog(ControllerProfileDetailsActivity.this, (eventType, eventCode) -> {
-                Logger.i(TAG, "onDismiss...");
-                // TODO: add controller event
+                Logger.i(TAG, "onDismiss - event type: " + eventType + ", event code: " + eventCode);
+
+                ControllerEvent controllerEvent = viewModel.getControllerEvent(eventType, eventCode);
+                if (controllerEvent == null) {
+                    Logger.i(TAG, "  Adding new controller event...");
+                    viewModel.addControllerEvent(eventType, eventCode);
+                }
+                else {
+                    Logger.i(TAG, "  Adding new controller action to controller event - " + controllerEvent);
+                    startControllerActionActivity(controllerEvent.getId());
+                }
             });
             dialog.setCancelable(false);
             dialog.setCanceledOnTouchOutside(true);
@@ -138,7 +149,8 @@ public class ControllerProfileDetailsActivity extends BaseActivity {
                             else {
                                 stateChange.resetPreviousState();
 
-                                // TODO: open controller action editor
+                                long controllerEventId = (long)stateChange.getData();
+                                startControllerActionActivity(controllerEventId);
                             }
                             break;
 
@@ -192,5 +204,26 @@ public class ControllerProfileDetailsActivity extends BaseActivity {
         recyclerView.addItemDecoration(new DividerItemDecoration(ControllerProfileDetailsActivity.this, DividerItemDecoration.VERTICAL));
         recyclerView.setAdapter(controllerProfileDetailsAdapter);
 
+        controllerProfileDetailsAdapter.setListItemClickListener((controllerEvent, itemClickAction, data) -> {
+            Logger.i(TAG, "onClick - controller event: " + controllerEvent + ", action: " + itemClickAction);
+            switch (itemClickAction) {
+                case REMOVE:
+                    showQuestionDialog(
+                            getString(R.string.are_you_sure_you_want_to_remove),
+                            getString(R.string.yes),
+                            getString(R.string.no),
+                            (dialogInterface, i) -> viewModel.removeControllerEvent(controllerEvent),
+                            ((dialogInterface, i) -> {}));
+                    break;
+            }
+        });
+    }
+
+    private void startControllerActionActivity(long controllerEventId) {
+        Logger.i(TAG, "Start controller action activity - controller event id: " + controllerEventId);
+
+        Intent intent = new Intent(ControllerProfileDetailsActivity.this, ControllerActionActivity.class);
+        intent.putExtra(EXTRA_CONTROLLER_EVENT_ID, controllerEventId);
+        startActivity(intent);
     }
 }

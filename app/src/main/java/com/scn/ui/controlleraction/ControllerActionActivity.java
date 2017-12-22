@@ -2,6 +2,8 @@ package com.scn.ui.controlleraction;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
@@ -40,6 +42,23 @@ public class ControllerActionActivity extends BaseActivity {
     public void onBackPressed() {
         Logger.i(TAG, "onBackPressed...");
         super.onBackPressed();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_controller_action, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_ok:
+
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     //

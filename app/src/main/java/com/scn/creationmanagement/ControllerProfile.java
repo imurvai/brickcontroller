@@ -69,6 +69,18 @@ public final class ControllerProfile {
 
     public List<ControllerEvent> getControllerEvents() { return controllerEvents; }
 
+    public ControllerEvent getControllerEvent(ControllerEvent.ControllerEventType eventType, int eventCode) {
+        Logger.i(TAG, "getControllerEvent - event type: " + eventType + ", event code: " + eventCode);
+
+        for (ControllerEvent controllerEvent : controllerEvents) {
+            if (controllerEvent.getEventType() == eventType && controllerEvent.getEventCode() == eventCode) {
+                return controllerEvent;
+            }
+        }
+
+        return null;
+    }
+
     boolean addControllerEvent(ControllerEvent controllerEvent) {
         Logger.i(TAG, "addControllerEvent - " + controllerEvent);
 

@@ -447,6 +447,41 @@ public final class CreationManager {
         return true;
     }
 
+    @MainThread
+    public boolean updateControllerActionAsync(@NonNull ControllerAction controllerAction,
+                                               @NonNull String deviceId,
+                                               int channel,
+                                               boolean isRevert,
+                                               boolean isToggle,
+                                               int maxOtput) {
+        Logger.i(TAG, "updateControllerActionAsync - " + controllerAction);
+
+        if (getCurrentState() != State.OK) {
+            Logger.w(TAG, "  wrong state - " + getCurrentState().toString());
+            return false;
+        }
+
+        setState(State.UPDATING, false);
+
+        Single.fromCallable(() -> {
+            creationRepository.updateControllerAction(controllerAction, deviceId, channel, isRevert, isToggle, maxOtput);
+            return true;
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        x -> {
+                            Logger.i(TAG, "Update controller action onSuccess...");
+                            setState(State.OK, false);
+                        },
+                        error -> {
+                            Logger.e(TAG, "Update controller action onError...", error);
+                            setState(State.OK, true);
+                        });
+
+        return true;
+    }
+
     //
     // Private methods
     //

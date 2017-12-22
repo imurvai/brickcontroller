@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -107,6 +108,7 @@ final class ControllerProfileDetailsAdapter extends RecyclerView.Adapter<Recycle
     public class ControllerEventItemViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.controller_event_name) TextView controllerEventNameTextView;
+        @BindView(R.id.remove_controller_event) Button removeControllerEventButton;
         @BindView(R.id.controller_action_container) LinearLayout controllerActionContainer;
 
         public ControllerEventItemViewHolder(View itemView) {
@@ -114,8 +116,12 @@ final class ControllerProfileDetailsAdapter extends RecyclerView.Adapter<Recycle
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(@NonNull final ControllerEvent controllerEvent, final OnListItemClickListener<ControllerEvent> listItemClickListener) {
+        public void bind(@NonNull final ControllerEvent controllerEvent, final OnListItemClickListener<ControllerEvent> controllerEventOnListItemClickListener) {
             controllerEventNameTextView.setText(controllerEvent.getEventText());
+
+            removeControllerEventButton.setOnClickListener(view -> {
+                if (controllerEventOnListItemClickListener != null) controllerEventOnListItemClickListener.onClick(controllerEvent, OnListItemClickListener.ItemClickAction.REMOVE, null);
+            });
         }
     }
 }

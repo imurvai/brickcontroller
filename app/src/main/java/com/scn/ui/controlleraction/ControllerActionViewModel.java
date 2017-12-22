@@ -1,8 +1,11 @@
 package com.scn.ui.controlleraction;
 
 import android.arch.lifecycle.ViewModel;
+import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 
+import com.scn.creationmanagement.ControllerAction;
+import com.scn.creationmanagement.ControllerEvent;
 import com.scn.creationmanagement.CreationManager;
 import com.scn.devicemanagement.DeviceManager;
 import com.scn.logger.Logger;
@@ -24,6 +27,9 @@ public class ControllerActionViewModel extends ViewModel {
     private CreationManager creationManager;
     private DeviceManager deviceManager;
 
+    private ControllerEvent controllerEvent;
+    private ControllerAction controllerAction;
+
     //
     // Constructor
     //
@@ -39,4 +45,30 @@ public class ControllerActionViewModel extends ViewModel {
     // API
     //
 
+    @MainThread
+    void initialize(@NonNull ControllerEvent controllerEvent) {
+        this.controllerEvent = controllerEvent;
+        this.controllerAction = null;
+    }
+
+    @MainThread
+    void initialize(@NonNull ControllerAction controllerAction) {
+        this.controllerEvent = null;
+        this.controllerAction = controllerAction;
+    }
+
+    @MainThread
+    void saveControllerAction() {
+        Logger.i(TAG, "saveControllerAction...");
+
+        if (controllerEvent != null) {
+            Logger.i(TAG, "  Adding the controller action...");
+            //creationManager.addControllerActionAsync(controllerEvent, )
+        }
+
+        if (controllerAction != null) {
+            Logger.i(TAG, "  Updating the controller action...");
+            //creationManager.updateControllerActionAsync(controllerAction);
+        }
+    }
 }

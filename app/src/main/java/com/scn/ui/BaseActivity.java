@@ -40,6 +40,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected static final String EXTRA_DEVICE_ID = "EXTRA_DEVICE_ID";
     protected static final String EXTRA_CREATION_NAME = "EXTRA_CREATION_NAME";
     protected static final String EXTRA_CONTROLLER_PROFILE_ID = "EXTRA_CONTROLLER_PROFILE_ID";
+    protected static final String EXTRA_CONTROLLER_EVENT_ID = "EXTRA_CONTROLLER_EVENT_ID";
+    protected static final String EXTRA_CONTROLLER_ACTION_ID = "EXTRA_CONTROLLER_ACTION_ID";
 
     @Inject ViewModelProvider.Factory viewModelFactory;
     @Inject DeviceManager deviceManager;
