@@ -8,9 +8,12 @@ import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
+import com.scn.devicemanagement.Device;
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
 import com.scn.ui.R;
+
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -46,8 +49,6 @@ public class ControllerActivity extends BaseActivity {
 
         String creationName = getIntent().getStringExtra(EXTRA_CREATION_NAME);
         setupViewModel(creationName);
-
-        viewModel.connectDevices();
     }
 
     @Override
@@ -105,5 +106,30 @@ public class ControllerActivity extends BaseActivity {
     private void setupViewModel(@NonNull String creationName) {
         viewModel = getViewModel(ControllerViewModel.class);
         viewModel.initialize(creationName);
+
+        viewModel.getDeviceStatesLiveData().observe(ControllerActivity.this, deviceStateMap -> {
+            Logger.i(TAG, "Device states have changed...");
+
+            boolean allDevicesConnected = true;
+            for (Map.Entry<Device, Device.State> kvp : deviceStateMap.entrySet()) {
+                if (kvp.getValue() != Device.State.CONNECTED) {
+                    Logger.i(TAG, "Device (" + kvp.getKey() + ") is not connected.");
+                    allDevicesConnected = false;
+                }
+            }
+
+            if (!allDevicesConnected) {
+                showProgressDialog(
+                        getString(R.string.connecting),
+                        ((dialogInterface, i) -> {
+                            viewModel.disconnectDevices();
+                            ControllerActivity.this.finish();
+                        }));
+            }
+            else {
+                Logger.i(TAG, "  All devices have connected.");
+                dismissDialog();
+            }
+        });
     }
 }

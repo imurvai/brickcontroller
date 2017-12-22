@@ -1,10 +1,16 @@
 package com.scn.ui.controller;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModel;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 
+import com.scn.common.LiveDataResult;
+import com.scn.common.StateChange;
 import com.scn.creationmanagement.ControllerAction;
 import com.scn.creationmanagement.ControllerEvent;
 import com.scn.creationmanagement.ControllerProfile;
@@ -14,6 +20,7 @@ import com.scn.devicemanagement.Device;
 import com.scn.devicemanagement.DeviceManager;
 import com.scn.logger.Logger;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +46,8 @@ public class ControllerViewModel extends ViewModel {
     private ControllerProfile selectedControllerProfile;
 
     private Map<String, Device> deviceMap = new HashMap<>();
+    private MutableLiveData<Map<Device, Device.State>> deviceStatesLiveData = new MutableLiveData<>();
+
     private Map<Pair<Device, Integer>, Integer> actionMap = new HashMap<>();
 
     //
@@ -60,6 +69,10 @@ public class ControllerViewModel extends ViewModel {
     protected void onCleared() {
         Logger.i(TAG, "onCleared...");
         super.onCleared();
+
+        for (Device device : deviceMap.values()) {
+            device.getStateChangeLiveData().removeObserver(deviceStateChangeObserver);
+        }
     }
 
     //
@@ -82,8 +95,12 @@ public class ControllerViewModel extends ViewModel {
             Device device = deviceManager.getDevice(deviceId);
             if (device != null && !deviceMap.containsKey(deviceId)) {
                 deviceMap.put(deviceId, device);
+
+                device.getStateChangeLiveData().observeForever(deviceStateChangeObserver);
             }
         }
+
+        connectDevices();
     }
 
     @MainThread
@@ -94,6 +111,11 @@ public class ControllerViewModel extends ViewModel {
     @MainThread
     List<ControllerProfile> getControllerProfiles() {
         return creation.getControllerProfiles();
+    }
+
+    @MainThread
+    LiveData<Map<Device, Device.State>> getDeviceStatesLiveData() {
+        return deviceStatesLiveData;
     }
 
     @MainThread
@@ -196,6 +218,18 @@ public class ControllerViewModel extends ViewModel {
     //
     // Private methods
     //
+
+    private Observer<StateChange<Device.State>> deviceStateChangeObserver = stateStateChange -> {
+        Logger.i(TAG, "deviceStateChanged");
+
+        Map<Device, Device.State> deviceStateMap = new HashMap<>();
+        for (Device device : deviceMap.values()) {
+            Device.State deviceState = device.getStateChangeLiveData().getValue().getCurrentState();
+            deviceStateMap.put(device, deviceState);
+        }
+
+        deviceStatesLiveData.setValue(deviceStateMap);
+    };
 
     private int calculateOutputValue(int value, boolean isRevert, int maxOutput) {
         int v = (value * maxOutput) / 100;
