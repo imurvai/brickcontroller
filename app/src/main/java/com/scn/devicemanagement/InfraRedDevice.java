@@ -76,6 +76,13 @@ final class InfraRedDevice extends Device {
 
     @MainThread
     @Override
+    public int getOutput(int channel) {
+        checkChannel(channel);
+        return infraRedDeviceManager.getOutput(this, channel);
+    }
+
+    @MainThread
+    @Override
     public void setOutput(int channel, int value) {
         //Logger.i(TAG, "setOutput - channel: " + channel + ", value: " + value);
         checkChannel(channel);

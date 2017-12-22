@@ -101,6 +101,18 @@ public final class CreationManager {
     }
 
     @MainThread
+    public ControllerEvent getControllerEvent(long controllerEventId) {
+        Logger.i(TAG, "getControllerEvent - " + controllerEventId);
+        return creationRepository.getControllerEvent(controllerEventId);
+    }
+
+    @MainThread
+    public ControllerAction getControllerAction(long controllerActionId) {
+        Logger.i(TAG, "getControllerAction - " + controllerActionId);
+        return creationRepository.getControllerAction(controllerActionId);
+    }
+
+    @MainThread
     public boolean loadCreationsAsync() {
         Logger.i(TAG, "loadCreationsAsync...");
 

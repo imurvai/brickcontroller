@@ -111,6 +111,7 @@ public abstract class Device implements Comparable<Device> {
         Logger.i(TAG, "  Not supported.");
     }
 
+    public abstract int getOutput(int channel);
     public abstract void setOutput(int channel, int level);
 
     //

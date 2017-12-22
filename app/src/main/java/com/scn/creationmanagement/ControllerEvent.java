@@ -87,6 +87,18 @@ public final class ControllerEvent {
 
     public List<ControllerAction> getControllerActions() { return controllerActions; }
 
+    ControllerAction getControllerAction(@NonNull String deviceId, int channel) {
+        Logger.i(TAG, "checkControllerAction - event type: " + eventType + ", event code: " + eventCode);
+
+        for (ControllerAction controllerAction : controllerActions) {
+            if (controllerAction.getDeviceId().equals(deviceId) && controllerAction.getChannel() == channel) {
+                return controllerAction;
+            }
+        }
+
+        return null;
+    }
+
     boolean addControllerAction(ControllerAction controllerAction) {
         Logger.i(TAG, "addControllerAction - " + controllerAction);
 

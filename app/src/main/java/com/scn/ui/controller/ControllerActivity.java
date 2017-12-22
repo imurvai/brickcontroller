@@ -1,6 +1,7 @@
 package com.scn.ui.controller;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
 import android.view.InputDevice;
@@ -60,9 +61,7 @@ public class ControllerActivity extends BaseActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((event.getSource() & InputDevice.SOURCE_GAMEPAD) != 0 && event.getRepeatCount() == 0) {
-
-            // TODO:
-
+            viewModel.keyDownAction(keyCode);
             return true;
         }
 
@@ -72,9 +71,7 @@ public class ControllerActivity extends BaseActivity {
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if ((event.getSource() & InputDevice.SOURCE_GAMEPAD) != 0 && event.getRepeatCount() == 0) {
-
-            // TODO:
-
+            viewModel.keyUpAction(keyCode);
             return true;
         }
 
@@ -84,9 +81,17 @@ public class ControllerActivity extends BaseActivity {
     @Override
     public boolean onGenericMotionEvent(MotionEvent event) {
         if ((event.getSource() & InputDevice.SOURCE_JOYSTICK) != 0 && event.getAction() == MotionEvent.ACTION_MOVE) {
+            viewModel.beginControllerActions();
 
-            // TODO:
+            for (int motionCode = 0; motionCode < 64; motionCode++) {
+                int axisValue = (int)(event.getAxisValue(motionCode) * 255);
 
+                if (Math.abs(axisValue) < 10) axisValue = 0;
+
+                viewModel.motionAction(motionCode, axisValue);
+            }
+
+            viewModel.commitControllerActions();
             return true;
         }
 
@@ -97,7 +102,7 @@ public class ControllerActivity extends BaseActivity {
     // Private methods
     //
 
-    private void setupViewModel(String creationName) {
+    private void setupViewModel(@NonNull String creationName) {
         viewModel = getViewModel(ControllerViewModel.class);
         viewModel.initialize(creationName);
     }

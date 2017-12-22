@@ -119,6 +119,12 @@ final class InfraRedDeviceManager extends SpecificDeviceManager {
     }
 
     @MainThread
+    int getOutput(@NonNull Device device, int channel) {
+        int address = convertAddress(device.getAddress());
+        return outputValues[address][channel];
+    }
+
+    @MainThread
     void setOutput(@NonNull Device device, int channel, int value) {
         //Logger.i(TAG, "setOutput - " + device + ", channel: " + channel + ", value: " + value);
 

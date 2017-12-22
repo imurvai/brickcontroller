@@ -97,6 +97,10 @@
 
     <!-- Controller action activity -->
     <string name="title_activity_controller_action">Controller action</string>
+    <string name="devices">Devices</string>
+    <string name="revert_channel">Revert channel</string>
+    <string name="toggle_button">Toggle button</string>
+    <string name="max_output">Max output</string>
 
     <!-- Controller activity -->
     <string name="title_activity_controller">Controller</string>

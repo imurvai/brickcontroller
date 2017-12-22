@@ -7,8 +7,12 @@ import android.support.annotation.NonNull;
 import com.scn.creationmanagement.ControllerAction;
 import com.scn.creationmanagement.ControllerEvent;
 import com.scn.creationmanagement.CreationManager;
+import com.scn.devicemanagement.Device;
 import com.scn.devicemanagement.DeviceManager;
 import com.scn.logger.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -30,6 +34,12 @@ public class ControllerActionViewModel extends ViewModel {
     private ControllerEvent controllerEvent;
     private ControllerAction controllerAction;
 
+    private Device selectedDevice;
+    private int selctedChannel;
+    private boolean selectedIsRevert;
+    private boolean selectedIsToggle;
+    private int selectedMaxOutput;
+
     //
     // Constructor
     //
@@ -46,29 +56,52 @@ public class ControllerActionViewModel extends ViewModel {
     //
 
     @MainThread
-    void initialize(@NonNull ControllerEvent controllerEvent) {
-        this.controllerEvent = controllerEvent;
-        this.controllerAction = null;
-    }
-
-    @MainThread
-    void initialize(@NonNull ControllerAction controllerAction) {
-        this.controllerEvent = null;
-        this.controllerAction = controllerAction;
-    }
-
-    @MainThread
-    void saveControllerAction() {
-        Logger.i(TAG, "saveControllerAction...");
+    void initialize(long controllerEventId, long controllerActionId) {
+        Logger.i(TAG, "initialize - controllerEventId: " + controllerEventId + ", controllerActionId: " + controllerActionId);
 
         if (controllerEvent != null) {
-            Logger.i(TAG, "  Adding the controller action...");
-            //creationManager.addControllerActionAsync(controllerEvent, )
+            Logger.i(TAG, "  Already inited.");
+            return;
         }
+
+        this.controllerAction = creationManager.getControllerAction(controllerActionId);
+
+        if (controllerAction != null) {
+            this.controllerEvent = creationManager.getControllerEvent(controllerAction.getControllerEventId());
+        }
+        else {
+            this.controllerEvent = creationManager.getControllerEvent(controllerEventId);
+        }
+    }
+
+    @MainThread
+    List<String> getDeviceNames() {
+        List<String> deviceNames = new ArrayList<>();
+        for (Device device : deviceManager.getDeviceListLiveData().getValue()) {
+            deviceNames.add(device.getName());
+        }
+        return deviceNames;
+    }
+
+    @MainThread
+    ControllerAction getControllerAction() {
+        //return controllerEvent.getControllerAction();
+        return null;
+    }
+
+    @MainThread
+    boolean saveControllerAction() {
+        Logger.i(TAG, "saveControllerAction...");
 
         if (controllerAction != null) {
             Logger.i(TAG, "  Updating the controller action...");
-            //creationManager.updateControllerActionAsync(controllerAction);
+            //return creationManager.updateControllerActionAsync(controllerAction);
         }
+        else {
+            Logger.i(TAG, "  Adding the controller action...");
+            //return creationManager.addControllerActionAsync(controllerEvent, )
+        }
+
+        return false;
     }
 }

@@ -5,6 +5,7 @@ import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.util.Pair;
 
+import com.scn.creationmanagement.ControllerAction;
 import com.scn.creationmanagement.ControllerEvent;
 import com.scn.creationmanagement.ControllerProfile;
 import com.scn.creationmanagement.Creation;
@@ -98,13 +99,17 @@ public class ControllerViewModel extends ViewModel {
     @MainThread
     void connectDevices() {
         Logger.i(TAG, "connectDevices...");
-        throw new RuntimeException("not implemented.");
+        for (Device device : deviceMap.values()) {
+            device.connect();
+        }
     }
 
     @MainThread
     void disconnectDevices() {
         Logger.i(TAG, "disconnectDevices...");
-        throw new RuntimeException("not implemented.");
+        for (Device device : deviceMap.values()) {
+            device.disconnect();
+        }
     }
 
     @MainThread
@@ -114,13 +119,68 @@ public class ControllerViewModel extends ViewModel {
     }
 
     @MainThread
+    void keyDownAction(int keyCode) {
+        for (ControllerEvent controllerEvent : selectedControllerProfile.getControllerEvents()) {
+            if (controllerEvent.getEventType() == ControllerEvent.ControllerEventType.KEY && controllerEvent.getEventCode() == keyCode) {
+                for (ControllerAction controllerAction : controllerEvent.getControllerActions()) {
+                    Device device = deviceMap.get(controllerAction.getDeviceId());
+                    int channel = controllerAction.getChannel();
+
+                    if (controllerAction.getIsToggle()) {
+                        int currentValue = device.getOutput(controllerAction.getChannel());
+                        if (currentValue == 0) {
+                            int outputValue = calculateOutputValue(255, controllerAction.getIsRevert(), controllerAction.getMaxOutput());
+                            device.setOutput(channel, outputValue);
+                        }
+                        else {
+                            device.setOutput(channel, 0);
+                        }
+                    }
+                    else {
+                        int outputValue = calculateOutputValue(255, controllerAction.getIsRevert(), controllerAction.getMaxOutput());
+                        device.setOutput(channel, outputValue);
+                    }
+                }
+            }
+        }
+    }
+
+    @MainThread
+    void keyUpAction(int keyCode) {
+        for (ControllerEvent controllerEvent : selectedControllerProfile.getControllerEvents()) {
+            if (controllerEvent.getEventType() == ControllerEvent.ControllerEventType.KEY && controllerEvent.getEventCode() == keyCode) {
+                for (ControllerAction controllerAction : controllerEvent.getControllerActions()) {
+                    Device device = deviceMap.get(controllerAction.getDeviceId());
+                    int channel = controllerAction.getChannel();
+
+                    if (!controllerAction.getIsToggle()) {
+                        device.setOutput(channel, 0);
+                    }
+                }
+            }
+        }
+    }
+
+    @MainThread
     void beginControllerActions() {
         actionMap.clear();
     }
 
     @MainThread
-    void controllerAction(ControllerEvent.ControllerEventType eventType, int controllerEventCode, int value) {
+    void motionAction(int motionCode, int value) {
+        for (ControllerEvent controllerEvent : selectedControllerProfile.getControllerEvents()) {
+            if (controllerEvent.getEventType() == ControllerEvent.ControllerEventType.MOTION && controllerEvent.getEventCode() == motionCode) {
+                for (ControllerAction controllerAction : controllerEvent.getControllerActions()) {
+                    Device device = deviceMap.get(controllerAction.getDeviceId());
+                    int channel = controllerAction.getChannel();
 
+                    if (!controllerAction.getIsToggle()) {
+                        int outputValue = calculateOutputValue(value, controllerAction.getIsRevert(), controllerAction.getMaxOutput());
+                        addAction(device, channel, outputValue);
+                    }
+                }
+            }
+        }
     }
 
     @MainThread
@@ -130,6 +190,27 @@ public class ControllerViewModel extends ViewModel {
             int channel = entry.getKey().second;
             int outputValue = entry.getValue();
             device.setOutput(channel, outputValue);
+        }
+    }
+
+    //
+    // Private methods
+    //
+
+    private int calculateOutputValue(int value, boolean isRevert, int maxOutput) {
+        int v = (value * maxOutput) / 100;
+        return isRevert ? -v : v;
+    }
+
+    private void addAction(@NonNull Device device, int channel, int outputValue) {
+        Pair<Device, Integer> deviceChannel = new Pair(device, channel);
+        if (actionMap.containsKey(deviceChannel)) {
+            int currentValue = actionMap.get(deviceChannel);
+            int newValue = Math.min(255, Math.max(-255, currentValue + outputValue));
+            actionMap.put(deviceChannel, newValue);
+        }
+        else {
+            actionMap.put(deviceChannel, outputValue);
         }
     }
 }
