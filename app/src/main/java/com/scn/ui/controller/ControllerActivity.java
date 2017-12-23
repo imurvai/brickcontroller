@@ -6,6 +6,8 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
 import android.view.InputDevice;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 
 import com.scn.devicemanagement.Device;
@@ -57,6 +59,24 @@ public class ControllerActivity extends BaseActivity {
         super.onBackPressed();
 
         viewModel.disconnectDevices();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_controller, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_close:
+                viewModel.disconnectDevices();
+                ControllerActivity.this.finish();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

@@ -1,9 +1,11 @@
 package com.scn.ui.controlleraction;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 
+import com.scn.common.StateChange;
 import com.scn.creationmanagement.ControllerAction;
 import com.scn.creationmanagement.ControllerEvent;
 import com.scn.creationmanagement.CreationManager;
@@ -35,7 +37,7 @@ public class ControllerActionViewModel extends ViewModel {
     private ControllerAction controllerAction;
 
     private Device selectedDevice;
-    private int selctedChannel;
+    private int selectedChannel;
     private boolean selectedIsRevert;
     private boolean selectedIsToggle;
     private int selectedMaxOutput;
@@ -64,29 +66,121 @@ public class ControllerActionViewModel extends ViewModel {
             return;
         }
 
-        this.controllerAction = creationManager.getControllerAction(controllerActionId);
+        controllerAction = creationManager.getControllerAction(controllerActionId);
 
         if (controllerAction != null) {
-            this.controllerEvent = creationManager.getControllerEvent(controllerAction.getControllerEventId());
+            controllerEvent = creationManager.getControllerEvent(controllerAction.getControllerEventId());
+
+            selectedDevice = deviceManager.getDevice(controllerAction.getDeviceId());
+            selectedChannel = controllerAction.getChannel();
+            selectedIsRevert = controllerAction.getIsRevert();
+            selectedIsToggle = controllerAction.getIsToggle();
+            selectedMaxOutput = controllerAction.getMaxOutput();
         }
         else {
-            this.controllerEvent = creationManager.getControllerEvent(controllerEventId);
+            controllerEvent = creationManager.getControllerEvent(controllerEventId);
+
+            selectedDevice = deviceManager.getDeviceListLiveData().getValue().get(0);
+            selectedChannel = 0;
+            selectedIsRevert = false;
+            selectedIsToggle = false;
+            selectedMaxOutput = 100;
         }
     }
 
     @MainThread
-    List<String> getDeviceNames() {
+    LiveData<StateChange<CreationManager.State>> getCreationManagerStateChangeLiveData() {
+        return creationManager.getStateChangeLiveData();
+    }
+
+    @MainThread
+    ControllerEvent getControllerEvent() {
+        return controllerEvent;
+    }
+
+    @MainThread
+    List<Device> getDeviceList() {
+        return deviceManager.getDeviceListLiveData().getValue();
+    }
+
+    @MainThread
+    List<String> getDeviceNameList() {
         List<String> deviceNames = new ArrayList<>();
-        for (Device device : deviceManager.getDeviceListLiveData().getValue()) {
-            deviceNames.add(device.getName());
-        }
+        for (Device device : getDeviceList()) deviceNames.add(device.getName());
         return deviceNames;
     }
 
     @MainThread
-    ControllerAction getControllerAction() {
-        //return controllerEvent.getControllerAction();
-        return null;
+    Device getSelectedDevice() {
+        return selectedDevice;
+    }
+
+    @MainThread
+    int getSelectedChannel() {
+        return selectedChannel;
+    }
+
+    @MainThread
+    boolean getSelectedIsRevert() {
+        return selectedIsRevert;
+    }
+
+    @MainThread
+    boolean getSelectedIsToggle() {
+        return selectedIsToggle;
+    }
+
+    @MainThread
+    int getSelectedMaxOutput() {
+        return selectedMaxOutput;
+    }
+
+    @MainThread
+    void selectDevice(@NonNull Device device) {
+        Logger.i(TAG, "selectDevice - " + device);
+
+        if (device.getNumberOfChannels() <= selectedChannel) {
+            selectedChannel = 0;
+        }
+        selectedDevice = device;
+    }
+
+    @MainThread
+    void selectChannel(int channel) {
+        Logger.i(TAG, "selectChannel - " + channel);
+        selectedChannel = channel;
+    }
+
+    @MainThread
+    void selectIsRevert(boolean isRevert) {
+        Logger.i(TAG, "selectIsRevert - " + isRevert);
+        selectedIsRevert = isRevert;
+    }
+
+    @MainThread
+    void selectIsToggle(boolean isToggle) {
+        Logger.i(TAG, "selectIsToggle - " + isToggle);
+        selectedIsToggle = isToggle;
+    }
+
+    @MainThread
+    void selectMaxOutput(int maxOutput) {
+        Logger.i(TAG, "selectMaxOutput - " + maxOutput);
+        selectedMaxOutput = maxOutput;
+    }
+
+    @MainThread
+    boolean checkIfControllerActionCanBeSaved() {
+        ControllerAction ca = controllerEvent.getControllerAction(selectedDevice.getId(), selectedChannel);
+        if (ca == null) {
+            return true;
+        }
+
+        if (controllerAction != null) {
+            return ca.getId() == controllerAction.getId();
+        }
+
+        return false;
     }
 
     @MainThread
@@ -95,13 +189,11 @@ public class ControllerActionViewModel extends ViewModel {
 
         if (controllerAction != null) {
             Logger.i(TAG, "  Updating the controller action...");
-            //return creationManager.updateControllerActionAsync(controllerAction);
+            return creationManager.updateControllerActionAsync(controllerAction, selectedDevice.getId(), selectedChannel, selectedIsRevert, selectedIsToggle, selectedMaxOutput);
         }
         else {
             Logger.i(TAG, "  Adding the controller action...");
-            //return creationManager.addControllerActionAsync(controllerEvent, )
+            return creationManager.addControllerActionAsync(controllerEvent, selectedDevice.getId(), selectedChannel, selectedIsRevert, selectedIsToggle, selectedMaxOutput);
         }
-
-        return false;
     }
 }

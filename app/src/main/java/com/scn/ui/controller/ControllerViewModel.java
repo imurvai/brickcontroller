@@ -196,10 +196,8 @@ public class ControllerViewModel extends ViewModel {
                     Device device = deviceMap.get(controllerAction.getDeviceId());
                     int channel = controllerAction.getChannel();
 
-                    if (!controllerAction.getIsToggle()) {
-                        int outputValue = calculateOutputValue(value, controllerAction.getIsRevert(), controllerAction.getMaxOutput());
-                        addAction(device, channel, outputValue);
-                    }
+                    int outputValue = calculateOutputValue(value, controllerAction.getIsRevert(), controllerAction.getMaxOutput());
+                    addAction(device, channel, outputValue);
                 }
             }
         }

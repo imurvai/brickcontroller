@@ -101,6 +101,9 @@
     <string name="revert_channel">Revert channel</string>
     <string name="toggle_button">Toggle button</string>
     <string name="max_output">Max output</string>
+    <string name="controller_action_exists">The same device and channel has already been configured.</string>
+    <string name="error_during_adding_controller_action">Error during adding controller action.</string>
+    <string name="error_during_updating_controller_action">Error during updating controller action.</string>
 
     <!-- Controller activity -->
     <string name="title_activity_controller">Controller</string>

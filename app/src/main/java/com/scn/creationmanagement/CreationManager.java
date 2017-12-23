@@ -465,7 +465,7 @@ public final class CreationManager {
                                                int channel,
                                                boolean isRevert,
                                                boolean isToggle,
-                                               int maxOtput) {
+                                               int maxOutput) {
         Logger.i(TAG, "updateControllerActionAsync - " + controllerAction);
 
         if (getCurrentState() != State.OK) {
@@ -476,7 +476,7 @@ public final class CreationManager {
         setState(State.UPDATING, false);
 
         Single.fromCallable(() -> {
-            creationRepository.updateControllerAction(controllerAction, deviceId, channel, isRevert, isToggle, maxOtput);
+            creationRepository.updateControllerAction(controllerAction, deviceId, channel, isRevert, isToggle, maxOutput);
             return true;
         })
                 .subscribeOn(Schedulers.io())

@@ -32,92 +32,67 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:context="com.scn.ui.controlleraction.ControllerActionActivity">
 
-        <LinearLayout
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <Spinner
-                android:id="@+id/devices_spinner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="8dp">
-            </Spinner>
-
-            <RelativeLayout
-                android:id="@+id/channel_selector_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-            </RelativeLayout>
-
-            <RadioGroup
-                android:id="@+id/channel_group"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="8dp"
-                android:orientation="vertical">
-
-                <RadioButton
-                    android:id="@+id/channel1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Channel 1"/>
-
-                <RadioButton
-                    android:id="@+id/channel2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Channel 2"/>
-
-                <RadioButton
-                    android:id="@+id/channel3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Channel 3"/>
-
-                <RadioButton
-                    android:id="@+id/channel4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Channel 4"/>
-            </RadioGroup>
-
-            <CheckBox
-                android:id="@+id/revert_channel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="8dp"
-                android:text="@string/revert_channel"/>
-
-            <CheckBox
-                android:id="@+id/toggle_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="8dp"
-                android:text="@string/toggle_button"/>
+            android:layout_height="match_parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="8dp"
-                android:orientation="horizontal">
+                android:orientation="vertical"
+                android:padding="16dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/max_output"/>
-
-                <android.support.v7.widget.AppCompatSeekBar
-                    android:id="@+id/max_output"
+                <Spinner
+                    android:id="@+id/devices_spinner"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:max="100"
-                    android:progress="100"/>
+                    android:layout_marginVertical="8dp">
+                </Spinner>
+
+                <RelativeLayout
+                    android:id="@+id/channel_selector_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <include layout="@layout/part_buwizz_channels"/>
+                    <include layout="@layout/part_infra_channels"/>
+                    <include layout="@layout/part_sbrick_channels"/>
+                </RelativeLayout>
+
+                <CheckBox
+                    android:id="@+id/revert_channel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="8dp"
+                    android:text="@string/revert_channel"/>
+
+                <CheckBox
+                    android:id="@+id/toggle_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="8dp"
+                    android:text="@string/toggle_button"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="8dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/max_output"/>
+
+                    <android.support.v7.widget.AppCompatSeekBar
+                        android:id="@+id/max_output"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="100"
+                        android:progress="100"/>
+
+                </LinearLayout>
             </LinearLayout>
-
-        </LinearLayout>
-
+        </ScrollView>
     </android.support.constraint.ConstraintLayout>
-
 </android.support.design.widget.CoordinatorLayout>

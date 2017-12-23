@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.scn.creationmanagement.ControllerAction;
 import com.scn.creationmanagement.ControllerEvent;
 import com.scn.ui.DefaultRecyclerViewViewHolder;
 import com.scn.ui.OnListItemClickListener;
@@ -16,6 +17,7 @@ import com.scn.ui.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,7 +36,9 @@ final class ControllerProfileDetailsAdapter extends RecyclerView.Adapter<Recycle
     private static final int VIEWTYPE_DEFAULT = 2;
 
     private List<ControllerEvent> controllerEventList = new ArrayList<>();
-    private OnListItemClickListener<ControllerEvent> listItemClickListener = null;
+    private OnListItemClickListener<ControllerEvent> controllerEventOnListItemClickListener = null;
+    private OnListItemClickListener<ControllerAction> controllerActionOnListItemClickListener = null;
+    private Map<String, String> deviceIdNameMap = null;
 
     //
     // RecyclerView.Adapter overrides
@@ -56,7 +60,7 @@ final class ControllerProfileDetailsAdapter extends RecyclerView.Adapter<Recycle
                 View view = LayoutInflater
                         .from(parent.getContext())
                         .inflate(R.layout.list_item_controller_event, parent, false);
-                return new ControllerEventItemViewHolder(view);
+                return new ControllerEventItemViewHolder(parent, view, deviceIdNameMap);
             }
 
             case VIEWTYPE_DEFAULT: {
@@ -74,7 +78,7 @@ final class ControllerProfileDetailsAdapter extends RecyclerView.Adapter<Recycle
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         switch (getItemViewType(position)) {
             case VIEWTYPE_CONTROLLER_EVENT:
-                ((ControllerEventItemViewHolder)holder).bind(controllerEventList.get(position), listItemClickListener);
+                ((ControllerEventItemViewHolder)holder).bind(controllerEventList.get(position), controllerEventOnListItemClickListener, controllerActionOnListItemClickListener);
         }
     }
 
@@ -96,8 +100,18 @@ final class ControllerProfileDetailsAdapter extends RecyclerView.Adapter<Recycle
         notifyDataSetChanged();
     }
 
-    public void setListItemClickListener(@NonNull OnListItemClickListener<ControllerEvent> listItemClickListener) {
-        this.listItemClickListener = listItemClickListener;
+    public void setControllerEventOnListItemClickListener(@NonNull OnListItemClickListener<ControllerEvent> controllerEventOnListItemClickListener) {
+        this.controllerEventOnListItemClickListener = controllerEventOnListItemClickListener;
+        notifyDataSetChanged();
+    }
+
+    public void setControllerActionOnListItemClickListener(@NonNull OnListItemClickListener<ControllerAction> controllerActionOnListItemClickListener) {
+        this.controllerActionOnListItemClickListener = controllerActionOnListItemClickListener;
+        notifyDataSetChanged();
+    }
+
+    public void setDeviceIdNameMap(@NonNull Map<String, String> deviceIdNameMap) {
+        this.deviceIdNameMap = deviceIdNameMap;
         notifyDataSetChanged();
     }
 
@@ -107,21 +121,55 @@ final class ControllerProfileDetailsAdapter extends RecyclerView.Adapter<Recycle
 
     public class ControllerEventItemViewHolder extends RecyclerView.ViewHolder {
 
+        private ViewGroup viewGroup;
+        private Map<String, String> deviceIdNameMap;
+
         @BindView(R.id.controller_event_name) TextView controllerEventNameTextView;
         @BindView(R.id.remove_controller_event) Button removeControllerEventButton;
         @BindView(R.id.controller_action_container) LinearLayout controllerActionContainer;
 
-        public ControllerEventItemViewHolder(View itemView) {
+        public ControllerEventItemViewHolder(ViewGroup viewGroup, View itemView, Map<String, String> deviceIdNameMap) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+
+            this.viewGroup = viewGroup;
+            this.deviceIdNameMap = deviceIdNameMap;
         }
 
-        public void bind(@NonNull final ControllerEvent controllerEvent, final OnListItemClickListener<ControllerEvent> controllerEventOnListItemClickListener) {
+        public void bind(@NonNull final ControllerEvent controllerEvent,
+                         final OnListItemClickListener<ControllerEvent> controllerEventOnListItemClickListener,
+                         final OnListItemClickListener<ControllerAction> controllerActionOnListItemClickListener) {
             controllerEventNameTextView.setText(controllerEvent.getEventText());
 
             removeControllerEventButton.setOnClickListener(view -> {
                 if (controllerEventOnListItemClickListener != null) controllerEventOnListItemClickListener.onClick(controllerEvent, OnListItemClickListener.ItemClickAction.REMOVE, null);
             });
+
+            controllerActionContainer.removeAllViews();
+            for (ControllerAction controllerAction : controllerEvent.getControllerActions()) {
+                View controllerActionView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item_controller_action, viewGroup, false);
+                TextView textView = controllerActionView.findViewById(R.id.controller_action);
+                Button removeButton = controllerActionView.findViewById(R.id.remove_controller_action);
+
+                if (deviceIdNameMap != null && deviceIdNameMap.containsKey(controllerAction.getDeviceId())) {
+                    String deviceName = deviceIdNameMap.get(controllerAction.getDeviceId());
+                    textView.setText(deviceName + " - " + (controllerAction.getChannel() + 1));
+                }
+                else {
+                    String deviceName = controllerAction.getDeviceId();
+                    textView.setText(deviceName + " - " + (controllerAction.getChannel() + 1));
+                }
+
+                controllerActionView.setOnClickListener(view -> {
+                    if (controllerActionOnListItemClickListener != null) controllerActionOnListItemClickListener.onClick(controllerAction, OnListItemClickListener.ItemClickAction.CLICK, null);
+                });
+
+                removeButton.setOnClickListener(view -> {
+                    if (controllerActionOnListItemClickListener != null) controllerActionOnListItemClickListener.onClick(controllerAction, OnListItemClickListener.ItemClickAction.REMOVE, null);
+                });
+
+                controllerActionContainer.addView(controllerActionView);
+            }
         }
     }
 }

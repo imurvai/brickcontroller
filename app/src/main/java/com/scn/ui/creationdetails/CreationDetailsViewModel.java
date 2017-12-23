@@ -4,8 +4,10 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
+import android.view.MotionEvent;
 
 import com.scn.common.StateChange;
+import com.scn.creationmanagement.ControllerEvent;
 import com.scn.creationmanagement.ControllerProfile;
 import com.scn.creationmanagement.Creation;
 import com.scn.creationmanagement.CreationManager;

@@ -211,6 +211,8 @@ final class CreationRepository {
             controllerAction.setIsToggle(originalIsToggle);
             controllerAction.setMaxOutput(originalMaxOutput);
         }
+
+        creationListLiveData.postValue(creationList);
     }
 
     @WorkerThread

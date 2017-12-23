@@ -87,7 +87,7 @@ public final class ControllerEvent {
 
     public List<ControllerAction> getControllerActions() { return controllerActions; }
 
-    ControllerAction getControllerAction(@NonNull String deviceId, int channel) {
+    public ControllerAction getControllerAction(@NonNull String deviceId, int channel) {
         Logger.i(TAG, "checkControllerAction - event type: " + eventType + ", event code: " + eventCode);
 
         for (ControllerAction controllerAction : controllerActions) {

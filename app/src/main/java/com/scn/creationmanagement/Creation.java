@@ -5,6 +5,8 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 
 import com.scn.logger.Logger;
 
@@ -63,7 +65,6 @@ public final class Creation {
         Logger.i(TAG, "getUsedDeviceIds - " + this);
 
         List<String> deviceIds = new ArrayList<>();
-
         for (ControllerProfile controllerProfile : controllerProfiles) {
             for (ControllerEvent controllerEvent : controllerProfile.getControllerEvents()) {
                 for (ControllerAction controllerAction : controllerEvent.getControllerActions()) {

@@ -119,7 +119,7 @@ public class ControllerProfileDetailsActivity extends BaseActivity {
                 }
                 else {
                     Logger.i(TAG, "  Adding new controller action to controller event - " + controllerEvent);
-                    startControllerActionActivity(controllerEvent.getId());
+                    startControllerActionActivity(controllerEvent.getId(), -1);
                 }
             });
             dialog.setCancelable(false);
@@ -150,7 +150,7 @@ public class ControllerProfileDetailsActivity extends BaseActivity {
                                 stateChange.resetPreviousState();
 
                                 long controllerEventId = (long)stateChange.getData();
-                                startControllerActionActivity(controllerEventId);
+                                startControllerActionActivity(controllerEventId, -1);
                             }
                             break;
 
@@ -204,7 +204,7 @@ public class ControllerProfileDetailsActivity extends BaseActivity {
         recyclerView.addItemDecoration(new DividerItemDecoration(ControllerProfileDetailsActivity.this, DividerItemDecoration.VERTICAL));
         recyclerView.setAdapter(controllerProfileDetailsAdapter);
 
-        controllerProfileDetailsAdapter.setListItemClickListener((controllerEvent, itemClickAction, data) -> {
+        controllerProfileDetailsAdapter.setControllerEventOnListItemClickListener((controllerEvent, itemClickAction, data) -> {
             Logger.i(TAG, "onClick - controller event: " + controllerEvent + ", action: " + itemClickAction);
             switch (itemClickAction) {
                 case REMOVE:
@@ -217,13 +217,34 @@ public class ControllerProfileDetailsActivity extends BaseActivity {
                     break;
             }
         });
+
+        controllerProfileDetailsAdapter.setControllerActionOnListItemClickListener((controllerAction, itemClickAction, data) -> {
+            Logger.i(TAG, "onClick - controller action: " + controllerAction+ ", action: " + itemClickAction);
+            switch (itemClickAction) {
+                case CLICK:
+                    startControllerActionActivity(controllerAction.getControllerEventId(), controllerAction.getId());
+                    break;
+
+                case REMOVE:
+                    showQuestionDialog(
+                            getString(R.string.are_you_sure_you_want_to_remove),
+                            getString(R.string.yes),
+                            getString(R.string.no),
+                            (dialogInterface, i) -> viewModel.removeControllerAction(controllerAction),
+                            ((dialogInterface, i) -> {}));
+                    break;
+            }
+        });
+
+        controllerProfileDetailsAdapter.setDeviceIdNameMap(viewModel.getDeviceIdNameMap());
     }
 
-    private void startControllerActionActivity(long controllerEventId) {
+    private void startControllerActionActivity(long controllerEventId, long controllerActionId) {
         Logger.i(TAG, "Start controller action activity - controller event id: " + controllerEventId);
 
         Intent intent = new Intent(ControllerProfileDetailsActivity.this, ControllerActionActivity.class);
         intent.putExtra(EXTRA_CONTROLLER_EVENT_ID, controllerEventId);
+        intent.putExtra(EXTRA_CONTROLLER_ACTION_ID, controllerActionId);
         startActivity(intent);
     }
 }

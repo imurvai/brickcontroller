@@ -3,15 +3,21 @@ package com.scn.ui.controllerprofiledetails;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModel;
 import android.support.annotation.MainThread;
+import android.support.annotation.NonNull;
 
 import com.scn.common.StateChange;
+import com.scn.creationmanagement.ControllerAction;
 import com.scn.creationmanagement.ControllerEvent;
 import com.scn.creationmanagement.ControllerProfile;
 import com.scn.creationmanagement.Creation;
 import com.scn.creationmanagement.CreationManager;
+import com.scn.devicemanagement.Device;
+import com.scn.devicemanagement.DeviceManager;
 import com.scn.logger.Logger;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -32,14 +38,20 @@ public class ControllerProfileDetailsViewModel extends ViewModel {
     private Creation creation;
     private ControllerProfile controllerProfile;
 
+    private Map<String, String> deviceIdNameMap = new HashMap<>();
+
     //
     // Constructor
     //
 
     @Inject
-    ControllerProfileDetailsViewModel(CreationManager creationManager) {
+    ControllerProfileDetailsViewModel(@NonNull CreationManager creationManager, @NonNull DeviceManager deviceManager) {
         Logger.i(TAG, "constructor...");
         this.creationManager = creationManager;
+
+        for (Device device : deviceManager.getDeviceListLiveData().getValue()) {
+            deviceIdNameMap.put(device.getId(), device.getName());
+        }
     }
 
     //
@@ -70,6 +82,11 @@ public class ControllerProfileDetailsViewModel extends ViewModel {
     }
 
     @MainThread
+    Map<String, String> getDeviceIdNameMap() {
+        return deviceIdNameMap;
+    }
+
+    @MainThread
     boolean checkControllerProfileName(String name) {
         return creation.checkControllerProfileName(name);
     }
@@ -92,5 +109,11 @@ public class ControllerProfileDetailsViewModel extends ViewModel {
     @MainThread
     boolean removeControllerEvent(ControllerEvent controllerEvent) {
         return creationManager.removeControllerEventAsync(controllerProfile, controllerEvent);
+    }
+
+    @MainThread
+    boolean removeControllerAction(ControllerAction controllerAction) {
+        ControllerEvent controllerEvent = creationManager.getControllerEvent(controllerAction.getControllerEventId());
+        return creationManager.removeControllerActionAsync(controllerProfile, controllerEvent, controllerAction, true);
     }
 }

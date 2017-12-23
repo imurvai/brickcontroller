@@ -129,6 +129,11 @@ final class InfraRedDeviceManager extends SpecificDeviceManager {
         //Logger.i(TAG, "setOutput - " + device + ", channel: " + channel + ", value: " + value);
 
         int address = convertAddress(device.getAddress());
+
+        if (outputValues[address][channel] == value) {
+            return;
+        }
+
         outputValues[address][channel] = value;
         isContinueSending[address] = true;
     }

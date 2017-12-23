@@ -88,6 +88,11 @@ final class BuWizzDevice extends BluetoothDevice {
         //Logger.i(TAG, "setOutput - channel: " + channel + ", value: " + value);
         checkChannel(channel);
         value = limitOutputValue(value);
+
+        if (outputValues[channel] == value) {
+            return;
+        }
+
         outputValues[channel] = value;
         continueSending = true;
     }
