@@ -12,11 +12,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import com.scn.creationmanagement.ControllerProfile;
 import com.scn.creationmanagement.Creation;
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
-import com.scn.ui.OnListItemClickListener;
 import com.scn.ui.R;
 import com.scn.ui.controller.ControllerActivity;
 import com.scn.ui.controllerprofiledetails.ControllerProfileDetailsActivity;

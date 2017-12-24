@@ -3,12 +3,16 @@ package com.scn.ui.controller;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.widget.TextView;
 
 import com.scn.devicemanagement.Device;
 import com.scn.logger.Logger;
@@ -16,6 +20,8 @@ import com.scn.ui.BaseActivity;
 import com.scn.ui.R;
 
 import java.util.Map;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -33,8 +39,11 @@ public class ControllerActivity extends BaseActivity {
     private static final String TAG = ControllerActivity.class.getSimpleName();
 
     ControllerViewModel viewModel;
+    @Inject ControllerAdapter controllerAdapter;
 
     @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.creation_name) TextView creationNameTextView;
+    @BindView(R.id.recyclerview) RecyclerView recyclerView;
 
     //
     // Activity overrides
@@ -51,6 +60,9 @@ public class ControllerActivity extends BaseActivity {
 
         String creationName = getIntent().getStringExtra(EXTRA_CREATION_NAME);
         setupViewModel(creationName);
+        setupRecyclerView();
+
+        creationNameTextView.setText(viewModel.getCreation().getName());
     }
 
     @Override
@@ -149,6 +161,22 @@ public class ControllerActivity extends BaseActivity {
             else {
                 Logger.i(TAG, "  All devices have connected.");
                 dismissDialog();
+            }
+        });
+    }
+
+    private void setupRecyclerView() {
+        recyclerView.setLayoutManager(new LinearLayoutManager(ControllerActivity.this));
+        recyclerView.addItemDecoration(new DividerItemDecoration(ControllerActivity.this, DividerItemDecoration.VERTICAL));
+        recyclerView.setAdapter(controllerAdapter);
+
+        controllerAdapter.setControllerProfileList(viewModel.getControllerProfiles());
+        controllerAdapter.setListItemClickListener((controllerProfile, itemClickAction, data) -> {
+            Logger.i(TAG, "onClick - " + controllerProfile);
+            switch (itemClickAction) {
+                case CLICK:
+                    viewModel.selectControllerProfile(controllerProfile);
+                    break;
             }
         });
     }

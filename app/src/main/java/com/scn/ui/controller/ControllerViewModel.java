@@ -135,9 +135,9 @@ public class ControllerViewModel extends ViewModel {
     }
 
     @MainThread
-    void setControllerProfile(String controllerProfileId) {
-        Logger.i(TAG, "setControllerProfile - " + controllerProfileId);
-        throw new RuntimeException("not implemented.");
+    void selectControllerProfile(ControllerProfile controllerProfile) {
+        Logger.i(TAG, "selectControllerProfile - " + controllerProfile);
+        selectedControllerProfile = controllerProfile;
     }
 
     @MainThread
