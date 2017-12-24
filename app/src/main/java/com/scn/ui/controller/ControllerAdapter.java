@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.scn.creationmanagement.ControllerProfile;
@@ -21,13 +22,14 @@ import butterknife.ButterKnife;
  * Created by imurvai on 2017-12-24.
  */
 
-final class ControllerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+final class ControllerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements OnListItemClickListener<ControllerProfile> {
 
     //
     // Members
     //
 
     private List<ControllerProfile> controllerProfileList = new ArrayList<>();
+    private ControllerProfile selectedControllerProfile = null;
     private OnListItemClickListener<ControllerProfile> listItemClickListener = null;
 
     //
@@ -42,7 +44,9 @@ final class ControllerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        ((ControllerProfileItemViewHolder)holder).bind(controllerProfileList.get(position), listItemClickListener);
+        ControllerProfile controllerProfile = controllerProfileList.get(position);
+        boolean isSelected = controllerProfile == selectedControllerProfile;
+        ((ControllerProfileItemViewHolder)holder).bind(controllerProfile, isSelected, ControllerAdapter.this);
     }
 
     @Override
@@ -52,11 +56,24 @@ final class ControllerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     //
+    // OnListItemClickListener override
+    //
+
+    @Override
+    public void onClick(ControllerProfile item, ItemClickAction itemClickAction, Object data) {
+        selectedControllerProfile = item;
+        notifyDataSetChanged();
+
+        if (listItemClickListener != null) listItemClickListener.onClick(item, itemClickAction, data);
+    }
+
+    //
     // API
     //
 
     public void setControllerProfileList(@NonNull List<ControllerProfile> controllerProfileList) {
         this.controllerProfileList = controllerProfileList;
+        this.selectedControllerProfile = controllerProfileList.size() > 0 ? controllerProfileList.get(0) : null;
         notifyDataSetChanged();
     }
 
@@ -71,6 +88,7 @@ final class ControllerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public class ControllerProfileItemViewHolder extends RecyclerView.ViewHolder {
 
+        @BindView(R.id.container) RelativeLayout relativeLayout;
         @BindView(R.id.text) TextView textView;
 
         public ControllerProfileItemViewHolder(View itemView) {
@@ -78,7 +96,8 @@ final class ControllerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(@NonNull final ControllerProfile controllerProfile, final OnListItemClickListener<ControllerProfile> listItemClickListener) {
+        public void bind(@NonNull final ControllerProfile controllerProfile, boolean isSelected, OnListItemClickListener<ControllerProfile> listItemClickListener) {
+            relativeLayout.setBackgroundColor(isSelected ? 0xfff0f0f0 : 0xffffffff);
             textView.setText(controllerProfile.getName());
 
             itemView.setOnClickListener(view -> {

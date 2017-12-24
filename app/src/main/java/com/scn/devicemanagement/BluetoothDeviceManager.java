@@ -76,7 +76,8 @@ final class BluetoothDeviceManager extends SpecificDeviceManager {
     public boolean isBluetoothOn() {
         Logger.i(TAG, "isBluetoothOn...");
 
-        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+        BluetoothManager bluetoothManager = (BluetoothManager)context.getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothAdapter adapter = bluetoothManager != null ? bluetoothManager.getAdapter() : null;
         boolean isOn = adapter != null && adapter.isEnabled();
 
         Logger.i(TAG, "  Bluetooth is " + (isOn ? "on" : "off") + ".");
