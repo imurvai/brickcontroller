@@ -19,6 +19,8 @@ import com.scn.ui.BaseActivity;
 import com.scn.ui.R;
 import com.scn.ui.controlleraction.ControllerActionActivity;
 
+import java.util.Map;
+
 import javax.inject.Inject;
 
 import butterknife.BindView;
@@ -222,7 +224,12 @@ public class ControllerProfileDetailsActivity extends BaseActivity {
             Logger.i(TAG, "onClick - controller action: " + controllerAction+ ", action: " + itemClickAction);
             switch (itemClickAction) {
                 case CLICK:
-                    startControllerActionActivity(controllerAction.getControllerEventId(), controllerAction.getId());
+                    if (viewModel.getDeviceIdNameMap().containsKey(controllerAction.getDeviceId())) {
+                        startControllerActionActivity(controllerAction.getControllerEventId(), controllerAction.getId());
+                    }
+                    else {
+                        showAlertDialog(getString(R.string.device_not_found));
+                    }
                     break;
 
                 case REMOVE:

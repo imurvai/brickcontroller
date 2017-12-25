@@ -15,7 +15,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:scaleType="fitCenter"
-        app:srcCompat="@drawable/sbrick_editor_image"/>
+        app:srcCompat="@drawable/sbrick_image"/>
 
     <RadioButton
         android:id="@+id/sbrick_channel1"

@@ -94,6 +94,7 @@
     <string name="error_during_adding_controller_event">Error during adding controller event.</string>
     <string name="error_during_removing_controller_event">Error during removing controller event.</string>
     <string name="add_controller_event">Please add controller events.</string>
+    <string name="device_not_found">The referenced device is missing.</string>
 
     <!-- Controller action activity -->
     <string name="title_activity_controller_action">Controller action</string>
