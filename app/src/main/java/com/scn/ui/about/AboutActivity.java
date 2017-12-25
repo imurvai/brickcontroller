@@ -1,8 +1,11 @@
 package com.scn.ui.about;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
+import android.widget.TextView;
 
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
@@ -24,6 +27,7 @@ public class AboutActivity extends BaseActivity {
     private static final String TAG = AboutActivity.class.getSimpleName();
 
     @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.version) TextView verisionTextView;
 
     //
     // Activity overrides
@@ -36,6 +40,15 @@ public class AboutActivity extends BaseActivity {
 
         setContentView(R.layout.activity_about);
         ButterKnife.bind(this);
+
         setSupportActionBar(toolbar);
+
+        String versionName = "unknown";
+        try {
+            PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            versionName = packageInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {}
+
+        verisionTextView.setText(versionName);
     }
 }

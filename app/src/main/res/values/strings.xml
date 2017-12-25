@@ -30,6 +30,7 @@
     <string name="failed_to_connect">Failed to connect.</string>
     <string name="ble_not_supported">Your device does not support bluetooth low energy.</string>
     <string name="default_controller_profile_name">Default profile</string>
+    <string name="version">Version</string>
 
     <!-- Creation list activity -->
     <string name="title_activity_creation_list">Creation list</string>

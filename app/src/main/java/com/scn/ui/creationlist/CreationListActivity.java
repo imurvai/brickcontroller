@@ -111,9 +111,9 @@ public class CreationListActivity extends BaseActivity implements NavigationView
                 startActivity(new Intent(CreationListActivity.this, DeviceListActivity.class));
                 break;
 
-            case R.id.nav_settings:
-                Toast.makeText(CreationListActivity.this, "Settings selected.", Toast.LENGTH_SHORT).show();
-                break;
+//            case R.id.nav_settings:
+//                Toast.makeText(CreationListActivity.this, "Settings selected.", Toast.LENGTH_SHORT).show();
+//                break;
 
             case R.id.nav_about:
                 startActivity(new Intent(CreationListActivity.this, AboutActivity.class));
