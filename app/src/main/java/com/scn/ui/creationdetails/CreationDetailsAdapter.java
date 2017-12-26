@@ -71,8 +71,7 @@ final class CreationDetailsAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        int viewType = getItemViewType(position);
-        switch (viewType) {
+        switch (holder.getItemViewType()) {
             case VIEWTYPE_CONTROLLER_PROFILE:
                 ((ControllerProfileItemViewHolder)holder).bind(controllerProfileList.get(position), listItemClickListener);
                 break;

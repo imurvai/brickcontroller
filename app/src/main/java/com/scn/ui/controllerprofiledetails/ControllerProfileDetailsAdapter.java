@@ -76,7 +76,7 @@ final class ControllerProfileDetailsAdapter extends RecyclerView.Adapter<Recycle
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        switch (getItemViewType(position)) {
+        switch (holder.getItemViewType()) {
             case VIEWTYPE_CONTROLLER_EVENT:
                 ((ControllerEventItemViewHolder)holder).bind(controllerEventList.get(position), controllerEventOnListItemClickListener, controllerActionOnListItemClickListener);
         }

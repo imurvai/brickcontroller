@@ -6,8 +6,11 @@ import android.app.ProgressDialog;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -35,7 +38,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     private static final String TAG = BaseActivity.class.getSimpleName();
 
-    protected static final int REQUEST_BT_ENABLE = 0x0001;
+    protected static final int REQUEST_BT_ENABLE = 0x4201;
 
     protected static final String EXTRA_DEVICE_ID = "EXTRA_DEVICE_ID";
     protected static final String EXTRA_CREATION_NAME = "EXTRA_CREATION_NAME";
@@ -64,15 +67,25 @@ public abstract class BaseActivity extends AppCompatActivity {
         Logger.i(TAG, "onResume...");
         super.onResume();
 
+        if (!deviceManager.isBluetoothLESupported()) {
+            return;
+        }
+
+        Logger.i(TAG, "  Registering to the Bluetooth broadcast receiver...");
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+        registerReceiver(bluetoothAdapterBroadcastReceiver, filter);
+
         if (!deviceManager.isBluetoothOn()) {
-            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(intent, REQUEST_BT_ENABLE);
+            startBluetoothRequestActivity();
         }
     }
 
     @Override
     protected void onPause() {
         Logger.i(TAG, "onPause...");
+
+        unregisterReceiver(bluetoothAdapterBroadcastReceiver);
 
         if (dialog != null) {
             dialog.dismiss();
@@ -83,12 +96,18 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Logger.i(TAG, "onActivityResult...");
-        super.onActivityResult(requestCode, resultCode, data);
+        Logger.i(TAG, "onActivityResult - request code: " + requestCode + ", result code: " + resultCode);
 
-        if (requestCode == REQUEST_BT_ENABLE && requestCode != RESULT_OK) {
-            BaseActivity.this.finish();
+        if (requestCode == REQUEST_BT_ENABLE) {
+            Logger.i(TAG, "  REQUEST_BT_ENABLE");
+
+            if (resultCode != RESULT_OK) {
+                Logger.i(TAG, "  Not RESULT_OK, exiting...");
+                BaseActivity.this.finishAffinity();
+            }
         }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     //
@@ -241,4 +260,32 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected int convertDpToPx(int dp) {
         return dp * getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT;
     }
+
+    //
+    // Private methods and classes
+    //
+
+    private void startBluetoothRequestActivity() {
+        Logger.i(TAG, "startBluetoothRequestActivity...");
+        Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        startActivityForResult(intent, REQUEST_BT_ENABLE);
+    }
+
+    private BroadcastReceiver bluetoothAdapterBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Logger.i(TAG, "bluetoothAdapterBroadcastReceiver.onReceive");
+
+            final String action = intent.getAction();
+
+            if (action == BluetoothAdapter.ACTION_STATE_CHANGED) {
+                Logger.i(TAG, "  BluetoothAdapter.ACTION_STATE_CHANGED");
+
+                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
+                if (state == BluetoothAdapter.STATE_OFF) {
+                    startBluetoothRequestActivity();
+                }
+            }
+        }
+    };
 }

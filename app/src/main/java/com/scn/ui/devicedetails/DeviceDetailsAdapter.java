@@ -116,8 +116,7 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        int viewType = getItemViewType(position);
-        switch (viewType) {
+        switch (holder.getItemViewType()) {
             case VIEWTYPE_HEADER:
                 ((HeaderViewHolder)holder).bind(device);
                 break;

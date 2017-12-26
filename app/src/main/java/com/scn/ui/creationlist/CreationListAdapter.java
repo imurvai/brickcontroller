@@ -71,8 +71,7 @@ final class CreationListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        int viewType = getItemViewType(position);
-        switch (viewType) {
+        switch (holder.getItemViewType()) {
             case VIEWTYPE_CREATION:
                 ((CreationItemViewHolder)holder).bind(creationList.get(position), listItemClickListener);
                 break;

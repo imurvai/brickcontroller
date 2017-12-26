@@ -80,8 +80,7 @@ final class DeviceListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        int viewType = getItemViewType(position);
-        switch (viewType) {
+        switch (holder.getItemViewType()) {
             case VIEWTYPE_DEVICEITEM:
                 ((DeviceItemViewHolder)holder).bind(deviceList.get(position), listItemClickListener);
                 break;

@@ -74,7 +74,7 @@ public class CreationListActivity extends BaseActivity implements NavigationView
         else {
             showAlertDialog(
                     getString(R.string.ble_not_supported),
-                    dialogInterface -> CreationListActivity.this.finish());
+                    dialogInterface -> CreationListActivity.this.finishAffinity());
         }
     }
 
@@ -83,9 +83,9 @@ public class CreationListActivity extends BaseActivity implements NavigationView
         Logger.i(TAG, "onRequestPermissionsResult...");
 
         if (requestCode == PERMISSION_REQUEST_COARSE_LOCATION) {
-            if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+            if (grantResults == null || grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 Logger.i(TAG, "  permission deined, exiting...");
-                CreationListActivity.this.finish();
+                CreationListActivity.this.finishAffinity();
             }
         }
     }
