@@ -52,8 +52,8 @@ final class ControllerEventDialog extends Dialog {
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
-        Logger.i(TAG, "onKeyDown - keyCode: " + keyCode);
+    public boolean onKeyUp(int keyCode, @NonNull KeyEvent event) {
+        Logger.i(TAG, "onKeyUp - keyCode: " + keyCode);
 
         if ((event.getSource() & InputDevice.SOURCE_GAMEPAD) != 0 && event.getRepeatCount() == 0) {
             Logger.i(TAG, "  Key code: " + keyCode + " - (" + KeyEvent.keyCodeToString(keyCode) + ")");

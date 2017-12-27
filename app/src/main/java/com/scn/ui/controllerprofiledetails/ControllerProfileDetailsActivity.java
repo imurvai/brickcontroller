@@ -19,8 +19,6 @@ import com.scn.ui.BaseActivity;
 import com.scn.ui.R;
 import com.scn.ui.controlleraction.ControllerActionActivity;
 
-import java.util.Map;
-
 import javax.inject.Inject;
 
 import butterknife.BindView;
@@ -111,22 +109,29 @@ public class ControllerProfileDetailsActivity extends BaseActivity {
 
         floatingActionButton.setOnClickListener(view -> {
             Logger.i(TAG, "Floating action button clicked...");
-            ControllerEventDialog dialog = new ControllerEventDialog(ControllerProfileDetailsActivity.this, (eventType, eventCode) -> {
-                Logger.i(TAG, "onDismiss - event type: " + eventType + ", event code: " + eventCode);
 
-                ControllerEvent controllerEvent = viewModel.getControllerEvent(eventType, eventCode);
-                if (controllerEvent == null) {
-                    Logger.i(TAG, "  Adding new controller event...");
-                    viewModel.addControllerEvent(eventType, eventCode);
-                }
-                else {
-                    Logger.i(TAG, "  Adding new controller action to controller event - " + controllerEvent);
-                    startControllerActionActivity(controllerEvent.getId(), -1);
-                }
-            });
-            dialog.setCancelable(false);
-            dialog.setCanceledOnTouchOutside(true);
-            dialog.show();
+            if (viewModel.getDeviceIdNameMap().values().size() > 0) {
+                ControllerEventDialog dialog = new ControllerEventDialog(ControllerProfileDetailsActivity.this, (eventType, eventCode) -> {
+                    Logger.i(TAG, "onDismiss - event type: " + eventType + ", event code: " + eventCode);
+
+                    ControllerEvent controllerEvent = viewModel.getControllerEvent(eventType, eventCode);
+                    if (controllerEvent == null) {
+                        Logger.i(TAG, "  Adding new controller event...");
+                        viewModel.addControllerEvent(eventType, eventCode);
+                    }
+                    else {
+                        Logger.i(TAG, "  Adding new controller action to controller event - " + controllerEvent);
+                        startControllerActionActivity(controllerEvent.getId(), -1);
+                    }
+                });
+                dialog.setCancelable(false);
+                dialog.setCanceledOnTouchOutside(true);
+                dialog.show();
+            }
+            else {
+                Logger.i(TAG, "  No devices scanned yet.");
+                showAlertDialog(getString(R.string.no_devices));
+            }
         });
     }
 
