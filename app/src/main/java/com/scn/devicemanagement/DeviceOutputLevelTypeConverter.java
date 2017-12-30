@@ -2,8 +2,6 @@ package com.scn.devicemanagement;
 
 import android.arch.persistence.room.TypeConverter;
 
-import com.scn.devicemanagement.Device;
-
 /**
  * Created by imurvai on 2017-12-14.
  */

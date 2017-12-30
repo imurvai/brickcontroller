@@ -41,7 +41,7 @@ final class DeviceRepository {
     //
 
     @Inject
-    public DeviceRepository(@NonNull Context context) {
+    DeviceRepository(@NonNull Context context) {
         Logger.i(TAG, "constructor...");
 
         DeviceDatabase database = Room.databaseBuilder(context, DeviceDatabase.class, DeviceDatabase.DatabaseName).build();
@@ -55,7 +55,7 @@ final class DeviceRepository {
     //
 
     @WorkerThread
-    public synchronized void loadDevices(@NonNull DeviceFactory deviceFactory) {
+    synchronized void loadDevices(@NonNull DeviceFactory deviceFactory) {
         Logger.i(TAG, "loadDevices...");
 
         deviceMap.clear();
@@ -72,7 +72,7 @@ final class DeviceRepository {
     }
 
     @WorkerThread
-    public synchronized void storeDevice(@NonNull Device device) {
+    synchronized void storeDevice(@NonNull Device device) {
         Logger.i(TAG, "storeDevice - " + device);
 
         if (deviceMap.containsKey(device.getId())) {
@@ -86,7 +86,7 @@ final class DeviceRepository {
     }
 
     @WorkerThread
-    public synchronized void updateDevice(@NonNull Device device, @NonNull String newName) {
+    synchronized void updateDevice(@NonNull Device device, @NonNull String newName) {
         Logger.i(TAG, "updateDeviceAsync - " + device);
         Logger.i(TAG, "  new name: " + newName);
 
@@ -96,7 +96,7 @@ final class DeviceRepository {
     }
 
     @WorkerThread
-    public synchronized void updateDevice(@NonNull Device device, @NonNull Device.OutputLevel newOutputLevel) {
+    synchronized void updateDevice(@NonNull Device device, @NonNull Device.OutputLevel newOutputLevel) {
         Logger.i(TAG, "updateDeviceAsync - " + device);
         Logger.i(TAG, "  new output level: " + newOutputLevel);
 
@@ -106,7 +106,7 @@ final class DeviceRepository {
     }
 
     @WorkerThread
-    public synchronized void deleteDevice(@NonNull Device device) {
+    synchronized void deleteDevice(@NonNull Device device) {
         Logger.i(TAG, "deleteDevice - " + device);
 
         deviceDao.delete(DeviceEntity.fromDevice(device));
@@ -115,14 +115,14 @@ final class DeviceRepository {
     }
 
     @WorkerThread
-    public synchronized void deleteAllDevices() {
+    synchronized void deleteAllDevices() {
         Logger.i(TAG, "deleteAllDevices...");
         deviceDao.deleteAll();
         deviceMap.clear();
         deviceListLiveData.postValue(getDeviceList());
     }
 
-    public synchronized Device getDevice(@NonNull String deviceId) {
+    synchronized Device getDevice(@NonNull String deviceId) {
         Logger.i(TAG, "getDevice - " + deviceId);
 
         if (!deviceMap.containsKey(deviceId)) {
@@ -133,7 +133,7 @@ final class DeviceRepository {
         return deviceMap.get(deviceId);
     }
 
-    public synchronized LiveData<List<Device>> getDeviceListLiveData() {
+    synchronized LiveData<List<Device>> getDeviceListLiveData() {
         Logger.i(TAG, "getDeviceListLiveData...");
         return deviceListLiveData;
     }

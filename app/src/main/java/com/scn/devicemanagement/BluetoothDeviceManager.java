@@ -1,14 +1,10 @@
 package com.scn.devicemanagement;
 
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothManager;
-import android.bluetooth.le.BluetoothLeScanner;
-import android.bluetooth.le.ScanCallback;
-import android.bluetooth.le.ScanRecord;
-import android.bluetooth.le.ScanResult;
+import android.bluetooth.*;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.annotation.MainThread;
+import android.support.annotation.NonNull;
 
 import com.scn.logger.Logger;
 
@@ -34,11 +30,9 @@ final class BluetoothDeviceManager extends SpecificDeviceManager {
 
     private static final String TAG = BluetoothDeviceManager.class.getSimpleName();
 
-    private BluetoothAdapter bluetoothAdapter;
-    private BluetoothLeScanner bluetoothLeScanner = null;
-
-    private ObservableEmitter<Device> deviceEmitter;
-    private Object deviceEmitterLock = new Object();
+    private final BluetoothAdapter bluetoothAdapter;
+    private ObservableEmitter<Device> deviceEmitter = null;
+    private final Object deviceEmitterLock = new Object();
 
     //
     // Constructor
@@ -49,13 +43,8 @@ final class BluetoothDeviceManager extends SpecificDeviceManager {
         super(context);
         Logger.i(TAG, "constructor...");
 
-        final BluetoothManager bluetoothManager = (BluetoothManager)context.getSystemService(Context.BLUETOOTH_SERVICE);
-        if (bluetoothManager == null)
-            throw new RuntimeException("Can't find bluetooth manager.");
-
-        bluetoothAdapter = bluetoothManager.getAdapter();
-        if (bluetoothAdapter == null)
-            throw new RuntimeException("Can't find bluetooth adapter.");
+        BluetoothManager bluetoothManager = (BluetoothManager)context.getSystemService(Context.BLUETOOTH_SERVICE);
+        this.bluetoothAdapter = bluetoothManager != null ? bluetoothManager.getAdapter() : null;
     }
 
     //
@@ -63,17 +52,17 @@ final class BluetoothDeviceManager extends SpecificDeviceManager {
     //
 
     @MainThread
-    public boolean isBluetoothLESupported() {
+    boolean isBluetoothLESupported() {
         Logger.i(TAG, "isBluetoothLESupported...");
 
-        boolean isSupported = context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
+        boolean isSupported = bluetoothAdapter != null && context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
 
         Logger.i(TAG, "  Bluetooth is " + (isSupported ? "" : "NOT ") + "supported.");
         return isSupported;
     }
 
     @MainThread
-    public boolean isBluetoothOn() {
+    boolean isBluetoothOn() {
         Logger.i(TAG, "isBluetoothOn...");
 
         BluetoothManager bluetoothManager = (BluetoothManager)context.getSystemService(Context.BLUETOOTH_SERVICE);
@@ -113,7 +102,7 @@ final class BluetoothDeviceManager extends SpecificDeviceManager {
 
                 synchronized (deviceEmitterLock) {
                     if (deviceEmitter == null) {
-                        getBluetoothLeScanner().startScan(scanCallback);
+                        bluetoothAdapter.startLeScan(scanCallback);
                         deviceEmitter = emitter;
                     }
                 }
@@ -133,7 +122,7 @@ final class BluetoothDeviceManager extends SpecificDeviceManager {
             }
 
             try {
-                getBluetoothLeScanner().stopScan(scanCallback);
+                bluetoothAdapter.stopLeScan(scanCallback);
             }
             finally {
                 deviceEmitter.onComplete();
@@ -143,7 +132,7 @@ final class BluetoothDeviceManager extends SpecificDeviceManager {
     }
 
     @Override
-    Device createDevice(Device.DeviceType type, String name, String address, Device.OutputLevel outputLevel) {
+    Device createDevice(@NonNull Device.DeviceType type, @NonNull  String name, @NonNull  String address, @NonNull  Device.OutputLevel outputLevel) {
         Logger.i(TAG, "createDevice...");
 
         if (!isBluetoothLESupported()) {
@@ -152,9 +141,11 @@ final class BluetoothDeviceManager extends SpecificDeviceManager {
 
         switch (type) {
             case SBRICK:
-                return new SBrickDevice(context, name, address, this);
+                return new SBrickDevice(context, name, address, BluetoothDeviceManager.this);
             case BUWIZZ:
-                return new BuWizzDevice(context, name, address, outputLevel, this);
+                return new BuWizzDevice(context, name, address, outputLevel, BluetoothDeviceManager.this);
+            case BUWIZZ2:
+                return new BuWizz2Device(context, name, address, outputLevel, BluetoothDeviceManager.this);
         }
 
         Logger.i(TAG, "  Not bluetooth device.");
@@ -165,28 +156,22 @@ final class BluetoothDeviceManager extends SpecificDeviceManager {
     // Private
     //
 
-    private BluetoothLeScanner getBluetoothLeScanner() {
-        Logger.i(TAG, "getBluetoothLeScanner...");
-        if (bluetoothLeScanner == null) {
-            bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
+    private BluetoothAdapter.LeScanCallback scanCallback = (bluetoothDevice, i, scanRecord) -> {
+        Logger.i(TAG, "onLeScan...");
+
+        if (bluetoothDevice == null) {
+            Logger.i(TAG, "  bluetoothDevice is null.");
+            return;
         }
-        return bluetoothLeScanner;
-    }
 
-    private ScanCallback scanCallback = new ScanCallback() {
-        @Override
-        public void onScanResult(int callbackType, ScanResult result) {
-            Logger.i(TAG, "onScanResult...");
-            Logger.i(TAG, "  name: " + result.getDevice().getName());
-            Logger.i(TAG, "  address: " + result.getDevice().getAddress());
+        Logger.i(TAG, "  name: " + bluetoothDevice.getName());
+        Logger.i(TAG, "  address: " + bluetoothDevice.getAddress());
 
-            ScanRecord scanRecord = result.getScanRecord();
-            if (scanRecord == null) return;
+        if (scanRecord == null || scanRecord.length == 0) {
+            Logger.i(TAG, "  No scanrecord.");
+        }
 
-            android.bluetooth.BluetoothDevice device = result.getDevice();
-            if (device == null) return;
-
-            Map<String, String> scanRecordMap = processScanRecord(scanRecord.getBytes());
+            Map<String, String> scanRecordMap = processScanRecord(scanRecord);
             if (!scanRecordMap.containsKey("FF")) {
                 Logger.i(TAG, "  No manufacturer data in scan record.");
                 return;
@@ -198,29 +183,19 @@ final class BluetoothDeviceManager extends SpecificDeviceManager {
             synchronized (deviceEmitterLock) {
                 if (deviceEmitter != null) {
                     if (manufacturerData.startsWith("98 01")) {
-                        deviceEmitter.onNext(createDevice(Device.DeviceType.SBRICK, device.getName(), device.getAddress(), Device.OutputLevel.NORMAL));
+                        deviceEmitter.onNext(createDevice(Device.DeviceType.SBRICK, bluetoothDevice.getName(), bluetoothDevice.getAddress(), Device.OutputLevel.NORMAL));
                     }
                     else if (manufacturerData.startsWith("48 4D")) {
-                        deviceEmitter.onNext(createDevice(Device.DeviceType.BUWIZZ, device.getName(), device.getAddress(), Device.OutputLevel.NORMAL));
+                        deviceEmitter.onNext(createDevice(Device.DeviceType.BUWIZZ, bluetoothDevice.getName(), bluetoothDevice.getAddress(), Device.OutputLevel.NORMAL));
+                    }
+                    else if (manufacturerData.startsWith("4E 05")) {
+                        deviceEmitter.onNext(createDevice(Device.DeviceType.BUWIZZ2, bluetoothDevice.getName(), bluetoothDevice.getAddress(), Device.OutputLevel.NORMAL));
                     }
                     else {
                         Logger.i(TAG, "  Unknown bluetooth device.");
                     }
                 }
             }
-        }
-
-        @Override
-        public void onScanFailed(int errorCode) {
-            Logger.i(TAG, "onScanFailed...");
-
-            synchronized (deviceEmitterLock) {
-                if (deviceEmitter != null) {
-                    deviceEmitter.onError(new RuntimeException("Bluetooth scan error - " + errorCode));
-                    deviceEmitter = null;
-                }
-            }
-        }
     };
 
     private Map<String, String> processScanRecord(byte scanRecord[]) {

@@ -244,7 +244,8 @@ public class ControllerActionActivity extends BaseActivity {
                 break;
             }
 
-            case BUWIZZ: {
+            case BUWIZZ:
+            case BUWIZZ2: {
                 buwizzChannelsLayout.setVisibility(View.VISIBLE);
                 infraChannelsLayout.setVisibility(View.GONE);
                 sbrickChannelsLayout.setVisibility(View.GONE);

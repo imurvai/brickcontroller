@@ -15,14 +15,14 @@ final class DeviceEntity {
     @NonNull public String address;
     @NonNull public Device.OutputLevel outputLevel;
 
-    public DeviceEntity(@NonNull Device.DeviceType type, @NonNull String name, @NonNull String address, @NonNull Device.OutputLevel outputLevel) {
+    DeviceEntity(@NonNull Device.DeviceType type, @NonNull String name, @NonNull String address, @NonNull Device.OutputLevel outputLevel) {
         this.type = type;
         this.name = name;
         this.address = address;
         this.outputLevel = outputLevel;
     }
 
-    public static DeviceEntity fromDevice(@NonNull Device device) {
+    static DeviceEntity fromDevice(@NonNull Device device) {
         return new DeviceEntity(device.getType(), device.getName(), device.getAddress(), device.getOutputLevel());
     }
 

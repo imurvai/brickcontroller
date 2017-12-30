@@ -8,29 +8,29 @@ import android.support.annotation.NonNull;
 import com.scn.logger.Logger;
 
 /**
- * Created by steve on 2017. 03. 18..
+ * Created by imurvai on 2017-12-30.
  */
 
-final class BuWizzDevice extends BluetoothDevice {
+final class BuWizz2Device  extends BluetoothDevice {
 
     //
     // Members
     //
 
-    private static final String TAG = BuWizzDevice.class.getSimpleName();
+    private static final String TAG = BuWizz2Device.class.getSimpleName();
 
     // Service UUIDs
-    private static final String SERVICE_UUID_REMOTE_CONTROL = "0000ffe0-0000-1000-8000-00805f9b34fb";
+    private static final String SERVICE_UUID_REMOTE_CONTROL = "4e050000-74fb-4481-88b3-9919b1676e93";
 
     // Characteristic UUIDs
-    private static final String CHARACTERISTIC_UUID_REMOTE_CONTROL = "0000ffe1-0000-1000-8000-00805f9b34fb";
+    private static final String CHARACTERISTIC_UUID_REMOTE_CONTROL = "000092d1-0000-1000-8000-00805f9b34fb";
 
     private BluetoothGattCharacteristic remoteControlCharacteristic;
 
     private Thread outputThread = null;
     private final Object outputThreadLock = new Object();
 
-    private OutputLevel outputLevel = OutputLevel.NORMAL;
+    private Device.OutputLevel outputLevel = Device.OutputLevel.NORMAL;
 
     private final int[] outputValues = new int[4];
     private boolean continueSending = true;
@@ -39,7 +39,7 @@ final class BuWizzDevice extends BluetoothDevice {
     // Constructor
     //
 
-    BuWizzDevice(@NonNull Context context, @NonNull String name, @NonNull String address, @NonNull OutputLevel outputLevel, @NonNull BluetoothDeviceManager bluetoothDeviceManager) {
+    BuWizz2Device(@NonNull Context context, @NonNull String name, @NonNull String address, @NonNull Device.OutputLevel outputLevel, @NonNull BluetoothDeviceManager bluetoothDeviceManager) {
         super(context, name, address, bluetoothDeviceManager);
         Logger.i(TAG, "constructor...");
         Logger.i(TAG, "  name: " + name);
@@ -55,7 +55,7 @@ final class BuWizzDevice extends BluetoothDevice {
 
 
     @Override
-    public DeviceType getType() { return DeviceType.BUWIZZ; }
+    public Device.DeviceType getType() { return Device.DeviceType.BUWIZZ2; }
 
     @Override
     public int getNumberOfChannels() {
@@ -63,13 +63,13 @@ final class BuWizzDevice extends BluetoothDevice {
     }
 
     @Override
-    public OutputLevel getOutputLevel() {
+    public Device.OutputLevel getOutputLevel() {
         Logger.i(TAG, "getOutputLevel - " + outputLevel);
         return outputLevel;
     }
 
     @Override
-    public void setOutputLevel(@NonNull OutputLevel outputLevel) {
+    public void setOutputLevel(@NonNull Device.OutputLevel outputLevel) {
         Logger.i(TAG, "setOutputLevel - " + outputLevel);
         this.outputLevel = outputLevel;
     }
@@ -100,7 +100,7 @@ final class BuWizzDevice extends BluetoothDevice {
 
     @Override
     protected boolean onServiceDiscovered(BluetoothGatt gatt) {
-        Logger.i(TAG, "onServiceDiscovered - device: " + BuWizzDevice.this);
+        Logger.i(TAG, "onServiceDiscovered - device: " + BuWizz2Device.this);
 
         remoteControlCharacteristic = getGattCharacteristic(gatt, SERVICE_UUID_REMOTE_CONTROL, CHARACTERISTIC_UUID_REMOTE_CONTROL);
         if (remoteControlCharacteristic == null) {
@@ -114,19 +114,19 @@ final class BuWizzDevice extends BluetoothDevice {
 
     @Override
     protected boolean onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-        Logger.i(TAG, "onCharacteristicRead - device: " + BuWizzDevice.this);
+        Logger.i(TAG, "onCharacteristicRead - device: " + BuWizz2Device.this);
         return true;
     }
 
     @Override
     protected boolean onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-        //Logger.i(TAG, "onCharacteristicWrite - device: " + BuWizzDevice.this);
+        //Logger.i(TAG, "onCharacteristicWrite - device: " + BuWizz2Device.this);
         return true;
     }
 
     @Override
     protected void disconnectInternal() {
-        Logger.i(TAG, "disconnectInternal - device: " + BuWizzDevice.this);
+        Logger.i(TAG, "disconnectInternal - device: " + BuWizz2Device.this);
         stopOutputThread();
     }
 
@@ -141,7 +141,7 @@ final class BuWizzDevice extends BluetoothDevice {
             stopOutputThread();
 
             outputThread = new Thread(() -> {
-                Logger.i(TAG, "Entering the output thread - device: " + BuWizzDevice.this);
+                Logger.i(TAG, "Entering the output thread - device: " + BuWizz2Device.this);
 
                 while (!Thread.currentThread().isInterrupted()) {
                     if (continueSending) {
@@ -163,7 +163,7 @@ final class BuWizzDevice extends BluetoothDevice {
                     }
                 }
 
-                Logger.i(TAG, "Exiting from output thread - device: " + BuWizzDevice.this);
+                Logger.i(TAG, "Exiting from output thread - device: " + BuWizz2Device.this);
             });
             outputThread.start();
         }

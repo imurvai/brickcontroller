@@ -3,9 +3,6 @@ package com.scn.dagger;
 import android.app.Application;
 import android.content.Context;
 
-import com.scn.creationmanagement.CreationManager;
-import com.scn.devicemanagement.DeviceManager;
-
 import javax.inject.Singleton;
 
 import dagger.Module;

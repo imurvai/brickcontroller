@@ -14,6 +14,7 @@ final class DeviceTypeTypeConverter {
             case BUWIZZ: return 0;
             case SBRICK: return 1;
             case INFRARED: return 2;
+            case BUWIZZ2: return 3;
             default: throw new IllegalArgumentException("Invalid device type.");
         }
     }
@@ -24,6 +25,7 @@ final class DeviceTypeTypeConverter {
             case 0: return Device.DeviceType.BUWIZZ;
             case 1: return Device.DeviceType.SBRICK;
             case 2: return Device.DeviceType.INFRARED;
+            case 3: return Device.DeviceType.BUWIZZ2;
             default: throw new IllegalArgumentException("Invalid device type.");
         }
     }

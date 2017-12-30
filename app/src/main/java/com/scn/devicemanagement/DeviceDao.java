@@ -19,9 +19,6 @@ interface DeviceDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(DeviceEntity deviceEntity);
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insert(List<DeviceEntity> deviceEntities);
-
     @Query("SELECT * FROM devices")
     List<DeviceEntity> getAll();
 

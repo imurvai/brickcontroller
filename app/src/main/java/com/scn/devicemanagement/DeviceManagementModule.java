@@ -2,11 +2,6 @@ package com.scn.devicemanagement;
 
 import android.content.Context;
 
-import com.scn.devicemanagement.BluetoothDeviceManager;
-import com.scn.devicemanagement.DeviceManager;
-import com.scn.devicemanagement.InfraRedDeviceManager;
-import com.scn.devicemanagement.DeviceRepository;
-
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -39,10 +34,9 @@ public class DeviceManagementModule {
 
     @Provides
     @Singleton
-    DeviceManager provideDeviceManager(Context context,
-                                       DeviceRepository deviceRepository,
+    DeviceManager provideDeviceManager(DeviceRepository deviceRepository,
                                        BluetoothDeviceManager bluetoothDeviceManager,
                                        InfraRedDeviceManager infraRedDeviceManager) {
-        return new DeviceManager(context, deviceRepository, bluetoothDeviceManager, infraRedDeviceManager);
+        return new DeviceManager(deviceRepository, bluetoothDeviceManager, infraRedDeviceManager);
     }
  }

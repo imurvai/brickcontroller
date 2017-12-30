@@ -17,6 +17,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.scn.devicemanagement.DeviceManager;
@@ -38,7 +39,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     private static final String TAG = BaseActivity.class.getSimpleName();
 
-    protected static final int REQUEST_BT_ENABLE = 0x4201;
+    private static final int REQUEST_BT_ENABLE = 0x4201;
 
     protected static final String EXTRA_DEVICE_ID = "EXTRA_DEVICE_ID";
     protected static final String EXTRA_CREATION_NAME = "EXTRA_CREATION_NAME";
@@ -50,6 +51,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Inject DeviceManager deviceManager;
 
     private Dialog dialog;
+
+    private BluetoothAdapterBroadcastReceiver bluetoothAdapterBroadcastReceiver = null;
 
     //
     // Activity overrides
@@ -71,10 +74,12 @@ public abstract class BaseActivity extends AppCompatActivity {
             return;
         }
 
-        Logger.i(TAG, "  Registering to the Bluetooth broadcast receiver...");
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        registerReceiver(bluetoothAdapterBroadcastReceiver, filter);
+        if (bluetoothAdapterBroadcastReceiver == null) {
+            Logger.i(TAG, "  Registering to the Bluetooth broadcast receiver...");
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+            registerReceiver(bluetoothAdapterBroadcastReceiver, filter);
+        }
 
         if (!deviceManager.isBluetoothOn()) {
             startBluetoothRequestActivity();
@@ -85,7 +90,10 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onPause() {
         Logger.i(TAG, "onPause...");
 
-        unregisterReceiver(bluetoothAdapterBroadcastReceiver);
+        if (bluetoothAdapterBroadcastReceiver != null) {
+            unregisterReceiver(bluetoothAdapterBroadcastReceiver);
+            bluetoothAdapterBroadcastReceiver = null;
+        }
 
         if (dialog != null) {
             dialog.dismiss();
@@ -114,7 +122,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     // API
     //
 
-    public <T extends ViewModel> T getViewModel(Class<T> viewModelClass) {
+    protected  <T extends ViewModel> T getViewModel(Class<T> viewModelClass) {
         Logger.i(TAG, "getViewModel - " + viewModelClass.getSimpleName());
         return viewModelFactory.create(viewModelClass);
     }
@@ -271,7 +279,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         startActivityForResult(intent, REQUEST_BT_ENABLE);
     }
 
-    private BroadcastReceiver bluetoothAdapterBroadcastReceiver = new BroadcastReceiver() {
+    private class BluetoothAdapterBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             Logger.i(TAG, "bluetoothAdapterBroadcastReceiver.onReceive");
@@ -287,5 +295,5 @@ public abstract class BaseActivity extends AppCompatActivity {
                 }
             }
         }
-    };
+    }
 }

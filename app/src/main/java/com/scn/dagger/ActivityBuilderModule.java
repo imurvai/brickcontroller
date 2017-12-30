@@ -4,7 +4,6 @@ import com.scn.ui.about.AboutActivity;
 import com.scn.ui.about.AboutActivityModule;
 import com.scn.ui.controller.ControllerActivity;
 import com.scn.ui.controller.ControllerActivityModule;
-import com.scn.ui.controller.ControllerViewModel;
 import com.scn.ui.controlleraction.ControllerActionActivity;
 import com.scn.ui.controlleraction.ControllerActionActivityModule;
 import com.scn.ui.controllerprofiledetails.ControllerProfileDetailsActivity;

@@ -68,6 +68,7 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         switch (device.getType()) {
             case BUWIZZ:
+            case BUWIZZ2:
                 if (position == 1) return VIEWTYPE_OUTPUT_LEVEL;
                 else if (position < device.getNumberOfChannels() + 2) return VIEWTYPE_OUTPUT_SEEKBAR;
 
@@ -122,7 +123,9 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 break;
 
             case VIEWTYPE_OUTPUT_SEEKBAR:
-                int channel = device.getType() == Device.DeviceType.BUWIZZ ? position - 2 : position -1;
+                Device.DeviceType deviceType = device.getType();
+                boolean isBuWizz = deviceType == Device.DeviceType.BUWIZZ || deviceType == Device.DeviceType.BUWIZZ2;
+                int channel = isBuWizz ? position - 2 : position -1;
                 ((OutputViewHolder)holder).bind(device, channel, outputChangedListener);
                 break;
 
@@ -138,7 +141,8 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             return 0;
         }
         else {
-            if (device.getType() == Device.DeviceType.BUWIZZ)
+            Device.DeviceType deviceType = device.getType();
+            if (deviceType == Device.DeviceType.BUWIZZ || deviceType == Device.DeviceType.BUWIZZ2)
                 return device.getNumberOfChannels() + 2;
             else
                 return device.getNumberOfChannels() + 1;
@@ -185,6 +189,10 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 case BUWIZZ:
                     vendorImage.setImageResource(R.drawable.buwizz_image);
                     deviceType.setText("BuWizz");
+                    break;
+                case BUWIZZ2:
+                    vendorImage.setImageResource(R.drawable.buwizz_image);
+                    deviceType.setText("BuWizz 2");
                     break;
                 case SBRICK:
                     vendorImage.setImageResource(R.drawable.sbrick_image);

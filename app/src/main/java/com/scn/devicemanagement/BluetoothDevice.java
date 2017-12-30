@@ -29,12 +29,10 @@ abstract class BluetoothDevice extends Device {
     private static final String TAG = BluetoothDevice.class.getSimpleName();
 
     protected final Context context;
-    protected final BluetoothDeviceManager bluetoothDeviceManager;
-    protected final BluetoothAdapter bluetoothAdapter;
-    protected final android.bluetooth.BluetoothDevice bluetoothDevice;
+    private final android.bluetooth.BluetoothDevice bluetoothDevice;
 
-    protected BluetoothGatt bluetoothGatt = null;
-    protected final Object bluetoothGattLock = new Object();
+    BluetoothGatt bluetoothGatt = null;
+    private final Object bluetoothGattLock = new Object();
 
     //
     // Constructor
@@ -44,9 +42,7 @@ abstract class BluetoothDevice extends Device {
         super(name, address);
 
         this.context = context;
-        this.bluetoothDeviceManager = bluetoothDeviceManager;
-        this.bluetoothAdapter = bluetoothDeviceManager.getBluetoothAdapter();
-        this.bluetoothDevice = bluetoothAdapter.getRemoteDevice(address);
+        this.bluetoothDevice = bluetoothDeviceManager.getBluetoothAdapter().getRemoteDevice(address);
     }
 
     //
@@ -103,7 +99,7 @@ abstract class BluetoothDevice extends Device {
     protected abstract boolean onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic);
     protected abstract void disconnectInternal();
 
-    protected BluetoothGattCharacteristic getGattCharacteristic(@NonNull BluetoothGatt gatt, @NonNull String serviceUUID, @NonNull String characteristicUUID) {
+    BluetoothGattCharacteristic getGattCharacteristic(@NonNull BluetoothGatt gatt, @NonNull String serviceUUID, @NonNull String characteristicUUID) {
         Logger.i(TAG, "getGattCharacteristic...");
         Logger.i(TAG, "  Service UUID       : " + serviceUUID);
         Logger.i(TAG, "  Characteristic UUID: " + characteristicUUID);

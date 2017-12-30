@@ -9,6 +9,8 @@ import android.support.annotation.NonNull;
 
 import com.scn.logger.Logger;
 
+import java.util.Objects;
+
 /**
  * Created by imurvai on 2017-12-16.
  */
@@ -99,7 +101,7 @@ public final class ControllerAction {
             return false;
 
         ControllerAction other = (ControllerAction)obj;
-        return other.deviceId == deviceId && other.channel == channel;
+        return Objects.equals(other.deviceId, deviceId) && other.channel == channel;
     }
 
     @Override

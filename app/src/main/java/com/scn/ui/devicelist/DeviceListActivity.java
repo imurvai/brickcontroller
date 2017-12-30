@@ -10,10 +10,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.scn.devicemanagement.Device;
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
-import com.scn.ui.OnListItemClickListener;
 import com.scn.ui.R;
 import com.scn.ui.devicedetails.DeviceDetailsActivity;
 

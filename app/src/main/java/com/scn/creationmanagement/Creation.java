@@ -5,13 +5,12 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
 
 import com.scn.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by steve on 2017. 11. 01..
@@ -126,7 +125,7 @@ public final class Creation {
             return false;
 
         Creation other = (Creation)obj;
-        return other.name == name;
+        return Objects.equals(other.name, name);
     }
 
     @Override

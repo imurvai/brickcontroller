@@ -6,7 +6,7 @@ package com.scn.ui;
 
 public interface OnListItemClickListener<T> {
 
-    public enum ItemClickAction {
+    enum ItemClickAction {
         CLICK,
         REMOVE,
         EDIT

@@ -17,7 +17,7 @@ import android.arch.persistence.room.TypeConverters;
 @TypeConverters({ ControllerEventTypeTypeContverer.class })
 abstract class CreationDatabase extends RoomDatabase {
 
-    public static final String DatabaseName = "brickcontroller_creation_db";
+    static final String DatabaseName = "brickcontroller_creation_db";
 
     public abstract CreationDao creationDao();
 }

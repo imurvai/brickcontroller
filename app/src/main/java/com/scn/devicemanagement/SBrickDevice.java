@@ -3,12 +3,9 @@ package com.scn.devicemanagement;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
-import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 
 import com.scn.logger.Logger;
-
-import java.util.UUID;
 
 /**
  * Created by steve on 2017. 03. 18..
@@ -168,7 +165,7 @@ final class SBrickDevice extends BluetoothDevice {
             if (!outputThread.isInterrupted()) {
                 Logger.i(TAG, "  Interrupting the output thread...");
                 outputThread.interrupt();
-                try { outputThread.join(); } catch (InterruptedException e) {}
+                try { outputThread.join(); } catch (InterruptedException ignored) {}
             }
 
             outputThread = null;

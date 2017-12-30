@@ -7,7 +7,6 @@ import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 
 import com.scn.common.StateChange;
-import com.scn.devicemanagement.DeviceManager;
 import com.scn.logger.Logger;
 import com.scn.ui.R;
 

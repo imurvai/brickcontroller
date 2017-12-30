@@ -47,42 +47,50 @@ final class InfraRedDeviceManager extends SpecificDeviceManager {
     //
 
     @Inject
-    public InfraRedDeviceManager(@NonNull Context context) {
+    InfraRedDeviceManager(@NonNull Context context) {
         super(context);
         Logger.i(TAG, "constructor...");
 
-        ConsumerIrManager irManager = context.getSystemService(ConsumerIrManager.class);
-        if (irManager != null && irManager.hasIrEmitter()) {
-            Logger.i(TAG, "  Supported frequency ranges:");
-            boolean isIrFrequencySupported = false;
+        ConsumerIrManager irManager = null;
+        try {
+            irManager = (ConsumerIrManager)context.getSystemService(Context.CONSUMER_IR_SERVICE);
+            if (irManager != null && irManager.hasIrEmitter()) {
+                Logger.i(TAG, "  Supported frequency ranges:");
+                boolean isIrFrequencySupported = false;
 
-            ConsumerIrManager.CarrierFrequencyRange frequencyRanges[] = irManager.getCarrierFrequencies();
-            for (ConsumerIrManager.CarrierFrequencyRange frequencyRange : frequencyRanges) {
-                int minFreq = frequencyRange.getMinFrequency();
-                int maxFreq = frequencyRange.getMaxFrequency();
-                Logger.i(TAG, "    Range: " + minFreq + " - " + maxFreq);
-                if (minFreq <= IR_FREQUENCY && IR_FREQUENCY <= maxFreq) isIrFrequencySupported = true;
+                ConsumerIrManager.CarrierFrequencyRange frequencyRanges[] = irManager.getCarrierFrequencies();
+                for (ConsumerIrManager.CarrierFrequencyRange frequencyRange : frequencyRanges) {
+                    int minFreq = frequencyRange.getMinFrequency();
+                    int maxFreq = frequencyRange.getMaxFrequency();
+                    Logger.i(TAG, "    Range: " + minFreq + " - " + maxFreq);
+                    if (minFreq <= IR_FREQUENCY && IR_FREQUENCY <= maxFreq) isIrFrequencySupported = true;
+                }
+
+                if (!isIrFrequencySupported) {
+                    Logger.i(TAG, "  IR frequency is not supported.");
+                    irManager = null;
+                }
             }
-
-            if (!isIrFrequencySupported) {
-                Logger.i(TAG, "  IR frequency is not supported.");
+            else {
+                Logger.i(TAG, "  No suitable IR emitter.");
                 irManager = null;
             }
-        }
-        else {
-            Logger.i(TAG, "  No suitable IR emitter.");
-            irManager = null;
-        }
 
-        this.irManager = irManager;
-        resetOutputs();
+            resetOutputs();
+        }
+        catch (Exception ex) {
+            Logger.e(TAG, "Could not retrieve IR manager.");
+        }
+        finally {
+            this.irManager = irManager;
+        }
     }
 
     //
     // API
     //
 
-    public boolean isInfraRedSupported() {
+    boolean isInfraRedSupported() {
         Logger.i(TAG, "isInfraRedSupported...");
         Logger.i(TAG, "  Infra is " + (irManager != null ? "" : "NOT ") + "supported.");
         return irManager != null;
@@ -244,7 +252,7 @@ final class InfraRedDeviceManager extends SpecificDeviceManager {
             if (!irThread.isInterrupted()) {
                 Logger.i(TAG, "  Interrupting the IR thread...");
                 irThread.interrupt();
-                try { irThread.join(); } catch (InterruptedException e) {}
+                try { irThread.join(); } catch (InterruptedException ignored) {}
             }
 
             irThread = null;

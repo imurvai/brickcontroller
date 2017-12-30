@@ -2,7 +2,6 @@ package com.scn.devicemanagement;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.content.Context;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 
@@ -45,7 +44,6 @@ public final class DeviceManager implements DeviceFactory {
     // Private members
     //
 
-    private final Context context;
     private final DeviceRepository deviceRepository;
     private final BluetoothDeviceManager bluetoothDeviceManager;
     private final InfraRedDeviceManager infraRedDeviceManager;
@@ -57,13 +55,11 @@ public final class DeviceManager implements DeviceFactory {
     //
 
     @Inject
-    public DeviceManager(@NonNull Context context,
-                         @NonNull DeviceRepository deviceRepository,
+    public DeviceManager(@NonNull DeviceRepository deviceRepository,
                          @NonNull BluetoothDeviceManager bluetoothDeviceManager,
                          @NonNull InfraRedDeviceManager infraRedDeviceManager) {
         Logger.i(TAG, "constructor...");
 
-        this.context = context;
         this.deviceRepository = deviceRepository;
         this.bluetoothDeviceManager = bluetoothDeviceManager;
         this.infraRedDeviceManager = infraRedDeviceManager;
@@ -86,6 +82,7 @@ public final class DeviceManager implements DeviceFactory {
                 break;
 
             case BUWIZZ:
+            case BUWIZZ2:
             case SBRICK:
                 device = bluetoothDeviceManager.createDevice(type, name, address, outputLevel);
                 break;
@@ -174,7 +171,7 @@ public final class DeviceManager implements DeviceFactory {
             Observable.merge(deviceScanObservables)
                     .subscribeOn(Schedulers.io())
                     .observeOn(Schedulers.io())
-                    .doOnNext(device -> deviceRepository.storeDevice(device))
+                    .doOnNext(deviceRepository::storeDevice)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             device -> {

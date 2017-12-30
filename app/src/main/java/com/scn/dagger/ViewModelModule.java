@@ -5,7 +5,6 @@ import android.arch.lifecycle.ViewModelProvider;
 
 import com.scn.ui.BrickControllerViewModelFactory;
 import com.scn.ui.controller.ControllerViewModel;
-import com.scn.ui.controlleraction.ControllerActionActivity;
 import com.scn.ui.controlleraction.ControllerActionViewModel;
 import com.scn.ui.controllerprofiledetails.ControllerProfileDetailsViewModel;
 import com.scn.ui.creationdetails.CreationDetailsViewModel;

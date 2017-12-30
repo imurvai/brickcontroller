@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,13 +15,10 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.widget.Toast;
 
-import com.scn.creationmanagement.Creation;
 import com.scn.devicemanagement.DeviceManager;
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
-import com.scn.ui.OnListItemClickListener;
 import com.scn.ui.R;
 import com.scn.ui.about.AboutActivity;
 import com.scn.ui.creationdetails.CreationDetailsActivity;
@@ -63,7 +61,7 @@ public class CreationListActivity extends BaseActivity implements NavigationView
         ButterKnife.bind(this);
         setupActivityComponents();
 
-        requestPermissions(new String[] { Manifest.permission.ACCESS_COARSE_LOCATION }, PERMISSION_REQUEST_COARSE_LOCATION);
+        ActivityCompat.requestPermissions(CreationListActivity.this, new String[] { Manifest.permission.ACCESS_COARSE_LOCATION }, PERMISSION_REQUEST_COARSE_LOCATION);
 
         if (deviceManager.isBluetoothLESupported()) {
             setupViewModel();
@@ -111,9 +109,9 @@ public class CreationListActivity extends BaseActivity implements NavigationView
                 startActivity(new Intent(CreationListActivity.this, DeviceListActivity.class));
                 break;
 
-//            case R.id.nav_settings:
-//                Toast.makeText(CreationListActivity.this, "Settings selected.", Toast.LENGTH_SHORT).show();
-//                break;
+            //case R.id.nav_settings:
+                //Toast.makeText(CreationListActivity.this, "Settings selected.", Toast.LENGTH_SHORT).show();
+                //break;
 
             case R.id.nav_about:
                 startActivity(new Intent(CreationListActivity.this, AboutActivity.class));

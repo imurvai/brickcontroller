@@ -20,7 +20,6 @@ import com.scn.devicemanagement.Device;
 import com.scn.devicemanagement.DeviceManager;
 import com.scn.logger.Logger;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

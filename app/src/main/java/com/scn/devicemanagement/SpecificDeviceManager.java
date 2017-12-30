@@ -25,7 +25,7 @@ abstract class SpecificDeviceManager {
     // Constructor
     //
 
-    protected SpecificDeviceManager(@NonNull Context context) {
+    SpecificDeviceManager(@NonNull Context context) {
         Logger.i(TAG, "constructor...");
         this.context = context;
     }

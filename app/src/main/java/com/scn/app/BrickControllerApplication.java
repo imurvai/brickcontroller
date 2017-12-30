@@ -32,6 +32,8 @@ public final class BrickControllerApplication extends Application implements Has
     public void onCreate() {
         super.onCreate();
 
+        new GlobalExceptionHandler(this);
+
         DaggerApplicationComponent
                 .builder()
                 .application(this)

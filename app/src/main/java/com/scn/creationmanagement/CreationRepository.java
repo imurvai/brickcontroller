@@ -51,7 +51,7 @@ final class CreationRepository {
     //
 
     @WorkerThread
-    public synchronized void loadCreations() {
+    synchronized void loadCreations() {
         Logger.i(TAG, "loadCreations...");
 
         creationList.clear();
@@ -82,7 +82,7 @@ final class CreationRepository {
     }
 
     @WorkerThread
-    public synchronized void insertCreation(@NonNull Creation creation) {
+    synchronized void insertCreation(@NonNull Creation creation) {
         Logger.i(TAG, "saveCreation - " + creation);
         creation.setId(creationDao.insertCreation(creation));
         creationList.add(creation);
@@ -90,8 +90,8 @@ final class CreationRepository {
     }
 
     @WorkerThread
-    public synchronized void updateCreation(@NonNull Creation creation,
-                                            @NonNull String newName) {
+    synchronized void updateCreation(@NonNull Creation creation,
+                                     @NonNull String newName) {
         Logger.i(TAG, "updateCreation - " + creation + ", new name: " + newName);
 
         String originalName = creation.getName();
@@ -109,7 +109,7 @@ final class CreationRepository {
     }
 
     @WorkerThread
-    public synchronized void removeCreation(@NonNull Creation creation) {
+    synchronized void removeCreation(@NonNull Creation creation) {
         Logger.i(TAG, "removeCreation - " + creation);
         creationDao.deleteCreationRecursive(creation.getId());
         creationList.remove(creation);
@@ -117,8 +117,8 @@ final class CreationRepository {
     }
 
     @WorkerThread
-    public synchronized void insertControllerProfile(@NonNull Creation creation,
-                                                     @NonNull ControllerProfile controllerProfile) {
+    synchronized void insertControllerProfile(@NonNull Creation creation,
+                                              @NonNull ControllerProfile controllerProfile) {
         Logger.i(TAG, "insertControllerProfile - " + controllerProfile);
         controllerProfile.setId(creationDao.insertControllerProfile(controllerProfile));
         creation.addControllerProfile(controllerProfile);
@@ -126,8 +126,8 @@ final class CreationRepository {
     }
 
     @WorkerThread
-    public synchronized void updateControllerProfile(@NonNull ControllerProfile controllerProfile,
-                                                     @NonNull String newName) {
+    synchronized void updateControllerProfile(@NonNull ControllerProfile controllerProfile,
+                                              @NonNull String newName) {
         Logger.i(TAG, "updateControllerProfile - " + controllerProfile + ", new name: " + newName);
 
         String originalName = controllerProfile.getName();
@@ -145,8 +145,8 @@ final class CreationRepository {
     }
 
     @WorkerThread
-    public synchronized void removeControllerProfile(@NonNull Creation creation,
-                                                     @NonNull ControllerProfile controllerProfile) {
+    synchronized void removeControllerProfile(@NonNull Creation creation,
+                                              @NonNull ControllerProfile controllerProfile) {
         Logger.i(TAG, "removeControllerProfile - " + controllerProfile);
         creationDao.deleteControllerProfileRecursive(controllerProfile.getId());
         creation.removeControllerProfile(controllerProfile);
@@ -154,8 +154,8 @@ final class CreationRepository {
     }
 
     @WorkerThread
-    public synchronized void insertControllerEvent(@NonNull ControllerProfile controllerProfile,
-                                                   @NonNull ControllerEvent controllerEvent) {
+    synchronized void insertControllerEvent(@NonNull ControllerProfile controllerProfile,
+                                            @NonNull ControllerEvent controllerEvent) {
         Logger.i(TAG, "insertControllerEvent - " + controllerEvent);
         controllerEvent.setId(creationDao.insertControllerEvent(controllerEvent));
         controllerProfile.addControllerEvent(controllerEvent);
@@ -163,8 +163,8 @@ final class CreationRepository {
     }
 
     @WorkerThread
-    public synchronized void removeControllerEvent(@NonNull ControllerProfile controllerProfile,
-                                                   @NonNull ControllerEvent controllerEvent) {
+    synchronized void removeControllerEvent(@NonNull ControllerProfile controllerProfile,
+                                            @NonNull ControllerEvent controllerEvent) {
         Logger.i(TAG, "removeControllerEvent - " + controllerEvent);
         creationDao.deleteControllerEventRecursive(controllerEvent.getId());
         controllerProfile.removeControllerEvent(controllerEvent);
@@ -172,8 +172,8 @@ final class CreationRepository {
     }
 
     @WorkerThread
-    public synchronized void insertControllerAction(@NonNull ControllerEvent controllerEvent,
-                                                    @NonNull ControllerAction controllerAction) {
+    synchronized void insertControllerAction(@NonNull ControllerEvent controllerEvent,
+                                             @NonNull ControllerAction controllerAction) {
         Logger.i(TAG, "insertControllerAction - " + controllerAction);
         controllerAction.setId(creationDao.insertControllerAction(controllerAction));
         controllerEvent.addControllerAction(controllerAction);
@@ -181,12 +181,12 @@ final class CreationRepository {
     }
 
     @WorkerThread
-    public synchronized void updateControllerAction(@NonNull ControllerAction controllerAction,
-                                                    @NonNull String deviceId,
-                                                    int channel,
-                                                    boolean isRevert,
-                                                    boolean isToggle,
-                                                    int maxOutput) {
+    synchronized void updateControllerAction(@NonNull ControllerAction controllerAction,
+                                             @NonNull String deviceId,
+                                             int channel,
+                                             boolean isRevert,
+                                             boolean isToggle,
+                                             int maxOutput) {
         Logger.i(TAG, "updateControllerAction - " + controllerAction);
 
         String originalDeviceId = controllerAction.getDeviceId();
@@ -216,15 +216,15 @@ final class CreationRepository {
     }
 
     @WorkerThread
-    public synchronized void removeControllerAction(@NonNull ControllerEvent controllerEvent,
-                                                    @NonNull ControllerAction controllerAction) {
+    synchronized void removeControllerAction(@NonNull ControllerEvent controllerEvent,
+                                             @NonNull ControllerAction controllerAction) {
         Logger.i(TAG, "removeControllerAction - " + controllerAction);
         creationDao.deleteControllerAction(controllerAction.getId());
         controllerEvent.removeControllerAction(controllerAction);
         creationListLiveData.postValue(creationList);
     }
 
-    public synchronized Creation getCreation(long creationId) {
+    synchronized Creation getCreation(long creationId) {
         Logger.i(TAG, "getCreation - " + creationId);
 
         for (Creation creation : creationList) {
@@ -235,7 +235,7 @@ final class CreationRepository {
         return null;
     }
 
-    public synchronized Creation getCreation(@NonNull String creationName) {
+    synchronized Creation getCreation(@NonNull String creationName) {
         Logger.i(TAG, "getCreation - " + creationName);
 
         for (Creation creation : creationList) {
@@ -246,7 +246,7 @@ final class CreationRepository {
         return null;
     }
 
-    public synchronized ControllerProfile getControllerProfile(long controllerProfileId) {
+    synchronized ControllerProfile getControllerProfile(long controllerProfileId) {
         Logger.i(TAG, "getControllerProfile - " + controllerProfileId);
 
         for (Creation creation : creationList) {
@@ -259,7 +259,7 @@ final class CreationRepository {
         return null;
     }
 
-    public synchronized ControllerEvent getControllerEvent(long controllerEventId) {
+    synchronized ControllerEvent getControllerEvent(long controllerEventId) {
         Logger.i(TAG, "getControllerEvent - " + controllerEventId);
 
         for (Creation creation : creationList) {
@@ -274,7 +274,7 @@ final class CreationRepository {
         return null;
     }
 
-    public synchronized ControllerAction getControllerAction(long controllerActionId) {
+    synchronized ControllerAction getControllerAction(long controllerActionId) {
         Logger.i(TAG, "getControllerAction - " + controllerActionId);
 
         for (Creation creation : creationList) {
@@ -291,7 +291,7 @@ final class CreationRepository {
         return null;
     }
 
-    public synchronized LiveData<List<Creation>> getCreationListLiveData() {
+    synchronized LiveData<List<Creation>> getCreationListLiveData() {
         Logger.i(TAG, "getCreationListLiveData...");
         return creationListLiveData;
     }

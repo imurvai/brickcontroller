@@ -9,10 +9,6 @@ import android.support.annotation.NonNull;
 import com.scn.common.StateChange;
 import com.scn.logger.Logger;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Created by steve on 2017. 03. 18..
  */
@@ -26,7 +22,8 @@ public abstract class Device implements Comparable<Device> {
     public enum DeviceType {
         INFRARED,
         SBRICK,
-        BUWIZZ
+        BUWIZZ,
+        BUWIZZ2
     }
 
     public enum State {
@@ -126,7 +123,7 @@ public abstract class Device implements Comparable<Device> {
     protected void setState(Device.State newState, boolean isError) {
         Logger.i(TAG, "setState - " + getCurrentState() + " -> " + newState);
         Device.State currentState = getCurrentState();
-        if (Looper.getMainLooper().isCurrentThread()) {
+        if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
             stateChangeLiveData.setValue(new StateChange(currentState, newState, isError));
         }
         else {

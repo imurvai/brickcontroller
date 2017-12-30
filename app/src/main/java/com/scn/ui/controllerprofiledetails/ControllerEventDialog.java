@@ -6,14 +6,10 @@ import android.support.annotation.NonNull;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
-import android.widget.Button;
 
 import com.scn.creationmanagement.ControllerEvent;
 import com.scn.logger.Logger;
 import com.scn.ui.R;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 /**
  * Created by imurvai on 2017-12-21.

@@ -76,14 +76,12 @@ public final class ControllerEvent {
     public long getId() { return id; }
     void setId(long value) { id = value; }
 
-    public long getControllerProfileId() { return controllerProfileId; }
+    long getControllerProfileId() { return controllerProfileId; }
     void setControllerProfileId(long value) { controllerProfileId = value; }
 
     public ControllerEventType getEventType() { return eventType; }
-    void setEventType(ControllerEventType value) { eventType = value; }
 
     public int getEventCode() { return eventCode; }
-    void setEventCode(int value) { eventCode = value; }
 
     public List<ControllerAction> getControllerActions() { return controllerActions; }
 
