@@ -1,8 +1,6 @@
 package com.scn.ui;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.bluetooth.BluetoothAdapter;
@@ -15,13 +13,14 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
 
 import com.scn.devicemanagement.DeviceManager;
 import com.scn.logger.Logger;
+import com.scn.ui.dialogs.DeterministicProgressDialog;
+import com.scn.ui.dialogs.IndeterministicProgressDialog;
+import com.scn.ui.dialogs.MessageBox;
+import com.scn.ui.dialogs.QuestionDialog;
+import com.scn.ui.dialogs.ValueEnterDialog;
 
 import javax.inject.Inject;
 
@@ -140,38 +139,17 @@ public abstract class BaseActivity extends AppCompatActivity {
         Logger.i(TAG, "showMessageBox - " + message);
 
         dismissDialog();
-        dialog = new AlertDialog.Builder(this)
-                .setMessage(message)
-                .setPositiveButton(this.getString(R.string.ok), null)
-                .create();
-        dialog.show();
-    }
-
-    protected void showMessageBox(@NonNull final String message,
-                                  @NonNull final DialogInterface.OnClickListener onClickListener) {
-        Logger.i(TAG, "showMessageBox - " + message);
-
-        dismissDialog();
-        dialog = new AlertDialog.Builder(this)
-                .setMessage(message)
-                .setPositiveButton(this.getString(R.string.ok), onClickListener)
-                .create();
+        dialog = new MessageBox(this, message, null);
         dialog.show();
     }
 
     protected void showQuestionDialog(@NonNull final String question,
-                                      @NonNull final String positiveButtonText,
-                                      @NonNull final String negativeButtonText,
                                       @NonNull final DialogInterface.OnClickListener onPositiveListener,
                                       final DialogInterface.OnClickListener onNegativeListener) {
         Logger.i(TAG, "showQuestionDialog - " + question);
 
         dismissDialog();
-        dialog = new AlertDialog.Builder(this)
-                .setMessage(question)
-                .setPositiveButton(positiveButtonText, onPositiveListener)
-                .setNegativeButton(negativeButtonText, onNegativeListener)
-                .create();
+        dialog = new QuestionDialog(this, question, onPositiveListener, onNegativeListener, null);
         dialog.show();
     }
 
@@ -179,10 +157,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         Logger.i(TAG, "showAlertDialog - " + message);
 
         dismissDialog();
-        dialog = new AlertDialog.Builder(this)
-                .setMessage(message)
-                .setPositiveButton(getString(R.string.ok), null)
-                .create();
+        dialog = new MessageBox(this, message, null);
         dialog.show();
     }
 
@@ -191,25 +166,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         Logger.i(TAG, "showAlertDialog - " + message);
 
         dismissDialog();
-        dialog = new AlertDialog.Builder(this)
-                .setMessage(message)
-                .setPositiveButton(getString(R.string.ok), null)
-                .setOnDismissListener(dismissListener)
-                .create();
-        dialog.show();
-    }
-
-    protected void showAlertDialog(@NonNull final String message,
-                                   @NonNull final String positiveButtonText,
-                                   @NonNull final DialogInterface.OnDismissListener dismissListener) {
-        Logger.i(TAG, "showAlertDialog - " + message);
-
-        dismissDialog();
-        dialog = new AlertDialog.Builder(this)
-                .setMessage(message)
-                .setPositiveButton(positiveButtonText, null)
-                .setOnDismissListener(dismissListener)
-                .create();
+        dialog = new MessageBox(this, message, dismissListener);
         dialog.show();
     }
 
@@ -217,56 +174,43 @@ public abstract class BaseActivity extends AppCompatActivity {
         Logger.i(TAG, "showProgressDialog - " + message);
 
         dismissDialog();
-        ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage(message);
-        progressDialog.setCancelable(false);
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        dialog = progressDialog;
+        dialog = new IndeterministicProgressDialog(this, message, null);
         dialog.show();
     }
 
     protected void showProgressDialog(@NonNull final String message,
-                                      @NonNull final DialogInterface.OnClickListener onClickListener) {
+                                      @NonNull final DialogInterface.OnDismissListener dismissListener) {
         Logger.i(TAG, "showProgressDialog - " + message);
 
         dismissDialog();
-        ProgressDialog progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage(message);
-        progressDialog.setCancelable(false);
-        progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancel), onClickListener);
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        dialog = progressDialog;
+        dialog = new IndeterministicProgressDialog(this, message, dismissListener);
         dialog.show();
     }
 
-    protected interface OnValueEnterDialogListener {
-        void onValueEntered(String value);
+    protected void showProgressDialog(@NonNull final String message,
+                                      final int maxProgress,
+                                      final int progress,
+                                      final DialogInterface.OnClickListener cancelClickListener,
+                                      final DialogInterface.OnDismissListener dismissListener) {
+        Logger.i(TAG, "showProgressDialog - " + message);
+
+        if (dialog != null && dialog instanceof DeterministicProgressDialog) {
+            DeterministicProgressDialog progressDialog = (DeterministicProgressDialog)dialog;
+            progressDialog.setProgress(progress);
+        }
+        else {
+            dismissDialog();
+            dialog = new DeterministicProgressDialog(this, message, maxProgress, progress, cancelClickListener, dismissListener);
+            dialog.show();
+        }
     }
 
     protected void showValueEnterDialog(@NonNull final String message,
                                         @NonNull final String initialValue,
-                                        @NonNull final OnValueEnterDialogListener onValueEnterListener) {
+                                        @NonNull final ValueEnterDialog.OnValueEnterDialogListener valueEnterListener) {
         Logger.i(TAG, "showValueEnterDialog - " + message);
-
-        View view = getLayoutInflater().inflate(R.layout.dialog_content_value_enter, null);
-        EditText editText = view.findViewById(R.id.value);
-        editText.setText(initialValue);
-
-        AlertDialog alertDialog = new AlertDialog.Builder(this)
-                .setMessage(message)
-                .setView(view)
-                .setPositiveButton(getString(R.string.ok), (dialogInterface, i) -> {
-                    if (onValueEnterListener != null) {
-                        onValueEnterListener.onValueEntered(editText.getText().toString());
-                    }
-                })
-                .setNegativeButton(getString(R.string.cancel), null)
-                .create();
-        alertDialog.show();
-    }
-
-    protected int convertDpToPx(int dp) {
-        return dp * getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT;
+        ValueEnterDialog dialog = new ValueEnterDialog(this, message, initialValue, valueEnterListener, null);
+        dialog.show();
     }
 
     //

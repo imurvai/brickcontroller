@@ -18,6 +18,7 @@ import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
 import com.scn.ui.R;
 import com.scn.ui.controlleraction.ControllerActionActivity;
+import com.scn.ui.dialogs.ControllerEventDialog;
 
 import javax.inject.Inject;
 
@@ -87,6 +88,10 @@ public class ControllerProfileDetailsActivity extends BaseActivity {
                                 return;
                             }
 
+                            if (newName.equals(viewModel.getControllerProfile().getName())) {
+                                return;
+                            }
+
                             if (!viewModel.checkControllerProfileName(newName)) {
                                 showAlertDialog(getString(R.string.controller_profile_name_exists));
                                 return;
@@ -111,21 +116,22 @@ public class ControllerProfileDetailsActivity extends BaseActivity {
             Logger.i(TAG, "Floating action button clicked...");
 
             if (viewModel.getDeviceIdNameMap().values().size() > 0) {
-                ControllerEventDialog dialog = new ControllerEventDialog(ControllerProfileDetailsActivity.this, (eventType, eventCode) -> {
-                    Logger.i(TAG, "onDismiss - event type: " + eventType + ", event code: " + eventCode);
+                ControllerEventDialog dialog = new ControllerEventDialog(
+                        ControllerProfileDetailsActivity.this,
+                        (eventType, eventCode) -> {
+                            Logger.i(TAG, "onDismiss - event type: " + eventType + ", event code: " + eventCode);
 
-                    ControllerEvent controllerEvent = viewModel.getControllerEvent(eventType, eventCode);
-                    if (controllerEvent == null) {
-                        Logger.i(TAG, "  Adding new controller event...");
-                        viewModel.addControllerEvent(eventType, eventCode);
-                    }
-                    else {
-                        Logger.i(TAG, "  Adding new controller action to controller event - " + controllerEvent);
-                        startControllerActionActivity(controllerEvent.getId(), -1);
-                    }
-                });
-                dialog.setCancelable(false);
-                dialog.setCanceledOnTouchOutside(true);
+                            ControllerEvent controllerEvent = viewModel.getControllerEvent(eventType, eventCode);
+                            if (controllerEvent == null) {
+                                Logger.i(TAG, "  Adding new controller event...");
+                                viewModel.addControllerEvent(eventType, eventCode);
+                            }
+                            else {
+                                Logger.i(TAG, "  Adding new controller action to controller event - " + controllerEvent);
+                                startControllerActionActivity(controllerEvent.getId(), -1);
+                            }
+                        },
+                        null);
                 dialog.show();
             }
             else {
@@ -217,8 +223,6 @@ public class ControllerProfileDetailsActivity extends BaseActivity {
                 case REMOVE:
                     showQuestionDialog(
                             getString(R.string.are_you_sure_you_want_to_remove),
-                            getString(R.string.yes),
-                            getString(R.string.no),
                             (dialogInterface, i) -> viewModel.removeControllerEvent(controllerEvent),
                             ((dialogInterface, i) -> {}));
                     break;
@@ -240,8 +244,6 @@ public class ControllerProfileDetailsActivity extends BaseActivity {
                 case REMOVE:
                     showQuestionDialog(
                             getString(R.string.are_you_sure_you_want_to_remove),
-                            getString(R.string.yes),
-                            getString(R.string.no),
                             (dialogInterface, i) -> viewModel.removeControllerAction(controllerAction),
                             ((dialogInterface, i) -> {}));
                     break;

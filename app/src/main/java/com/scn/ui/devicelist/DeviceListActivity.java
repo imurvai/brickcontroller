@@ -10,6 +10,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.scn.devicemanagement.DeviceManager;
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
 import com.scn.ui.R;
@@ -72,8 +73,6 @@ public class DeviceListActivity extends BaseActivity {
                 Logger.i(TAG, "  delete selected.");
                 showQuestionDialog(
                         getString(R.string.are_you_sure_you_want_to_remove_all_devices),
-                        getString(R.string.yes),
-                        getString(R.string.no),
                         (dialogInterface, i) -> viewModel.deleteAllDevices(),
                         (dialogInterface, i) -> {});
                 return true;
@@ -103,8 +102,6 @@ public class DeviceListActivity extends BaseActivity {
                 case REMOVE:
                     showQuestionDialog(
                             getString(R.string.are_you_sure_you_want_to_remove),
-                            getString(R.string.yes),
-                            getString(R.string.no),
                             (dialogInterface, i) -> viewModel.removeDevice(device),
                             (dialogInterface, i) -> {});
                     break;
@@ -144,9 +141,13 @@ public class DeviceListActivity extends BaseActivity {
                     break;
 
                 case SCANNING:
+                    DeviceManager.ScanProgress progress = (DeviceManager.ScanProgress)stateChange.getData();
                     showProgressDialog(
                             getString(R.string.scanning),
-                            (dialogInterface, i) -> viewModel.stopDeviceScan());
+                            progress.maxProgress,
+                            progress.progress,
+                            (dialogInterface, i) -> viewModel.stopDeviceScan(),
+                            null);
                     break;
 
                 case REMOVING:

@@ -10,6 +10,7 @@ import com.scn.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -17,6 +18,7 @@ import javax.inject.Singleton;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -31,6 +33,8 @@ public final class DeviceManager implements DeviceFactory {
     //
 
     private static final String TAG = DeviceManager.class.getSimpleName();
+
+    private static final int SCAN_INTERVAL_SECS = 10;
 
     public enum State {
         OK,
@@ -166,7 +170,26 @@ public final class DeviceManager implements DeviceFactory {
         if (infraredDeviceObservable != null) deviceScanObservables.add(infraredDeviceObservable);
 
         if (deviceScanObservables.size() > 0) {
-            setState(State.SCANNING, false);
+            setState(State.SCANNING, false, new ScanProgress(0));
+
+            final Disposable timerDisposable = Observable.interval(1, TimeUnit.SECONDS)
+                    .take(SCAN_INTERVAL_SECS)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            time -> {
+                                int intTime = time.intValue();
+                                Logger.i(TAG, "Device timer scan onNext - " + intTime);
+                                setState(State.SCANNING, false, new ScanProgress(intTime));
+                            },
+                            error -> {
+                                Logger.e(TAG, "Device timer scan onError...", error);
+                                stopDeviceScan();
+                            },
+                            () -> {
+                                Logger.i(TAG, "Device timer scan onComplete...");
+                                stopDeviceScan();
+                            }
+                    );
 
             Observable.merge(deviceScanObservables)
                     .subscribeOn(Schedulers.io())
@@ -179,11 +202,13 @@ public final class DeviceManager implements DeviceFactory {
                             },
                             error -> {
                                 Logger.e(TAG, "Device scan onError...", error);
+                                timerDisposable.dispose();
                                 stopDeviceScan();
                                 setState(State.OK, true);
                             },
                             () -> {
                                 Logger.i(TAG, "Device scan onComplete...");
+                                timerDisposable.dispose();
                                 setState(State.OK, false);
                             });
 
@@ -352,5 +377,25 @@ public final class DeviceManager implements DeviceFactory {
         Logger.i(TAG, "setState - " + getCurrentState() + " -> " + newState);
         State currentState = getCurrentState();
         stateChangeLiveData.setValue(new StateChange(currentState, newState, isError));
+    }
+
+    @MainThread
+    private void setState(State newState, boolean isError, Object data) {
+        Logger.i(TAG, "setState with data - " + getCurrentState() + " -> " + newState);
+        State currentState = getCurrentState();
+        stateChangeLiveData.setValue(new StateChange(currentState, newState, isError, data));
+    }
+
+    //
+    // ScanProgress
+    //
+
+    public static class ScanProgress {
+        public int maxProgress;
+        public int progress;
+        public ScanProgress(int progress) {
+            this.maxProgress = SCAN_INTERVAL_SECS;
+            this.progress = progress;
+        }
     }
 }

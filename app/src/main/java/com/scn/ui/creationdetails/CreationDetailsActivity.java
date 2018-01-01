@@ -88,6 +88,10 @@ public class CreationDetailsActivity extends BaseActivity {
                                 return;
                             }
 
+                            if (newName.equals(viewModel.getCreation().getName())) {
+                                return;
+                            }
+
                             if (!viewModel.checkCreationName(newName)) {
                                 showAlertDialog(getString(R.string.creation_name_exists));
                                 return;
@@ -229,8 +233,6 @@ public class CreationDetailsActivity extends BaseActivity {
                 case REMOVE:
                     showQuestionDialog(
                             getString(R.string.are_you_sure_you_want_to_remove),
-                            getString(R.string.yes),
-                            getString(R.string.no),
                             (dialogInterface, i) -> viewModel.removeControllerProfile(controllerProfile),
                             (dialogInterface, i) -> {});
                     break;

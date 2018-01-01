@@ -1,4 +1,4 @@
-package com.scn.ui.controllerprofiledetails;
+package com.scn.ui.dialogs;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -6,19 +6,23 @@ import android.support.annotation.NonNull;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.widget.Button;
 
 import com.scn.creationmanagement.ControllerEvent;
 import com.scn.logger.Logger;
 import com.scn.ui.R;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by imurvai on 2017-12-21.
  */
 
-final class ControllerEventDialog extends Dialog {
+public final class ControllerEventDialog extends Dialog {
 
-    public interface OnControllerEventDialogDismissListener {
-        void onDismiss(ControllerEvent.ControllerEventType eventType, int eventCode);
+    public interface OnControllerEventListener {
+        void onEvent(ControllerEvent.ControllerEventType eventType, int eventCode);
     }
 
     //
@@ -27,18 +31,27 @@ final class ControllerEventDialog extends Dialog {
 
     private static final String TAG = ControllerEventDialog.class.getSimpleName();
 
-    private OnControllerEventDialogDismissListener dismissListener;
+    @BindView(R.id.cancel_button) Button cancelButton;
+
+    private OnControllerEventListener eventListener;
 
     //
     // Dialog overrides
     //
 
-    public ControllerEventDialog(@NonNull Context context, @NonNull OnControllerEventDialogDismissListener dismissListener) {
+    public ControllerEventDialog(@NonNull final Context context,
+                                 @NonNull final OnControllerEventListener eventListener,
+                                 @NonNull final OnDismissListener dismissListener) {
         super(context);
         Logger.i(TAG, "constructor...");
 
-        this.setContentView(R.layout.dialog_controller_event);
-        this.dismissListener = dismissListener;
+        setContentView(R.layout.dialog_controller_event);
+        ButterKnife.bind(this);
+
+        setOnDismissListener(dismissListener);
+
+        this.eventListener = eventListener;
+        cancelButton.setOnClickListener(view -> dismiss());
     }
 
     @Override
@@ -54,8 +67,8 @@ final class ControllerEventDialog extends Dialog {
         if ((event.getSource() & InputDevice.SOURCE_GAMEPAD) != 0 && event.getRepeatCount() == 0) {
             Logger.i(TAG, "  Key code: " + keyCode + " - (" + KeyEvent.keyCodeToString(keyCode) + ")");
 
-            if (dismissListener != null) dismissListener.onDismiss(ControllerEvent.ControllerEventType.KEY, keyCode);
             dismiss();
+            if (eventListener != null) eventListener.onEvent(ControllerEvent.ControllerEventType.KEY, keyCode);
             return true;
         }
 
@@ -71,8 +84,8 @@ final class ControllerEventDialog extends Dialog {
                 if (Math.abs(event.getAxisValue(axis)) > 0.8) {
                     Logger.i(TAG, "  Axis code: " + axis + " - (" + MotionEvent.axisToString(axis) + ")");
 
-                    if (dismissListener != null) dismissListener.onDismiss(ControllerEvent.ControllerEventType.MOTION, axis);
                     dismiss();
+                    if (eventListener != null) eventListener.onEvent(ControllerEvent.ControllerEventType.MOTION, axis);
                     return true;
                 }
             }

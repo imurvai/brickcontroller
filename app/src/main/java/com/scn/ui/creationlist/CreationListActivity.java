@@ -172,8 +172,6 @@ public class CreationListActivity extends BaseActivity implements NavigationView
                 case REMOVE:
                     showQuestionDialog(
                             getString(R.string.are_you_sure_you_want_to_remove),
-                            getString(R.string.yes),
-                            getString(R.string.no),
                             (dialogInterface, i) -> viewModel.removeCreation(creation),
                             (dialogInterface, i) -> {});
                     break;
