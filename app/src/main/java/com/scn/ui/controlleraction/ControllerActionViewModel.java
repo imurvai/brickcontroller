@@ -30,8 +30,11 @@ public class ControllerActionViewModel extends ViewModel {
 
     private static final String TAG = ControllerActionViewModel.class.getSimpleName();
 
-    private CreationManager creationManager;
-    private DeviceManager deviceManager;
+    private final CreationManager creationManager;
+    private final DeviceManager deviceManager;
+
+    private final List<Device> deviceList = new ArrayList<>();
+    private final List<String> deviceNameList = new ArrayList<>();
 
     private ControllerEvent controllerEvent;
     private ControllerAction controllerAction;
@@ -51,6 +54,13 @@ public class ControllerActionViewModel extends ViewModel {
         Logger.i(TAG, "constructor...");
         this.creationManager = creationManager;
         this.deviceManager = deviceManager;
+
+        for (Device device : deviceManager.getDeviceListLiveData().getValue()) {
+            if (deviceManager.getSupportedDeviceTypes().contains(device.getType())) {
+                deviceList.add(device);
+                deviceNameList.add(device.getName());
+            }
+        }
     }
 
     //
@@ -80,7 +90,7 @@ public class ControllerActionViewModel extends ViewModel {
         else {
             controllerEvent = creationManager.getControllerEvent(controllerEventId);
 
-            selectedDevice = deviceManager.getDeviceListLiveData().getValue().get(0);
+            selectedDevice = deviceList.get(0);
             selectedChannel = 0;
             selectedIsRevert = false;
             selectedIsToggle = false;
@@ -99,16 +109,10 @@ public class ControllerActionViewModel extends ViewModel {
     }
 
     @MainThread
-    List<Device> getDeviceList() {
-        return deviceManager.getDeviceListLiveData().getValue();
-    }
+    List<Device> getDeviceList() { return deviceList; }
 
     @MainThread
-    List<String> getDeviceNameList() {
-        List<String> deviceNames = new ArrayList<>();
-        for (Device device : getDeviceList()) deviceNames.add(device.getName());
-        return deviceNames;
-    }
+    List<String> getDeviceNameList() { return deviceNameList; }
 
     @MainThread
     Device getSelectedDevice() {

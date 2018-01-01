@@ -69,6 +69,12 @@ public class DeviceListViewModel extends ViewModel {
     }
 
     @MainThread
+    public boolean isDeviceSupported(@NonNull Device device) {
+        Logger.i(TAG, "isDeviceSupported - " + device);
+        return deviceManager.getSupportedDeviceTypes().contains(device.getType());
+    }
+
+    @MainThread
     public void startDeviceScan() {
         Logger.i(TAG, "startDeviceScan...");
         deviceManager.startDeviceScan();

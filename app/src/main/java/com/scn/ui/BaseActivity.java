@@ -174,24 +174,23 @@ public abstract class BaseActivity extends AppCompatActivity {
         Logger.i(TAG, "showProgressDialog - " + message);
 
         dismissDialog();
-        dialog = new IndeterministicProgressDialog(this, message, null);
+        dialog = new IndeterministicProgressDialog(this, message, null, null);
         dialog.show();
     }
 
     protected void showProgressDialog(@NonNull final String message,
-                                      @NonNull final DialogInterface.OnDismissListener dismissListener) {
+                                      @NonNull final DialogInterface.OnClickListener cancelClickListener) {
         Logger.i(TAG, "showProgressDialog - " + message);
 
         dismissDialog();
-        dialog = new IndeterministicProgressDialog(this, message, dismissListener);
+        dialog = new IndeterministicProgressDialog(this, message, cancelClickListener, null);
         dialog.show();
     }
 
     protected void showProgressDialog(@NonNull final String message,
                                       final int maxProgress,
                                       final int progress,
-                                      final DialogInterface.OnClickListener cancelClickListener,
-                                      final DialogInterface.OnDismissListener dismissListener) {
+                                      final DialogInterface.OnClickListener cancelClickListener) {
         Logger.i(TAG, "showProgressDialog - " + message);
 
         if (dialog != null && dialog instanceof DeterministicProgressDialog) {
@@ -200,7 +199,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
         else {
             dismissDialog();
-            dialog = new DeterministicProgressDialog(this, message, maxProgress, progress, cancelClickListener, dismissListener);
+            dialog = new DeterministicProgressDialog(this, message, maxProgress, progress, cancelClickListener, null);
             dialog.show();
         }
     }

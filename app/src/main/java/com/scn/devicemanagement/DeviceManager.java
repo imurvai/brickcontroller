@@ -9,6 +9,7 @@ import com.scn.common.StateChange;
 import com.scn.logger.Logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -52,7 +53,14 @@ public final class DeviceManager implements DeviceFactory {
     private final BluetoothDeviceManager bluetoothDeviceManager;
     private final InfraRedDeviceManager infraRedDeviceManager;
 
-    private MutableLiveData<StateChange<DeviceManager.State>> stateChangeLiveData = new MutableLiveData<>();
+    private final MutableLiveData<StateChange<DeviceManager.State>> stateChangeLiveData = new MutableLiveData<>();
+
+    private final List<Device.DeviceType> supportedDeviceTypes = Arrays.asList(
+            Device.DeviceType.INFRARED,
+            Device.DeviceType.SBRICK,
+            Device.DeviceType.BUWIZZ
+            //Device.DeviceType.BUWIZZ2
+    );
 
     //
     // Constructor
@@ -98,6 +106,10 @@ public final class DeviceManager implements DeviceFactory {
     //
     // API
     //
+
+    public List<Device.DeviceType> getSupportedDeviceTypes() {
+        return supportedDeviceTypes;
+    }
 
     @MainThread
     public boolean isBluetoothLESupported() {

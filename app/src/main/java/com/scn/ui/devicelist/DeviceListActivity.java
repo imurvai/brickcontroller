@@ -94,9 +94,14 @@ public class DeviceListActivity extends BaseActivity {
             Logger.i(TAG, "onClick - device: " + device);
             switch (itemClickAction) {
                 case CLICK:
-                    Intent intent = new Intent(DeviceListActivity.this, DeviceDetailsActivity.class);
-                    intent.putExtra(EXTRA_DEVICE_ID, device.getId());
-                    startActivity(intent);
+                    if (viewModel.isDeviceSupported(device)) {
+                        Intent intent = new Intent(DeviceListActivity.this, DeviceDetailsActivity.class);
+                        intent.putExtra(EXTRA_DEVICE_ID, device.getId());
+                        startActivity(intent);
+                    }
+                    else {
+                        showAlertDialog(getString(R.string.device_type_is_not_supported_yet));
+                    }
                     break;
 
                 case REMOVE:
@@ -146,8 +151,7 @@ public class DeviceListActivity extends BaseActivity {
                             getString(R.string.scanning),
                             progress.maxProgress,
                             progress.progress,
-                            (dialogInterface, i) -> viewModel.stopDeviceScan(),
-                            null);
+                            (dialogInterface, i) -> viewModel.stopDeviceScan());
                     break;
 
                 case REMOVING:

@@ -153,10 +153,10 @@ public class ControllerActivity extends BaseActivity {
             if (!allDevicesConnected) {
                 showProgressDialog(
                         getString(R.string.connecting),
-                        (dialogInterface -> {
+                        (dialogInterface, i) -> {
                             viewModel.disconnectDevices();
                             ControllerActivity.this.finish();
-                        }));
+                        });
             }
             else {
                 Logger.i(TAG, "  All devices have connected.");

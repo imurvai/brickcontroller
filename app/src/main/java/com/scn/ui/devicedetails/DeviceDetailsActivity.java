@@ -141,10 +141,10 @@ public class DeviceDetailsActivity extends BaseActivity {
                 case CONNECTING:
                     showProgressDialog(
                             getString(R.string.connecting),
-                            (dialogInterface -> {
+                            (dialogInterface, i) -> {
                                 viewModel.disconnectDevice();
                                 DeviceDetailsActivity.this.finish();
-                            }));
+                            });
                     break;
 
                 case CONNECTED:
@@ -154,7 +154,7 @@ public class DeviceDetailsActivity extends BaseActivity {
                 case DISCONNECTING:
                     showProgressDialog(
                             getString(R.string.disconnecting),
-                            dialogInterface -> {
+                            (dialogInterface, i) -> {
                                 viewModel.disconnectDevice();
                                 DeviceDetailsActivity.this.finish();
                             });
@@ -163,7 +163,7 @@ public class DeviceDetailsActivity extends BaseActivity {
                 case DISCONNECTED:
                     showProgressDialog(
                             getString(R.string.reconnecting),
-                            dialogInterface -> {
+                            (dialogInterface, i) -> {
                                 viewModel.disconnectDevice();
                                 DeviceDetailsActivity.this.finish();
                             });

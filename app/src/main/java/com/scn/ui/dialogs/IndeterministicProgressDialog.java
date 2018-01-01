@@ -30,8 +30,9 @@ public final class IndeterministicProgressDialog extends Dialog {
     // Constructor
     //
 
-    public IndeterministicProgressDialog(@NonNull Context context,
+    public IndeterministicProgressDialog(@NonNull final Context context,
                                          @NonNull final String message,
+                                         final OnClickListener cancelClickListener,
                                          final OnDismissListener dismissListener) {
         super(context);
 
@@ -41,6 +42,9 @@ public final class IndeterministicProgressDialog extends Dialog {
         setOnDismissListener(dismissListener);
 
         messageTextView.setText(message);
-        cancelButton.setOnClickListener(view -> IndeterministicProgressDialog.this.dismiss());
+        cancelButton.setOnClickListener(view -> {
+            IndeterministicProgressDialog.this.dismiss();
+            if (cancelClickListener != null) cancelClickListener.onClick(IndeterministicProgressDialog.this, 0);
+        });
     }
 }
