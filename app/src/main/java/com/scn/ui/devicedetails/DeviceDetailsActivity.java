@@ -63,37 +63,6 @@ public class DeviceDetailsActivity extends BaseActivity {
         super.onBackPressed();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        Logger.i(TAG, "onCreateOptionsMenu...");
-        getMenuInflater().inflate(R.menu.menu_device_details, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Logger.i(TAG, "onOptionsItemSelected...");
-
-        switch (item.getItemId()) {
-            case R.id.menu_item_edit:
-                Logger.i(TAG, "  edit selected.");
-
-                showValueEnterDialog(
-                        getString(R.string.enter_device_name),
-                        viewModel.getDevice().getName(),
-                        newName -> {
-                            if (newName.length() == 0) {
-                                showAlertDialog(getString(R.string.name_cannot_be_empty));
-                                return;
-                            }
-                            viewModel.updateDevice(newName);
-                        });
-                return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     //
     // Private methods
     //
@@ -184,6 +153,18 @@ public class DeviceDetailsActivity extends BaseActivity {
         });
         deviceDetailsAdapter.setOutputLevelChangedListener((localDevice, outputLevel) -> {
             viewModel.updateDevice(outputLevel);
+        });
+        deviceDetailsAdapter.setEditDeviceNameListener(localDevice -> {
+            showValueEnterDialog(
+                    getString(R.string.enter_device_name),
+                    localDevice.getName(),
+                    newName -> {
+                        if (newName.length() == 0) {
+                            showAlertDialog(getString(R.string.name_cannot_be_empty));
+                            return;
+                        }
+                        viewModel.updateDevice(newName);
+                    });
         });
     }
 }

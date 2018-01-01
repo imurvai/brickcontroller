@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
@@ -33,6 +34,10 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         void onOutputLevelChanged(Device device, Device.OutputLevel outputLevel);
     }
 
+    public interface OnEditDeviceNameListener {
+        void onEdit(Device device);
+    }
+
     //
     // Private members
     //
@@ -47,6 +52,7 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private Device device;
     private OnDeviceChannelOutputChangedListener outputChangedListener = null;
     private OnDeviceOutputLevelChangedListener outputLevelChangedListener = null;
+    private OnEditDeviceNameListener editDeviceNameListener = null;
 
     //
     // Constructor
@@ -119,7 +125,7 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         switch (holder.getItemViewType()) {
             case VIEWTYPE_HEADER:
-                ((HeaderViewHolder)holder).bind(device);
+                ((HeaderViewHolder)holder).bind(device, editDeviceNameListener);
                 break;
 
             case VIEWTYPE_OUTPUT_SEEKBAR:
@@ -158,13 +164,18 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         notifyDataSetChanged();
     }
 
-    public void setOutputChangedListener(OnDeviceChannelOutputChangedListener outputChangedListener) {
+    void setOutputChangedListener(OnDeviceChannelOutputChangedListener outputChangedListener) {
         this.outputChangedListener = outputChangedListener;
         notifyDataSetChanged();
     }
 
-    public void setOutputLevelChangedListener(OnDeviceOutputLevelChangedListener outputLevelChangedListener) {
+    void setOutputLevelChangedListener(OnDeviceOutputLevelChangedListener outputLevelChangedListener) {
         this.outputLevelChangedListener = outputLevelChangedListener;
+        notifyDataSetChanged();
+    }
+
+    void setEditDeviceNameListener(OnEditDeviceNameListener editDeviceNameListener) {
+        this.editDeviceNameListener = editDeviceNameListener;
         notifyDataSetChanged();
     }
 
@@ -176,15 +187,16 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         @BindView(R.id.vendor_image) ImageView vendorImage;
         @BindView(R.id.device_name) TextView deviceName;
+        @BindView(R.id.edit) Button editDeviceName;
         @BindView(R.id.device_type) TextView deviceType;
         @BindView(R.id.device_address) TextView deviceAddress;
 
-        public HeaderViewHolder(View itemView) {
+        HeaderViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(Device device) {
+        public void bind(@NonNull final Device device, final OnEditDeviceNameListener editDeviceNameListener) {
             switch (device.getType()) {
                 case BUWIZZ:
                     vendorImage.setImageResource(R.drawable.buwizz_image);
@@ -206,6 +218,10 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
             deviceName.setText(device.getName());
             deviceAddress.setText(device.getAddress());
+
+            editDeviceName.setOnClickListener(view -> {
+                if (editDeviceNameListener != null) editDeviceNameListener.onEdit(device);
+            });
         }
     }
 
@@ -213,7 +229,7 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         @BindView(R.id.output_level) AppCompatSeekBar outputSeekBar;
 
-        public OutputViewHolder(View itemView) {
+        OutputViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
@@ -248,7 +264,7 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         @BindView(R.id.radio_group) RadioGroup radioGroup;
 
-        public OutputLevelViewHolder(View itemView) {
+        OutputLevelViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
@@ -293,7 +309,7 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         @BindView(R.id.key) TextView key;
         @BindView(R.id.value) TextView value;
 
-        public DeviceInfoViewHolder(View itemView) {
+        DeviceInfoViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }

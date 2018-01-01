@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.scn.creationmanagement.Creation;
@@ -42,6 +43,7 @@ public class CreationDetailsActivity extends BaseActivity {
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.fab) FloatingActionButton floatingActionButton;
     @BindView(R.id.creation_name) TextView creationNameTextView;
+    @BindView(R.id.edit) Button editCreationNameButton;
     @BindView(R.id.recyclerview) RecyclerView recyclerView;
 
     //
@@ -78,29 +80,6 @@ public class CreationDetailsActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_item_edit:
-                showValueEnterDialog(
-                        getString(R.string.enter_creation_name),
-                        viewModel.getCreation().getName(),
-                        newName -> {
-                            if (newName.length() == 0) {
-                                showAlertDialog(getString(R.string.creation_name_empty));
-                                return;
-                            }
-
-                            if (newName.equals(viewModel.getCreation().getName())) {
-                                return;
-                            }
-
-                            if (!viewModel.checkCreationName(newName)) {
-                                showAlertDialog(getString(R.string.creation_name_exists));
-                                return;
-                            }
-
-                            viewModel.renameCreation(newName);
-                        });
-                return true;
-
             case R.id.menu_item_play:
                 if (!viewModel.checkIfCreationPlayable()) {
                     showAlertDialog(getString(R.string.no_controller_actions));
@@ -127,6 +106,29 @@ public class CreationDetailsActivity extends BaseActivity {
 
     private void setupActivityComponents() {
         setSupportActionBar(toolbar);
+
+        editCreationNameButton.setOnClickListener(view -> {
+            showValueEnterDialog(
+                    getString(R.string.enter_creation_name),
+                    viewModel.getCreation().getName(),
+                    newName -> {
+                        if (newName.length() == 0) {
+                            showAlertDialog(getString(R.string.creation_name_empty));
+                            return;
+                        }
+
+                        if (newName.equals(viewModel.getCreation().getName())) {
+                            return;
+                        }
+
+                        if (!viewModel.checkCreationName(newName)) {
+                            showAlertDialog(getString(R.string.creation_name_exists));
+                            return;
+                        }
+
+                        viewModel.renameCreation(newName);
+                    });
+        });
 
         floatingActionButton.setOnClickListener(view -> {
             showValueEnterDialog(

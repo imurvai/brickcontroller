@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.scn.creationmanagement.ControllerEvent;
@@ -43,6 +44,7 @@ public class ControllerProfileDetailsActivity extends BaseActivity {
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.fab) FloatingActionButton floatingActionButton;
     @BindView(R.id.controller_profile_name) TextView controllerProfileNameTextView;
+    @BindView(R.id.edit) Button editControllerProfileNameButton;
     @BindView(R.id.recyclerview) RecyclerView recyclerView;
 
     //
@@ -69,48 +71,35 @@ public class ControllerProfileDetailsActivity extends BaseActivity {
         super.onBackPressed();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_controller_profile_details, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_item_edit:
-                showValueEnterDialog(
-                        getString(R.string.enter_controller_profile_name),
-                        viewModel.getControllerProfile().getName(),
-                        newName -> {
-                            if (newName.length() == 0) {
-                                showAlertDialog(getString(R.string.controller_profile_name_empty));
-                                return;
-                            }
-
-                            if (newName.equals(viewModel.getControllerProfile().getName())) {
-                                return;
-                            }
-
-                            if (!viewModel.checkControllerProfileName(newName)) {
-                                showAlertDialog(getString(R.string.controller_profile_name_exists));
-                                return;
-                            }
-
-                            viewModel.renameControllerProfile(newName);
-                        });
-                return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     //
     // Private methods
     //
 
     private void setupActivityComponents() {
         setSupportActionBar(toolbar);
+
+        editControllerProfileNameButton.setOnClickListener(view -> {
+            showValueEnterDialog(
+                    getString(R.string.enter_controller_profile_name),
+                    viewModel.getControllerProfile().getName(),
+                    newName -> {
+                        if (newName.length() == 0) {
+                            showAlertDialog(getString(R.string.controller_profile_name_empty));
+                            return;
+                        }
+
+                        if (newName.equals(viewModel.getControllerProfile().getName())) {
+                            return;
+                        }
+
+                        if (!viewModel.checkControllerProfileName(newName)) {
+                            showAlertDialog(getString(R.string.controller_profile_name_exists));
+                            return;
+                        }
+
+                        viewModel.renameControllerProfile(newName);
+                    });
+        });
 
         floatingActionButton.setOnClickListener(view -> {
             Logger.i(TAG, "Floating action button clicked...");
