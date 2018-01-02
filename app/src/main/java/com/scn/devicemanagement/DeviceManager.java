@@ -83,20 +83,20 @@ public final class DeviceManager implements DeviceFactory {
     // DeviceFactory methods
     //
 
-    public Device createDevice(Device.DeviceType type, @NonNull String name, @NonNull String address, @NonNull Device.OutputLevel outputLevel) {
-        Logger.i(TAG, "createDevice - type: " + type.toString() + ", name: " + name + ", address: " + address + ", outputlevel: " + outputLevel);
+    public Device createDevice(Device.DeviceType type, @NonNull String name, @NonNull String address, @NonNull String deviceSpecificDataJSon) {
+        Logger.i(TAG, "createDevice - type: " + type.toString() + ", name: " + name + ", address: " + address + ", device specific data: " + deviceSpecificDataJSon);
 
         Device device = null;
 
         switch (type) {
             case INFRARED:
-                device = infraRedDeviceManager.createDevice(type, name, address, outputLevel);
+                device = infraRedDeviceManager.createDevice(type, name, address, deviceSpecificDataJSon);
                 break;
 
             case BUWIZZ:
             case BUWIZZ2:
             case SBRICK:
-                device = bluetoothDeviceManager.createDevice(type, name, address, outputLevel);
+                device = bluetoothDeviceManager.createDevice(type, name, address, deviceSpecificDataJSon);
                 break;
         }
 
@@ -136,7 +136,7 @@ public final class DeviceManager implements DeviceFactory {
     }
 
     @MainThread
-    public boolean loadDevicesAsync() {
+    public boolean loadDevicesAsync(boolean forceLoad) {
         Logger.i(TAG, "loadDevicesAsync...");
 
         if (getCurrentState() != State.OK) {
@@ -147,7 +147,7 @@ public final class DeviceManager implements DeviceFactory {
         setState(State.LOADING, false);
 
         Single.fromCallable(() -> {
-                deviceRepository.loadDevices(this);
+                deviceRepository.loadDevices(this, forceLoad);
                 return true;
             })
             .subscribeOn(Schedulers.io())
@@ -314,8 +314,8 @@ public final class DeviceManager implements DeviceFactory {
     }
 
     @MainThread
-    public boolean updateDeviceAsync(@NonNull final Device device, String newName) {
-        Logger.i(TAG, "updateDeviceAsync - " + device);
+    public boolean updateDeviceNameAsync(@NonNull final Device device, @NonNull final String newName) {
+        Logger.i(TAG, "updateDeviceNameAsync - " + device);
         Logger.i(TAG, "  new name: " + newName);
 
         if (getCurrentState() != State.OK) {
@@ -326,18 +326,18 @@ public final class DeviceManager implements DeviceFactory {
         setState(State.UPDATING, false);
 
         Single.fromCallable(() -> {
-            deviceRepository.updateDevice(device, newName);
+            deviceRepository.updateDeviceName(device, newName);
             return true;
         })
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(
                 x -> {
-                    Logger.i(TAG, "updateDeviceAsync onSuccess - " + device);
+                    Logger.i(TAG, "updateDeviceNameAsync onSuccess - " + device);
                     setState(State.OK, false);
                 },
                 e -> {
-                    Logger.e(TAG, "updateDeviceAsync onError - " + device, e);
+                    Logger.e(TAG, "updateDeviceNameAsync onError - " + device, e);
                     setState(State.OK, true);
                 });
 
@@ -345,9 +345,9 @@ public final class DeviceManager implements DeviceFactory {
     }
 
     @MainThread
-    public boolean updateDeviceAsync(@NonNull final Device device, Device.OutputLevel newOutputLevel) {
-        Logger.i(TAG, "updateDeviceAsync - " + device);
-        Logger.i(TAG, "  new output level: " + newOutputLevel);
+    public boolean updateDeviceSpecificDataAsync(@NonNull final Device device, @NonNull final String deviceSpecificDataJSon) {
+        Logger.i(TAG, "updateDeviceSpecificDataAsync - " + device);
+        Logger.i(TAG, "  new device specific data: " + deviceSpecificDataJSon);
 
         if (getCurrentState() != State.OK) {
             Logger.w(TAG, "  wrong state - " + getCurrentState());
@@ -357,18 +357,18 @@ public final class DeviceManager implements DeviceFactory {
         setState(State.UPDATING, false);
 
         Single.fromCallable(() -> {
-            deviceRepository.updateDevice(device, newOutputLevel);
+            deviceRepository.updateDeviceSpecificData(device, deviceSpecificDataJSon);
             return true;
         })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         x -> {
-                            Logger.i(TAG, "updateDeviceAsync onSuccess - " + device);
+                            Logger.i(TAG, "updateDeviceSpecificDataAsync onSuccess - " + device);
                             setState(State.OK, false);
                         },
                         e -> {
-                            Logger.e(TAG, "updateDeviceAsync onError - " + device, e);
+                            Logger.e(TAG, "updateDeviceSpecificDataAsync onError - " + device, e);
                             setState(State.OK, true);
                         });
 

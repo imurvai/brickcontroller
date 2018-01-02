@@ -10,8 +10,7 @@ import android.arch.persistence.room.TypeConverters;
 
 @Database(entities = { DeviceEntity.class }, version = 1)
 @TypeConverters({
-        DeviceTypeTypeConverter.class,
-        DeviceOutputLevelTypeConverter.class
+        DeviceTypeTypeConverter.class
 })
 abstract class DeviceDatabase extends RoomDatabase {
 

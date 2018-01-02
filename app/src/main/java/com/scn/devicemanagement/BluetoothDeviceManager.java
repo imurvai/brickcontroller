@@ -43,8 +43,13 @@ final class BluetoothDeviceManager extends SpecificDeviceManager {
         super(context);
         Logger.i(TAG, "constructor...");
 
-        BluetoothManager bluetoothManager = (BluetoothManager)context.getSystemService(Context.BLUETOOTH_SERVICE);
-        this.bluetoothAdapter = bluetoothManager != null ? bluetoothManager.getAdapter() : null;
+        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            final BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+            bluetoothAdapter = bluetoothManager != null ? bluetoothManager.getAdapter() : null;
+        }
+        else {
+            bluetoothAdapter = null;
+        }
     }
 
     //
@@ -55,7 +60,7 @@ final class BluetoothDeviceManager extends SpecificDeviceManager {
     boolean isBluetoothLESupported() {
         Logger.i(TAG, "isBluetoothLESupported...");
 
-        boolean isSupported = bluetoothAdapter != null && context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
+        boolean isSupported = bluetoothAdapter != null;
 
         Logger.i(TAG, "  Bluetooth is " + (isSupported ? "" : "NOT ") + "supported.");
         return isSupported;
@@ -65,9 +70,7 @@ final class BluetoothDeviceManager extends SpecificDeviceManager {
     boolean isBluetoothOn() {
         Logger.i(TAG, "isBluetoothOn...");
 
-        BluetoothManager bluetoothManager = (BluetoothManager)context.getSystemService(Context.BLUETOOTH_SERVICE);
-        BluetoothAdapter adapter = bluetoothManager != null ? bluetoothManager.getAdapter() : null;
-        boolean isOn = adapter != null && adapter.isEnabled();
+        boolean isOn = bluetoothAdapter != null && bluetoothAdapter.isEnabled();
 
         Logger.i(TAG, "  Bluetooth is " + (isOn ? "on" : "off") + ".");
         return isOn;
@@ -132,7 +135,7 @@ final class BluetoothDeviceManager extends SpecificDeviceManager {
     }
 
     @Override
-    Device createDevice(@NonNull Device.DeviceType type, @NonNull  String name, @NonNull  String address, @NonNull  Device.OutputLevel outputLevel) {
+    public Device createDevice(@NonNull Device.DeviceType type, @NonNull  String name, @NonNull  String address, String deviceSpecificDataJSon) {
         Logger.i(TAG, "createDevice...");
 
         if (!isBluetoothLESupported()) {
@@ -143,9 +146,9 @@ final class BluetoothDeviceManager extends SpecificDeviceManager {
             case SBRICK:
                 return new SBrickDevice(context, name, address, BluetoothDeviceManager.this);
             case BUWIZZ:
-                return new BuWizzDevice(context, name, address, outputLevel, BluetoothDeviceManager.this);
+                return new BuWizzDevice(context, name, address, deviceSpecificDataJSon, BluetoothDeviceManager.this);
             case BUWIZZ2:
-                return new BuWizz2Device(context, name, address, outputLevel, BluetoothDeviceManager.this);
+                return new BuWizz2Device(context, name, address, deviceSpecificDataJSon, BluetoothDeviceManager.this);
         }
 
         Logger.i(TAG, "  Not bluetooth device.");
@@ -183,13 +186,13 @@ final class BluetoothDeviceManager extends SpecificDeviceManager {
             synchronized (deviceEmitterLock) {
                 if (deviceEmitter != null) {
                     if (manufacturerData.startsWith("98 01")) {
-                        deviceEmitter.onNext(createDevice(Device.DeviceType.SBRICK, bluetoothDevice.getName(), bluetoothDevice.getAddress(), Device.OutputLevel.NORMAL));
+                        deviceEmitter.onNext(createDevice(Device.DeviceType.SBRICK, bluetoothDevice.getName(), bluetoothDevice.getAddress(), null));
                     }
                     else if (manufacturerData.startsWith("48 4D")) {
-                        deviceEmitter.onNext(createDevice(Device.DeviceType.BUWIZZ, bluetoothDevice.getName(), bluetoothDevice.getAddress(), Device.OutputLevel.NORMAL));
+                        deviceEmitter.onNext(createDevice(Device.DeviceType.BUWIZZ, bluetoothDevice.getName(), bluetoothDevice.getAddress(), null));
                     }
                     else if (manufacturerData.startsWith("4E 05")) {
-                        deviceEmitter.onNext(createDevice(Device.DeviceType.BUWIZZ2, bluetoothDevice.getName(), bluetoothDevice.getAddress(), Device.OutputLevel.NORMAL));
+                        deviceEmitter.onNext(createDevice(Device.DeviceType.BUWIZZ2, bluetoothDevice.getName(), bluetoothDevice.getAddress(), null));
                     }
                     else {
                         Logger.i(TAG, "  Unknown bluetooth device.");

@@ -5,8 +5,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
@@ -151,8 +149,8 @@ public class DeviceDetailsActivity extends BaseActivity {
             //Logger.i(TAG, "onOutputChanged - " + value);
             viewModel.setOutput(channel, value);
         });
-        deviceDetailsAdapter.setOutputLevelChangedListener((localDevice, outputLevel) -> {
-            viewModel.updateDevice(outputLevel);
+        deviceDetailsAdapter.setDeviceSpecificDataChangedListener((localDevice, deviceSpecificDataJSon) -> {
+            viewModel.updateDeviceSpecificData(deviceSpecificDataJSon);
         });
         deviceDetailsAdapter.setEditDeviceNameListener(localDevice -> {
             showValueEnterDialog(
@@ -163,7 +161,7 @@ public class DeviceDetailsActivity extends BaseActivity {
                             showAlertDialog(getString(R.string.name_cannot_be_empty));
                             return;
                         }
-                        viewModel.updateDevice(newName);
+                        viewModel.updateDeviceName(newName);
                     });
         });
     }

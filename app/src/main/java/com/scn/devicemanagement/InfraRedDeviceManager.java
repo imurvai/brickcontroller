@@ -160,10 +160,10 @@ final class InfraRedDeviceManager extends SpecificDeviceManager {
         }
 
         return Observable.fromArray(
-                createDevice(Device.DeviceType.INFRARED, "PF Infra 1", "1", Device.OutputLevel.NORMAL),
-                createDevice(Device.DeviceType.INFRARED, "PF Infra 2", "2", Device.OutputLevel.NORMAL),
-                createDevice(Device.DeviceType.INFRARED, "PF Infra 3", "3", Device.OutputLevel.NORMAL),
-                createDevice(Device.DeviceType.INFRARED, "PF Infra 4", "4", Device.OutputLevel.NORMAL));
+                createDevice(Device.DeviceType.INFRARED, "PF Infra 1", "1", null),
+                createDevice(Device.DeviceType.INFRARED, "PF Infra 2", "2", null),
+                createDevice(Device.DeviceType.INFRARED, "PF Infra 3", "3", null),
+                createDevice(Device.DeviceType.INFRARED, "PF Infra 4", "4", null));
     }
 
     @MainThread
@@ -173,7 +173,7 @@ final class InfraRedDeviceManager extends SpecificDeviceManager {
     }
 
     @Override
-    Device createDevice(@NonNull Device.DeviceType type, @NonNull String name, @NonNull String address, @NonNull Device.OutputLevel outputLevel) {
+    public Device createDevice(@NonNull Device.DeviceType type, @NonNull String name, @NonNull String address, String deviceSpecificDataJSon) {
         Logger.i(TAG, "createDevice...");
 
         if (!isInfraRedSupported()) {

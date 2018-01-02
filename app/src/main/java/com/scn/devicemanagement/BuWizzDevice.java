@@ -5,13 +5,16 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.google.gson.Gson;
 import com.scn.logger.Logger;
+
+import static com.scn.devicemanagement.BuWizzOutputLevel.NORMAL;
 
 /**
  * Created by steve on 2017. 03. 18..
  */
 
-final class BuWizzDevice extends BluetoothDevice {
+public final class BuWizzDevice extends BluetoothDevice {
 
     //
     // Members
@@ -30,7 +33,7 @@ final class BuWizzDevice extends BluetoothDevice {
     private Thread outputThread = null;
     private final Object outputThreadLock = new Object();
 
-    private OutputLevel outputLevel = OutputLevel.NORMAL;
+    private BuWizzData buWizzData = null;
 
     private final int[] outputValues = new int[4];
     private boolean continueSending = true;
@@ -39,39 +42,49 @@ final class BuWizzDevice extends BluetoothDevice {
     // Constructor
     //
 
-    BuWizzDevice(@NonNull Context context, @NonNull String name, @NonNull String address, @NonNull OutputLevel outputLevel, @NonNull BluetoothDeviceManager bluetoothDeviceManager) {
+    BuWizzDevice(@NonNull Context context, @NonNull String name, @NonNull String address, String deviceSpecificDataJSon, @NonNull BluetoothDeviceManager bluetoothDeviceManager) {
         super(context, name, address, bluetoothDeviceManager);
         Logger.i(TAG, "constructor...");
         Logger.i(TAG, "  name: " + name);
         Logger.i(TAG, "  address: " + address);
-        Logger.i(TAG, "  output level: " + outputLevel);
 
-        this.outputLevel = outputLevel;
+        setDeviceSpecificDataJSon(deviceSpecificDataJSon);
     }
 
     //
     // API
     //
 
-
     @Override
     public DeviceType getType() { return DeviceType.BUWIZZ; }
+
+    @Override
+    public String getDeviceSpecificDataJSon() {
+        Logger.i(TAG, "getDeviceSpecificDataJSon...");
+        return new Gson().toJson(buWizzData);
+    }
+
+    @Override
+    public void setDeviceSpecificDataJSon(String deviceSpecificDataJSon) {
+        Logger.i(TAG, "setDeviceSpecificDataJSon - " + deviceSpecificDataJSon);
+        buWizzData = null;
+        if (deviceSpecificDataJSon != null) buWizzData = new Gson().fromJson(deviceSpecificDataJSon, BuWizzData.class);
+        if (buWizzData == null) buWizzData = new BuWizzData(NORMAL);
+    }
 
     @Override
     public int getNumberOfChannels() {
         return 4;
     }
 
-    @Override
-    public OutputLevel getOutputLevel() {
-        Logger.i(TAG, "getOutputLevel - " + outputLevel);
-        return outputLevel;
+    public BuWizzOutputLevel getOutputLevel() {
+        Logger.i(TAG, "getOutputLevel - " + buWizzData.outputLevel);
+        return buWizzData.outputLevel;
     }
 
-    @Override
-    public void setOutputLevel(@NonNull OutputLevel outputLevel) {
+    public void setOutputLevel(@NonNull BuWizzOutputLevel outputLevel) {
         Logger.i(TAG, "setOutputLevel - " + outputLevel);
-        this.outputLevel = outputLevel;
+        buWizzData.outputLevel = outputLevel;
     }
 
     @Override
@@ -191,7 +204,7 @@ final class BuWizzDevice extends BluetoothDevice {
     private void sendOutputValues(int v0, int v1, int v2, int v3) {
         try {
             byte outputLevelValue = 0x20;
-            switch (outputLevel) {
+            switch (buWizzData.outputLevel) {
                 case LOW: outputLevelValue = 0x00; break;
                 case NORMAL: outputLevelValue = 0x20; break;
                 case HIGH: outputLevelValue = 0x40; break;
@@ -211,6 +224,17 @@ final class BuWizzDevice extends BluetoothDevice {
         }
         catch (Exception e) {
             Logger.w(TAG, "Failed to send output values to characteristic.");
+        }
+    }
+
+    //
+    // DeviceSpacificData
+    //
+
+    public static class BuWizzData {
+        public BuWizzOutputLevel outputLevel;
+        public BuWizzData(@NonNull BuWizzOutputLevel outputLevel) {
+            this.outputLevel = outputLevel;
         }
     }
 }

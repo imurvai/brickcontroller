@@ -31,6 +31,7 @@ final class CreationRepository {
     private final CreationDao creationDao;
     private final List<Creation> creationList = new ArrayList<>();
     private final MutableLiveData<List<Creation>> creationListLiveData = new MutableLiveData<>();
+    private boolean isLoaded = false;
 
     //
     // Constructor
@@ -51,8 +52,12 @@ final class CreationRepository {
     //
 
     @WorkerThread
-    synchronized void loadCreations() {
+    synchronized void loadCreations(boolean forceLoad) {
         Logger.i(TAG, "loadCreations...");
+
+        if (isLoaded && !forceLoad) {
+            Logger.i(TAG, "  Already loaded, not forced.");
+        }
 
         creationList.clear();
 
@@ -78,6 +83,7 @@ final class CreationRepository {
             creationList.add(creation);
         }
 
+        isLoaded = true;
         creationListLiveData.postValue(creationList);
     }
 

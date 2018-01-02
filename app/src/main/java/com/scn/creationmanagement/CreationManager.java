@@ -112,7 +112,7 @@ public final class CreationManager {
     }
 
     @MainThread
-    public boolean loadCreationsAsync() {
+    public boolean loadCreationsAsync(final boolean forceLoad) {
         Logger.i(TAG, "loadCreationsAsync...");
 
         if (getCurrentState() != State.OK) {
@@ -123,7 +123,7 @@ public final class CreationManager {
         setState(State.LOADING, false);
 
         Single.fromCallable(() -> {
-            creationRepository.loadCreations();
+            creationRepository.loadCreations(forceLoad);
             return true;
         })
                 .subscribeOn(Schedulers.io())

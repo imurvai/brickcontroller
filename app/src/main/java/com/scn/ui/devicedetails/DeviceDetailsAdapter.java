@@ -7,11 +7,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.scn.devicemanagement.BuWizz2Device;
+import com.scn.devicemanagement.BuWizzDevice;
 import com.scn.devicemanagement.Device;
 import com.scn.ui.R;
 
@@ -19,6 +23,10 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static com.scn.devicemanagement.BuWizzOutputLevel.HIGH;
+import static com.scn.devicemanagement.BuWizzOutputLevel.LOW;
+import static com.scn.devicemanagement.BuWizzOutputLevel.NORMAL;
 
 /**
  * Created by imurvai on 2017-12-07.
@@ -30,8 +38,8 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         void onOutputChanged(Device device, int channel, int value);
     }
 
-    public interface OnDeviceOutputLevelChangedListener {
-        void onOutputLevelChanged(Device device, Device.OutputLevel outputLevel);
+    public interface OnDeviceSpecificDataChangedListener {
+        void onDeviceSpecificDataChanged(Device device, String deviceSpecificDataJSon);
     }
 
     public interface OnEditDeviceNameListener {
@@ -47,11 +55,12 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private static final int VIEWTYPE_HEADER = 1;
     private static final int VIEWTYPE_OUTPUT_SEEKBAR = 2;
     private static final int VIEWTYPE_DEVICE_INFO = 3;
-    private static final int VIEWTYPE_OUTPUT_LEVEL = 4;
+    private static final int VIEWTYPE_BUWIZZ_SPECIFIC_DATA = 4;
+    private static final int VIEWTYPE_BUWIZZ2_SPECIFIC_DATA = 5;
 
     private Device device;
     private OnDeviceChannelOutputChangedListener outputChangedListener = null;
-    private OnDeviceOutputLevelChangedListener outputLevelChangedListener = null;
+    private OnDeviceSpecificDataChangedListener deviceSpecificDataChangedListener = null;
     private OnEditDeviceNameListener editDeviceNameListener = null;
 
     //
@@ -74,8 +83,11 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         switch (device.getType()) {
             case BUWIZZ:
+                if (position == 1) return VIEWTYPE_BUWIZZ_SPECIFIC_DATA;
+                else if (position < device.getNumberOfChannels() + 2) return VIEWTYPE_OUTPUT_SEEKBAR;
+
             case BUWIZZ2:
-                if (position == 1) return VIEWTYPE_OUTPUT_LEVEL;
+                if (position == 1) return VIEWTYPE_BUWIZZ2_SPECIFIC_DATA;
                 else if (position < device.getNumberOfChannels() + 2) return VIEWTYPE_OUTPUT_SEEKBAR;
 
             case SBRICK:
@@ -103,11 +115,18 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 return new OutputViewHolder(view);
             }
 
-            case VIEWTYPE_OUTPUT_LEVEL: {
+            case VIEWTYPE_BUWIZZ_SPECIFIC_DATA: {
                 View view = LayoutInflater
                         .from(parent.getContext())
-                        .inflate(R.layout.list_item_device_details_output_level, parent, false);
-                return new OutputLevelViewHolder(view);
+                        .inflate(R.layout.list_item_device_details_buwizz_specific, parent, false);
+                return new BuWizzSpecificDataViewHolder(view);
+            }
+
+            case VIEWTYPE_BUWIZZ2_SPECIFIC_DATA: {
+                View view = LayoutInflater
+                        .from(parent.getContext())
+                        .inflate(R.layout.list_item_device_details_buwizz2_specific, parent, false);
+                return new BuWizz2SpecificDataViewHolder(view);
             }
 
             case VIEWTYPE_DEVICE_INFO: {
@@ -135,8 +154,12 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 ((OutputViewHolder)holder).bind(device, channel, outputChangedListener);
                 break;
 
-            case VIEWTYPE_OUTPUT_LEVEL:
-                ((OutputLevelViewHolder)holder).bind(device, outputLevelChangedListener);
+            case VIEWTYPE_BUWIZZ_SPECIFIC_DATA:
+                ((BuWizzSpecificDataViewHolder)holder).bind((BuWizzDevice)device, deviceSpecificDataChangedListener);
+                break;
+
+            case VIEWTYPE_BUWIZZ2_SPECIFIC_DATA:
+                ((BuWizz2SpecificDataViewHolder)holder).bind((BuWizz2Device)device, deviceSpecificDataChangedListener);
                 break;
         }
     }
@@ -169,8 +192,8 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         notifyDataSetChanged();
     }
 
-    void setOutputLevelChangedListener(OnDeviceOutputLevelChangedListener outputLevelChangedListener) {
-        this.outputLevelChangedListener = outputLevelChangedListener;
+    void setDeviceSpecificDataChangedListener(OnDeviceSpecificDataChangedListener deviceSpecificDataChangedListener) {
+        this.deviceSpecificDataChangedListener = deviceSpecificDataChangedListener;
         notifyDataSetChanged();
     }
 
@@ -260,16 +283,16 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
     }
 
-    public class OutputLevelViewHolder extends RecyclerView.ViewHolder {
+    public class BuWizzSpecificDataViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.radio_group) RadioGroup radioGroup;
 
-        OutputLevelViewHolder(View itemView) {
+        BuWizzSpecificDataViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(final Device device, final OnDeviceOutputLevelChangedListener listener) {
+        public void bind(final BuWizzDevice device, final OnDeviceSpecificDataChangedListener listener) {
             if (device == null) return;
             switch (device.getOutputLevel()) {
                 case LOW:
@@ -288,18 +311,79 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             if (listener == null) return;
             radioGroup.setOnCheckedChangeListener((radioGroup, i) -> {
                 switch (i) {
-                    case R.id.radio_low:
-                        listener.onOutputLevelChanged(device, Device.OutputLevel.LOW);
+                    case R.id.radio_low: {
+                            String data = new Gson().toJson(new BuWizzDevice.BuWizzData(LOW));
+                            listener.onDeviceSpecificDataChanged(device, data);
+                        }
                         break;
 
-                    case R.id.radio_normal:
-                        listener.onOutputLevelChanged(device, Device.OutputLevel.NORMAL);
-                        break;
+                    case R.id.radio_normal: {
+                        String data = new Gson().toJson(new BuWizzDevice.BuWizzData(NORMAL));
+                        listener.onDeviceSpecificDataChanged(device, data);
+                    }
+                    break;
 
-                    case R.id.radio_high:
-                        listener.onOutputLevelChanged(device, Device.OutputLevel.HIGH);
-                        break;
+                    case R.id.radio_high: {
+                        String data = new Gson().toJson(new BuWizzDevice.BuWizzData(HIGH));
+                        listener.onDeviceSpecificDataChanged(device, data);
+                    }
+                    break;
                 }
+            });
+        }
+    }
+
+    public class BuWizz2SpecificDataViewHolder extends RecyclerView.ViewHolder {
+
+        @BindView(R.id.radio_group) RadioGroup radioGroup;
+        @BindView(R.id.is_ludicrous_mode) CheckBox isLudicrousModeCheckBox;
+
+        BuWizz2SpecificDataViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+
+        public void bind(final BuWizz2Device device, final OnDeviceSpecificDataChangedListener listener) {
+            if (device == null) return;
+            switch (device.getOutputLevel()) {
+                case LOW:
+                    radioGroup.check(R.id.radio_low);
+                    break;
+
+                case NORMAL:
+                    radioGroup.check(R.id.radio_normal);
+                    break;
+
+                case HIGH:
+                    radioGroup.check(R.id.radio_high);
+                    break;
+            }
+
+            if (listener == null) return;
+            radioGroup.setOnCheckedChangeListener((radioGroup, i) -> {
+                switch (i) {
+                    case R.id.radio_low: {
+                        String data = new Gson().toJson(new BuWizzDevice.BuWizzData(LOW));
+                        listener.onDeviceSpecificDataChanged(device, data);
+                    }
+                    break;
+
+                    case R.id.radio_normal: {
+                        String data = new Gson().toJson(new BuWizzDevice.BuWizzData(NORMAL));
+                        listener.onDeviceSpecificDataChanged(device, data);
+                    }
+                    break;
+
+                    case R.id.radio_high: {
+                        String data = new Gson().toJson(new BuWizzDevice.BuWizzData(HIGH));
+                        listener.onDeviceSpecificDataChanged(device, data);
+                    }
+                    break;
+                }
+            });
+
+            isLudicrousModeCheckBox.setOnCheckedChangeListener((compoundButton, b) -> {
+
             });
         }
     }

@@ -75,13 +75,13 @@ public class CreationListViewModel extends ViewModel {
     @MainThread
     void loadDevices() {
         Logger.i(TAG, "loadDevices...");
-        deviceManager.loadDevicesAsync();
+        deviceManager.loadDevicesAsync(false);
     }
 
     @MainThread
     void loadCreations() {
         Logger.i(TAG, "loadCreations...");
-        creationManager.loadCreationsAsync();
+        creationManager.loadCreationsAsync(false);
     }
 
     @MainThread

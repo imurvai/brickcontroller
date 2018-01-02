@@ -13,21 +13,21 @@ final class DeviceEntity {
     @NonNull public Device.DeviceType type;
     @NonNull public String name;
     @NonNull public String address;
-    @NonNull public Device.OutputLevel outputLevel;
+    public String deviceSpecificDataJSon;
 
-    DeviceEntity(@NonNull Device.DeviceType type, @NonNull String name, @NonNull String address, @NonNull Device.OutputLevel outputLevel) {
+    DeviceEntity(@NonNull Device.DeviceType type, @NonNull String name, @NonNull String address, String deviceSpecificDataJSon) {
         this.type = type;
         this.name = name;
         this.address = address;
-        this.outputLevel = outputLevel;
+        this.deviceSpecificDataJSon = deviceSpecificDataJSon;
     }
 
     static DeviceEntity fromDevice(@NonNull Device device) {
-        return new DeviceEntity(device.getType(), device.getName(), device.getAddress(), device.getOutputLevel());
+        return new DeviceEntity(device.getType(), device.getName(), device.getAddress(), device.getDeviceSpecificDataJSon());
     }
 
     @Override
     public String toString() {
-        return "Name: " + name + ", type: " + type + ", address: " + address + ", outputLevel: " + outputLevel;
+        return "Name: " + name + ", type: " + type + ", address: " + address + ", device specific data: " + deviceSpecificDataJSon;
     }
 }

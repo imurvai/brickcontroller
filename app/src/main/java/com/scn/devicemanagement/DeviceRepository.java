@@ -34,7 +34,7 @@ final class DeviceRepository {
     private final DeviceDao deviceDao;
     private final Map<String, Device> deviceMap = new HashMap<>();
     private final MutableLiveData<List<Device>> deviceListLiveData = new MutableLiveData<>();
-
+    private boolean isLoaded = false;
 
     //
     // Constructor
@@ -55,19 +55,24 @@ final class DeviceRepository {
     //
 
     @WorkerThread
-    synchronized void loadDevices(@NonNull DeviceFactory deviceFactory) {
+    synchronized void loadDevices(@NonNull DeviceFactory deviceFactory, boolean forceLoad) {
         Logger.i(TAG, "loadDevices...");
+
+        if (isLoaded && !forceLoad) {
+            Logger.i(TAG, "  Already loaded, not forced.");
+        }
 
         deviceMap.clear();
         List<DeviceEntity> deviceEntities = deviceDao.getAll();
 
         for (DeviceEntity deviceEntity : deviceEntities) {
-            Device device = deviceFactory.createDevice(deviceEntity.type, deviceEntity.name, deviceEntity.address, deviceEntity.outputLevel);
+            Device device = deviceFactory.createDevice(deviceEntity.type, deviceEntity.name, deviceEntity.address, deviceEntity.deviceSpecificDataJSon);
             if (device != null) {
                 deviceMap.put(device.getId(), device);
             }
         }
 
+        isLoaded = true;
         deviceListLiveData.postValue(getDeviceList());
     }
 
@@ -86,22 +91,22 @@ final class DeviceRepository {
     }
 
     @WorkerThread
-    synchronized void updateDevice(@NonNull Device device, @NonNull String newName) {
-        Logger.i(TAG, "updateDeviceAsync - " + device);
+    synchronized void updateDeviceName(@NonNull Device device, @NonNull String newName) {
+        Logger.i(TAG, "updateDeviceName - " + device);
         Logger.i(TAG, "  new name: " + newName);
 
-        deviceDao.update(new DeviceEntity(device.getType(), newName, device.getAddress(), device.getOutputLevel()));
+        deviceDao.update(new DeviceEntity(device.getType(), newName, device.getAddress(), device.getDeviceSpecificDataJSon()));
         device.setName(newName);
         deviceListLiveData.postValue(getDeviceList());
     }
 
     @WorkerThread
-    synchronized void updateDevice(@NonNull Device device, @NonNull Device.OutputLevel newOutputLevel) {
-        Logger.i(TAG, "updateDeviceAsync - " + device);
-        Logger.i(TAG, "  new output level: " + newOutputLevel);
+    synchronized void updateDeviceSpecificData(@NonNull Device device, @NonNull String newDeviceSpecificDataJSon) {
+        Logger.i(TAG, "updateDeviceSpecificData - " + device);
+        Logger.i(TAG, "  new device specific data: " + newDeviceSpecificDataJSon);
 
-        deviceDao.update(new DeviceEntity(device.getType(), device.getName(), device.getAddress(), newOutputLevel));
-        device.setOutputLevel(newOutputLevel);
+        deviceDao.update(new DeviceEntity(device.getType(), device.getName(), device.getAddress(), newDeviceSpecificDataJSon));
+        device.setDeviceSpecificDataJSon(newDeviceSpecificDataJSon);
         deviceListLiveData.postValue(getDeviceList());
     }
 

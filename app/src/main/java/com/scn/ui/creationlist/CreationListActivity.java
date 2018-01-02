@@ -66,14 +66,20 @@ public class CreationListActivity extends BaseActivity implements NavigationView
         if (deviceManager.isBluetoothLESupported()) {
             setupViewModel();
             setupRecyclerView();
-
-            viewModel.loadDevices();
         }
         else {
             showAlertDialog(
                     getString(R.string.ble_not_supported),
                     dialogInterface -> CreationListActivity.this.finishAffinity());
         }
+    }
+
+    @Override
+    protected void onResume() {
+        Logger.i(TAG, "onResume...");
+        super.onResume();
+
+        viewModel.loadDevices();
     }
 
     @Override

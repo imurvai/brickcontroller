@@ -34,12 +34,6 @@ public abstract class Device implements Comparable<Device> {
         DISCONNECTING
     }
 
-    public enum OutputLevel {
-        LOW,
-        NORMAL,
-        HIGH
-    }
-
     //
     // Private members
     //
@@ -95,18 +89,15 @@ public abstract class Device implements Comparable<Device> {
     void setName(String value) { name = value; }
     public String getAddress() { return address; }
 
+    public String getDeviceSpecificDataJSon() { return null; }
+    public void setDeviceSpecificDataJSon(String deviceSpecificDataJSon) {}
+
     public LiveData<StateChange<Device.State>> getStateChangeLiveData() { return stateChangeLiveData; }
 
     public abstract int getNumberOfChannels();
 
     public abstract boolean connect();
     public abstract boolean disconnect();
-
-    public OutputLevel getOutputLevel() { return OutputLevel.NORMAL; }
-    public void setOutputLevel(@NonNull OutputLevel value) {
-        Logger.i(TAG, "setOutputLevel - " + value);
-        Logger.i(TAG, "  Not supported.");
-    }
 
     public abstract int getOutput(int channel);
     public abstract void setOutput(int channel, int level);

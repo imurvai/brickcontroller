@@ -5,13 +5,16 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.google.gson.Gson;
 import com.scn.logger.Logger;
+
+import static com.scn.devicemanagement.BuWizzOutputLevel.NORMAL;
 
 /**
  * Created by imurvai on 2017-12-30.
  */
 
-final class BuWizz2Device  extends BluetoothDevice {
+public final class BuWizz2Device  extends BluetoothDevice {
 
     //
     // Members
@@ -30,7 +33,7 @@ final class BuWizz2Device  extends BluetoothDevice {
     private Thread outputThread = null;
     private final Object outputThreadLock = new Object();
 
-    private Device.OutputLevel outputLevel = Device.OutputLevel.NORMAL;
+    private BuWizz2Data buWizz2Data = null;
 
     private final int[] outputValues = new int[4];
     private boolean continueSending = true;
@@ -39,39 +42,59 @@ final class BuWizz2Device  extends BluetoothDevice {
     // Constructor
     //
 
-    BuWizz2Device(@NonNull Context context, @NonNull String name, @NonNull String address, @NonNull Device.OutputLevel outputLevel, @NonNull BluetoothDeviceManager bluetoothDeviceManager) {
+    BuWizz2Device(@NonNull Context context, @NonNull String name, @NonNull String address, String deviceSpecificDataJSon, @NonNull BluetoothDeviceManager bluetoothDeviceManager) {
         super(context, name, address, bluetoothDeviceManager);
         Logger.i(TAG, "constructor...");
         Logger.i(TAG, "  name: " + name);
         Logger.i(TAG, "  address: " + address);
-        Logger.i(TAG, "  output level: " + outputLevel);
 
-        this.outputLevel = outputLevel;
+        setDeviceSpecificDataJSon(deviceSpecificDataJSon);
     }
 
     //
     // API
     //
 
-
     @Override
     public Device.DeviceType getType() { return Device.DeviceType.BUWIZZ2; }
+
+    @Override
+    public String getDeviceSpecificDataJSon() {
+        Logger.i(TAG, "getDeviceSpecificDataJSon...");
+        return new Gson().toJson(buWizz2Data);
+    }
+
+    @Override
+    public void setDeviceSpecificDataJSon(String deviceSpecificDataJSon) {
+        Logger.i(TAG, "setDeviceSpecificDataJSon - " + deviceSpecificDataJSon);
+        buWizz2Data = null;
+        if (deviceSpecificDataJSon != null) buWizz2Data = new Gson().fromJson(deviceSpecificDataJSon, BuWizz2Data.class);
+        if (buWizz2Data == null) buWizz2Data = new BuWizz2Data(NORMAL, false);
+    }
 
     @Override
     public int getNumberOfChannels() {
         return 4;
     }
 
-    @Override
-    public Device.OutputLevel getOutputLevel() {
-        Logger.i(TAG, "getOutputLevel - " + outputLevel);
-        return outputLevel;
+    public BuWizzOutputLevel getOutputLevel() {
+        Logger.i(TAG, "getOutputLevel - " + buWizz2Data.outputLevel);
+        return buWizz2Data.outputLevel;
     }
 
-    @Override
-    public void setOutputLevel(@NonNull Device.OutputLevel outputLevel) {
+    public void setOutputLevel(@NonNull BuWizzOutputLevel outputLevel) {
         Logger.i(TAG, "setOutputLevel - " + outputLevel);
-        this.outputLevel = outputLevel;
+        buWizz2Data.outputLevel = outputLevel;
+    }
+
+    public boolean getIsLudicrousMode() {
+        Logger.i(TAG, "getIsLudicrousMode -" + buWizz2Data.isLudicrousMode);
+        return buWizz2Data.isLudicrousMode;
+    }
+
+    public void setIsLudicrousMode(boolean isLudicrousMode) {
+        Logger.i(TAG, "setIsLudicrousMode - " + isLudicrousMode);
+        buWizz2Data.isLudicrousMode = isLudicrousMode;
     }
 
     @Override
@@ -191,7 +214,7 @@ final class BuWizz2Device  extends BluetoothDevice {
     private void sendOutputValues(int v0, int v1, int v2, int v3) {
         try {
             byte outputLevelValue = 0x20;
-            switch (outputLevel) {
+            switch (buWizz2Data.outputLevel) {
                 case LOW: outputLevelValue = 0x00; break;
                 case NORMAL: outputLevelValue = 0x20; break;
                 case HIGH: outputLevelValue = 0x40; break;
@@ -211,6 +234,19 @@ final class BuWizz2Device  extends BluetoothDevice {
         }
         catch (Exception e) {
             Logger.w(TAG, "Failed to send output values to characteristic.");
+        }
+    }
+
+    //
+    // DeviceSpacificData
+    //
+
+    public static class BuWizz2Data {
+        public BuWizzOutputLevel outputLevel;
+        public boolean isLudicrousMode;
+        public BuWizz2Data(@NonNull BuWizzOutputLevel outputLevel, boolean isLudicrousMode) {
+            this.outputLevel = outputLevel;
+            this.isLudicrousMode = isLudicrousMode;
         }
     }
 }

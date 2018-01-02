@@ -11,7 +11,7 @@ import io.reactivex.Observable;
  * Created by steve on 2017. 11. 22..
  */
 
-abstract class SpecificDeviceManager {
+abstract class SpecificDeviceManager implements DeviceFactory {
 
     //
     // Private, protected members
@@ -37,5 +37,10 @@ abstract class SpecificDeviceManager {
     abstract Observable<Device> startScan();
     abstract void stopScan();
 
-    abstract Device createDevice(@NonNull Device.DeviceType type, @NonNull String name, @NonNull String address, @NonNull Device.OutputLevel outputLevel);
+    //
+    // DeviceFactory override
+    //
+
+    @Override
+    public abstract Device createDevice(@NonNull Device.DeviceType type, @NonNull String name, @NonNull String address, String deviceSpecificDataJSon);
 }

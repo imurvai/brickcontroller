@@ -96,8 +96,8 @@ public class DeviceDetailsViewModel extends ViewModel {
     }
 
     @MainThread
-    void updateDevice(@NonNull String newName) {
-        Logger.i(TAG, "updateDeviceAsync - " + device);
+    void updateDeviceName(@NonNull String newName) {
+        Logger.i(TAG, "updateDeviceName - " + device);
         Logger.i(TAG, "  new name: " + newName);
 
         if (newName.length() == 0) {
@@ -105,14 +105,14 @@ public class DeviceDetailsViewModel extends ViewModel {
             return;
         }
 
-        deviceManager.updateDeviceAsync(device, newName);
+        deviceManager.updateDeviceNameAsync(device, newName);
     }
 
     @MainThread
-    void updateDevice(@NonNull Device.OutputLevel newOutputLevel) {
-        Logger.i(TAG, "updateDeviceAsync - " + device);
-        Logger.i(TAG, "  new output level: " + newOutputLevel);
-        deviceManager.updateDeviceAsync(device, newOutputLevel);
+    void updateDeviceSpecificData(String deviceSpecificDataJSon) {
+        Logger.i(TAG, "updateDeviceSpecificData - " + device);
+        Logger.i(TAG, "  new device specific data: " + deviceSpecificDataJSon);
+        deviceManager.updateDeviceSpecificDataAsync(device, deviceSpecificDataJSon);
     }
 
     @MainThread
