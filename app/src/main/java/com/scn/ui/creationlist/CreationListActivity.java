@@ -62,9 +62,10 @@ public class CreationListActivity extends BaseActivity implements NavigationView
         ButterKnife.bind(this);
         setupActivityComponents();
 
+        setupViewModel();
+        setupRecyclerView();
+
         if (deviceManager.isBluetoothLESupported()) {
-            setupViewModel();
-            setupRecyclerView();
         }
         else {
             showAlertDialog(
@@ -82,7 +83,9 @@ public class CreationListActivity extends BaseActivity implements NavigationView
             ActivityCompat.requestPermissions(CreationListActivity.this, new String[] { Manifest.permission.ACCESS_COARSE_LOCATION }, PERMISSION_REQUEST_COARSE_LOCATION);
         }
         else {
-            viewModel.loadDevices();
+            if (deviceManager.isBluetoothLESupported()) {
+                viewModel.loadDevices();
+            }
         }
     }
 
@@ -96,7 +99,9 @@ public class CreationListActivity extends BaseActivity implements NavigationView
                 CreationListActivity.this.finishAffinity();
             }
             else {
-                viewModel.loadDevices();
+                if (deviceManager.isBluetoothLESupported()) {
+                    viewModel.loadDevices();
+                }
             }
         }
     }
@@ -200,8 +205,6 @@ public class CreationListActivity extends BaseActivity implements NavigationView
 
             switch (stateChange.getCurrentState()) {
                 case OK:
-                    dismissDialog();
-
                     switch (stateChange.getPreviousState()) {
                         case LOADING:
                             if (stateChange.isError()) {
@@ -213,6 +216,7 @@ public class CreationListActivity extends BaseActivity implements NavigationView
                                         });
                             }
                             else {
+                                dismissDialog();
                                 stateChange.resetPreviousState();
                                 viewModel.loadCreations();
                             }
@@ -231,8 +235,6 @@ public class CreationListActivity extends BaseActivity implements NavigationView
 
             switch (stateChange.getCurrentState()) {
                 case OK:
-                    dismissDialog();
-
                     switch (stateChange.getPreviousState()) {
                         case LOADING:
                             if (stateChange.isError()) {
@@ -241,6 +243,7 @@ public class CreationListActivity extends BaseActivity implements NavigationView
                                         dialogInterface -> stateChange.resetPreviousState());
                             }
                             else {
+                                dismissDialog();
                                 stateChange.resetPreviousState();
                             }
                             break;
@@ -252,6 +255,7 @@ public class CreationListActivity extends BaseActivity implements NavigationView
                                         dialogInterface -> stateChange.resetPreviousState());
                             }
                             else {
+                                dismissDialog();
                                 stateChange.resetPreviousState();
 
                                 Intent intent = new Intent(CreationListActivity.this, CreationDetailsActivity.class);
@@ -267,6 +271,7 @@ public class CreationListActivity extends BaseActivity implements NavigationView
                                         dialogInterface -> stateChange.resetPreviousState());
                             }
                             else {
+                                dismissDialog();
                                 stateChange.resetPreviousState();
                             }
                             break;

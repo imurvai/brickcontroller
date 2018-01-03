@@ -7,8 +7,8 @@ android {
         applicationId "com.scn.brickcontroller"
         minSdkVersion 19
         targetSdkVersion 27
-        versionCode 10
-        versionName "0.2"
+        versionCode 11
+        versionName "0.21"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
@@ -61,5 +61,7 @@ dependencies {
     compile 'io.reactivex.rxjava2:rxjava:2.1.5'
     // GSon
     compile 'com.google.code.gson:gson:2.8.2'
+    // ACRA
+    implementation "ch.acra:acra-mail:5.0.0"
 }
 

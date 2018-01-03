@@ -2,8 +2,14 @@ package com.scn.app;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
 
 import com.scn.dagger.DaggerApplicationComponent;
+
+import org.acra.ACRA;
+import org.acra.BuildConfig;
+import org.acra.annotation.AcraCore;
+import org.acra.annotation.AcraMailSender;
 
 import javax.inject.Inject;
 
@@ -15,6 +21,8 @@ import dagger.android.HasActivityInjector;
  * Created by steve on 2017. 09. 24..
  */
 
+@AcraCore(buildConfigClass = BuildConfig.class)
+@AcraMailSender(mailTo = "imurvai@gmail.com")
 public final class BrickControllerApplication extends Application implements HasActivityInjector {
 
     //
@@ -28,11 +36,18 @@ public final class BrickControllerApplication extends Application implements Has
     // Application overrides
     //
 
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        ACRA.init(this);
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
 
-        new GlobalExceptionHandler(this);
+        //new GlobalExceptionHandler(this);
 
         DaggerApplicationComponent
                 .builder()
