@@ -35,8 +35,8 @@ public class ControllerProfileDetailsViewModel extends ViewModel {
 
     private CreationManager creationManager;
 
-    private Creation creation;
-    private ControllerProfile controllerProfile;
+    private Creation creation = null;
+    private ControllerProfile controllerProfile = null;
 
     private Map<String, String> deviceIdNameMap = new HashMap<>();
 
@@ -62,8 +62,18 @@ public class ControllerProfileDetailsViewModel extends ViewModel {
     void initialize(long controllerProfileId) {
         Logger.i(TAG, "initialize - " + controllerProfileId);
 
+        if (controllerProfileId < 0) {
+            Logger.w(TAG, "  Invalid controller profile id.");
+            return;
+        }
+
+        if (controllerProfile != null) {
+            Logger.i(TAG, "  Already inited.");
+            return;
+        }
+
         controllerProfile = creationManager.getControllerProfile(controllerProfileId);
-        creation = creationManager.getCreation(controllerProfile.getCreationId());
+        if (controllerProfile != null) creation = creationManager.getCreation(controllerProfile.getCreationId());
     }
 
     @MainThread

@@ -64,6 +64,12 @@ public class CreationDetailsViewModel extends ViewModel {
         Logger.i(TAG, "initialize - " + creationName);
 
         if (creationName == null || creationName.length() == 0) {
+            Logger.w(TAG, "  Empty creation name.");
+            return;
+        }
+
+        if (creation != null) {
+            Logger.i(TAG, "  Already inited.");
             return;
         }
 
