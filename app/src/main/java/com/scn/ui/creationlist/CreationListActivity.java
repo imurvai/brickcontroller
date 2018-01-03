@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -61,8 +62,6 @@ public class CreationListActivity extends BaseActivity implements NavigationView
         ButterKnife.bind(this);
         setupActivityComponents();
 
-        ActivityCompat.requestPermissions(CreationListActivity.this, new String[] { Manifest.permission.ACCESS_COARSE_LOCATION }, PERMISSION_REQUEST_COARSE_LOCATION);
-
         if (deviceManager.isBluetoothLESupported()) {
             setupViewModel();
             setupRecyclerView();
@@ -79,7 +78,12 @@ public class CreationListActivity extends BaseActivity implements NavigationView
         Logger.i(TAG, "onResume...");
         super.onResume();
 
-        viewModel.loadDevices();
+        if (ContextCompat.checkSelfPermission(CreationListActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(CreationListActivity.this, new String[] { Manifest.permission.ACCESS_COARSE_LOCATION }, PERMISSION_REQUEST_COARSE_LOCATION);
+        }
+        else {
+            viewModel.loadDevices();
+        }
     }
 
     @Override
@@ -90,6 +94,9 @@ public class CreationListActivity extends BaseActivity implements NavigationView
             if (grantResults == null || grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 Logger.i(TAG, "  permission deined, exiting...");
                 CreationListActivity.this.finishAffinity();
+            }
+            else {
+                viewModel.loadDevices();
             }
         }
     }
