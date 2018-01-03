@@ -64,14 +64,6 @@ public class CreationListActivity extends BaseActivity implements NavigationView
 
         setupViewModel();
         setupRecyclerView();
-
-        if (deviceManager.isBluetoothLESupported()) {
-        }
-        else {
-            showAlertDialog(
-                    getString(R.string.ble_not_supported),
-                    dialogInterface -> CreationListActivity.this.finishAffinity());
-        }
     }
 
     @Override
@@ -79,13 +71,16 @@ public class CreationListActivity extends BaseActivity implements NavigationView
         Logger.i(TAG, "onResume...");
         super.onResume();
 
-        if (ContextCompat.checkSelfPermission(CreationListActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (!deviceManager.isBluetoothLESupported()) {
+            showAlertDialog(
+                    getString(R.string.ble_not_supported),
+                    dialogInterface -> CreationListActivity.this.finishAffinity());
+        }
+        else if (ContextCompat.checkSelfPermission(CreationListActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(CreationListActivity.this, new String[] { Manifest.permission.ACCESS_COARSE_LOCATION }, PERMISSION_REQUEST_COARSE_LOCATION);
         }
         else {
-            if (deviceManager.isBluetoothLESupported()) {
-                viewModel.loadDevices();
-            }
+            viewModel.loadDevices();
         }
     }
 
@@ -99,9 +94,7 @@ public class CreationListActivity extends BaseActivity implements NavigationView
                 CreationListActivity.this.finishAffinity();
             }
             else {
-                if (deviceManager.isBluetoothLESupported()) {
-                    viewModel.loadDevices();
-                }
+                viewModel.loadDevices();
             }
         }
     }
