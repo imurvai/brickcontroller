@@ -3,6 +3,7 @@ package com.scn.app;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.support.v7.app.AppCompatDelegate;
 
 import com.scn.dagger.DaggerApplicationComponent;
 
@@ -22,7 +23,7 @@ import dagger.android.HasActivityInjector;
  */
 
 @AcraCore(buildConfigClass = BuildConfig.class)
-@AcraMailSender(mailTo = "imurvai@gmail.com")
+@AcraMailSender(mailTo = "brickcontroller@gmail.com")
 public final class BrickControllerApplication extends Application implements HasActivityInjector {
 
     //
@@ -31,6 +32,14 @@ public final class BrickControllerApplication extends Application implements Has
 
     @Inject
     DispatchingAndroidInjector<Activity> dispatchingActivityInjector;
+
+    //
+    // Constructor
+    //
+
+    static {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+    }
 
     //
     // Application overrides
