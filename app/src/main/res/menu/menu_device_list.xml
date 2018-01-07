@@ -8,10 +8,4 @@
         android:icon="@android:drawable/ic_menu_delete"
         android:title="@string/remove"
         app:showAsAction="always" />
-
-    <item
-        android:id="@+id/menu_item_scan"
-        android:icon="@android:drawable/ic_menu_search"
-        android:title="@string/scan"
-        app:showAsAction="always" />
 </menu>

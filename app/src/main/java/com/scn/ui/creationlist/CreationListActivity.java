@@ -22,6 +22,7 @@ import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
 import com.scn.ui.R;
 import com.scn.ui.about.AboutActivity;
+import com.scn.ui.controllertester.ControllerTesterActivity;
 import com.scn.ui.creationdetails.CreationDetailsActivity;
 import com.scn.ui.devicelist.DeviceListActivity;
 
@@ -123,6 +124,10 @@ public class CreationListActivity extends BaseActivity implements NavigationView
             //case R.id.nav_settings:
                 //Toast.makeText(CreationListActivity.this, "Settings selected.", Toast.LENGTH_SHORT).show();
                 //break;
+
+            case R.id.nav_controller_tester:
+                startActivity(new Intent(CreationListActivity.this, ControllerTesterActivity.class));
+                break;
 
             case R.id.nav_about:
                 startActivity(new Intent(CreationListActivity.this, AboutActivity.class));

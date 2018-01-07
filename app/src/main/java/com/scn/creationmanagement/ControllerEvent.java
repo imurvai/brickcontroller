@@ -69,6 +69,15 @@ public final class ControllerEvent {
         this.eventCode = eventCode;
     }
 
+    @Ignore
+    public ControllerEvent(@NonNull ControllerEventType eventType, int eventCode) {
+        Logger.i(TAG, "constructor - eventType: " + eventType + ", eventCode: " + eventCode);
+        this.id = 0;
+        this.controllerProfileId = 0;
+        this.eventType = eventType;
+        this.eventCode = eventCode;
+    }
+
     //
     // API
     //
@@ -183,6 +192,11 @@ public final class ControllerEvent {
 
         ControllerEvent other = (ControllerEvent)obj;
         return other.eventType == eventType && other.eventCode == eventCode;
+    }
+
+    @Override
+    public int hashCode() {
+        return (eventType == ControllerEventType.KEY ? 0x1000 : 0x2000) + eventCode;
     }
 
     @Override

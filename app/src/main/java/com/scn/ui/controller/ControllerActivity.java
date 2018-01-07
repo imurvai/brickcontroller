@@ -93,27 +93,27 @@ public class ControllerActivity extends BaseActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if ((event.getSource() & InputDevice.SOURCE_GAMEPAD) != 0 && event.getRepeatCount() == 0) {
+        if ((event.getSource() & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD && event.getRepeatCount() == 0) {
             viewModel.keyDownAction(keyCode);
             return true;
         }
 
-        return false;
+        return super.onKeyDown(keyCode, event);
     }
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if ((event.getSource() & InputDevice.SOURCE_GAMEPAD) != 0 && event.getRepeatCount() == 0) {
+        if ((event.getSource() & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD && event.getRepeatCount() == 0) {
             viewModel.keyUpAction(keyCode);
             return true;
         }
 
-        return false;
+        return super.onKeyUp(keyCode, event);
     }
 
     @Override
     public boolean onGenericMotionEvent(MotionEvent event) {
-        if ((event.getSource() & InputDevice.SOURCE_JOYSTICK) != 0 && event.getAction() == MotionEvent.ACTION_MOVE) {
+        if ((event.getSource() & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK && event.getAction() == MotionEvent.ACTION_MOVE) {
             viewModel.beginControllerActions();
 
             for (int motionCode = 0; motionCode < 64; motionCode++) {
@@ -128,7 +128,7 @@ public class ControllerActivity extends BaseActivity {
             return true;
         }
 
-        return false;
+        return super.onGenericMotionEvent(event);
     }
 
     //

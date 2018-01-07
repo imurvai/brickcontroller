@@ -13,6 +13,12 @@
             <!--android:icon="@drawable/ic_settings"-->
             <!--android:title="@string/settings" />-->
 
+
+        <item
+            android:id="@+id/nav_controller_tester"
+            android:icon="@drawable/ic_controller"
+            android:title="@string/controller_tester" />
+
         <item
             android:id="@+id/nav_about"
             android:icon="@drawable/ic_info"

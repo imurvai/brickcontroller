@@ -3,6 +3,7 @@ package com.scn.ui.devicelist;
 import android.content.ClipData;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -33,6 +34,7 @@ public class DeviceListActivity extends BaseActivity {
     @Inject DeviceListAdapter deviceListAdapter;
 
     @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.fab) FloatingActionButton floatingActionButton;
     @BindView(R.id.recyclerview) RecyclerView recyclerView;
 
     //
@@ -46,7 +48,7 @@ public class DeviceListActivity extends BaseActivity {
 
         setContentView(R.layout.activity_device_list);
         ButterKnife.bind(this);
-        setSupportActionBar(toolbar);
+        setupActivityComponents();
 
         setupRecyclerView();
         setupViewModel();
@@ -64,11 +66,6 @@ public class DeviceListActivity extends BaseActivity {
         Logger.i(TAG, "onOptionsItemSelected...");
 
         switch (item.getItemId()) {
-            case R.id.menu_item_scan:
-                Logger.i(TAG, "  scan selected.");
-                viewModel.startDeviceScan();
-                return true;
-
             case R.id.menu_item_delete:
                 Logger.i(TAG, "  delete selected.");
                 showQuestionDialog(
@@ -84,6 +81,15 @@ public class DeviceListActivity extends BaseActivity {
     //
     // Private methods
     //
+
+    private void setupActivityComponents() {
+        setSupportActionBar(toolbar);
+
+        floatingActionButton.setOnClickListener(view -> {
+            Logger.i(TAG, "FAB clicked...");
+            viewModel.startDeviceScan();
+        });
+    }
 
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(DeviceListActivity.this));
