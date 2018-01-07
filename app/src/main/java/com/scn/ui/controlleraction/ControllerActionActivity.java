@@ -202,7 +202,7 @@ public class ControllerActionActivity extends BaseActivity {
         sbrickChannel3RadioButton.setOnClickListener(view -> { viewModel.selectChannel(2); setupChannelRadioButtons(viewModel.getSelectedChannel()); });
         sbrickChannel4RadioButton.setOnClickListener(view -> { viewModel.selectChannel(3); setupChannelRadioButtons(viewModel.getSelectedChannel()); });
 
-        isRevertChannelCheckBox.setChecked(viewModel.getSelectedIsRevert());
+        isRevertChannelCheckBox.setChecked(viewModel.getSelectedIsInvert());
         isRevertChannelCheckBox.setOnCheckedChangeListener((compoundButton, b) -> {
             Logger.i(TAG, "onCheckChanged is revert - " + b);
             viewModel.selectIsRevert(b);

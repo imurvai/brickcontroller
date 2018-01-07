@@ -42,8 +42,8 @@ public final class ControllerAction {
     @ColumnInfo(name = "channel")
     private int channel;
 
-    @ColumnInfo(name = "is_revert")
-    private boolean isRevert;
+    @ColumnInfo(name = "is_invert")
+    private boolean isInvert;
 
     @ColumnInfo(name = "is_toggle")
     private boolean isToggle;
@@ -55,13 +55,13 @@ public final class ControllerAction {
     // Constructor
     //
 
-    ControllerAction(long id, long controllerEventId, @NonNull String deviceId, int channel, boolean isRevert, boolean isToggle, int maxOutput) {
+    ControllerAction(long id, long controllerEventId, @NonNull String deviceId, int channel, boolean isInvert, boolean isToggle, int maxOutput) {
         Logger.i(TAG, "constructor - deviceId: " + deviceId + ", channel: " + channel);
         this.id = id;
         this.controllerEventId = controllerEventId;
         this.deviceId = deviceId;
         this.channel = channel;
-        this.isRevert = isRevert;
+        this.isInvert = isInvert;
         this.isToggle = isToggle;
         this.maxOutput = maxOutput;
     }
@@ -82,8 +82,8 @@ public final class ControllerAction {
     public int getChannel() { return channel; }
     void setChannel(int value) { channel = value; }
 
-    public boolean getIsRevert() { return isRevert; }
-    void setIsRevert(boolean value) { isRevert = value; }
+    public boolean getIsInvert() { return isInvert; }
+    void setIsInvert(boolean value) { isInvert = value; }
 
     public boolean getIsToggle() { return isToggle; }
     void setIsToggle(boolean value) { isToggle = value; }

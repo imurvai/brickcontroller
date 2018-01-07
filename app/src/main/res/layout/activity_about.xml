@@ -75,7 +75,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
-                    android:text="Copyright \u00a9 2017, István Murvai (SCN)"/>
+                    android:text="Copyright \u00a9 2018, István Murvai (SCN)"/>
 
                 <LinearLayout
                     android:layout_width="wrap_content"

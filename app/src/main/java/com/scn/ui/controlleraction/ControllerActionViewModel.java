@@ -41,7 +41,7 @@ public class ControllerActionViewModel extends ViewModel {
 
     private Device selectedDevice;
     private int selectedChannel;
-    private boolean selectedIsRevert;
+    private boolean selectedIsInvert;
     private boolean selectedIsToggle;
     private int selectedMaxOutput;
 
@@ -83,7 +83,7 @@ public class ControllerActionViewModel extends ViewModel {
 
             selectedDevice = deviceManager.getDevice(controllerAction.getDeviceId());
             selectedChannel = controllerAction.getChannel();
-            selectedIsRevert = controllerAction.getIsRevert();
+            selectedIsInvert = controllerAction.getIsInvert();
             selectedIsToggle = controllerAction.getIsToggle();
             selectedMaxOutput = controllerAction.getMaxOutput();
         }
@@ -92,7 +92,7 @@ public class ControllerActionViewModel extends ViewModel {
 
             selectedDevice = deviceList.get(0);
             selectedChannel = 0;
-            selectedIsRevert = false;
+            selectedIsInvert = false;
             selectedIsToggle = false;
             selectedMaxOutput = 100;
         }
@@ -125,8 +125,8 @@ public class ControllerActionViewModel extends ViewModel {
     }
 
     @MainThread
-    boolean getSelectedIsRevert() {
-        return selectedIsRevert;
+    boolean getSelectedIsInvert() {
+        return selectedIsInvert;
     }
 
     @MainThread
@@ -158,7 +158,7 @@ public class ControllerActionViewModel extends ViewModel {
     @MainThread
     void selectIsRevert(boolean isRevert) {
         Logger.i(TAG, "selectIsRevert - " + isRevert);
-        selectedIsRevert = isRevert;
+        selectedIsInvert = isRevert;
     }
 
     @MainThread
@@ -193,11 +193,11 @@ public class ControllerActionViewModel extends ViewModel {
 
         if (controllerAction != null) {
             Logger.i(TAG, "  Updating the controller action...");
-            return creationManager.updateControllerActionAsync(controllerAction, selectedDevice.getId(), selectedChannel, selectedIsRevert, selectedIsToggle, selectedMaxOutput);
+            return creationManager.updateControllerActionAsync(controllerAction, selectedDevice.getId(), selectedChannel, selectedIsInvert, selectedIsToggle, selectedMaxOutput);
         }
         else {
             Logger.i(TAG, "  Adding the controller action...");
-            return creationManager.addControllerActionAsync(controllerEvent, selectedDevice.getId(), selectedChannel, selectedIsRevert, selectedIsToggle, selectedMaxOutput);
+            return creationManager.addControllerActionAsync(controllerEvent, selectedDevice.getId(), selectedChannel, selectedIsInvert, selectedIsToggle, selectedMaxOutput);
         }
     }
 }

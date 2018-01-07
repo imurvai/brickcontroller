@@ -101,7 +101,7 @@
     <!-- Controller action activity -->
     <string name="title_activity_controller_action">Controller action</string>
     <string name="devices">Devices</string>
-    <string name="revert_channel">Revert channel</string>
+    <string name="invert_channel">Invert channel</string>
     <string name="toggle_button">Toggle button</string>
     <string name="max_output">Max output</string>
     <string name="controller_action_exists">The same device and channel has already been configured.</string>

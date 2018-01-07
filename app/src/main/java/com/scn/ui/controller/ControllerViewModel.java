@@ -6,10 +6,8 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModel;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Pair;
 
-import com.scn.common.LiveDataResult;
 import com.scn.common.StateChange;
 import com.scn.creationmanagement.ControllerAction;
 import com.scn.creationmanagement.ControllerEvent;
@@ -155,7 +153,7 @@ public class ControllerViewModel extends ViewModel {
                     if (controllerAction.getIsToggle()) {
                         int currentValue = device.getOutput(controllerAction.getChannel());
                         if (currentValue == 0) {
-                            int outputValue = calculateOutputValue(255, controllerAction.getIsRevert(), controllerAction.getMaxOutput());
+                            int outputValue = calculateOutputValue(255, controllerAction.getIsInvert(), controllerAction.getMaxOutput());
                             device.setOutput(channel, outputValue);
                         }
                         else {
@@ -163,7 +161,7 @@ public class ControllerViewModel extends ViewModel {
                         }
                     }
                     else {
-                        int outputValue = calculateOutputValue(255, controllerAction.getIsRevert(), controllerAction.getMaxOutput());
+                        int outputValue = calculateOutputValue(255, controllerAction.getIsInvert(), controllerAction.getMaxOutput());
                         device.setOutput(channel, outputValue);
                     }
                 }
@@ -200,7 +198,7 @@ public class ControllerViewModel extends ViewModel {
                     Device device = deviceMap.get(controllerAction.getDeviceId());
                     int channel = controllerAction.getChannel();
 
-                    int outputValue = calculateOutputValue(value, controllerAction.getIsRevert(), controllerAction.getMaxOutput());
+                    int outputValue = calculateOutputValue(value, controllerAction.getIsInvert(), controllerAction.getMaxOutput());
                     addAction(device, channel, outputValue);
                 }
             }
@@ -233,9 +231,9 @@ public class ControllerViewModel extends ViewModel {
         deviceStatesLiveData.setValue(deviceStateMap);
     };
 
-    private int calculateOutputValue(int value, boolean isRevert, int maxOutput) {
+    private int calculateOutputValue(int value, boolean isInvert, int maxOutput) {
         int v = (value * maxOutput) / 100;
-        return isRevert ? -v : v;
+        return isInvert ? -v : v;
     }
 
     private void addAction(@NonNull Device device, int channel, int outputValue) {

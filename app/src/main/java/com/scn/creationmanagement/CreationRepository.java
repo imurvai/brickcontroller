@@ -190,21 +190,21 @@ final class CreationRepository {
     synchronized void updateControllerAction(@NonNull ControllerAction controllerAction,
                                              @NonNull String deviceId,
                                              int channel,
-                                             boolean isRevert,
+                                             boolean isInvert,
                                              boolean isToggle,
                                              int maxOutput) {
         Logger.i(TAG, "updateControllerAction - " + controllerAction);
 
         String originalDeviceId = controllerAction.getDeviceId();
         int originalChannel = controllerAction.getChannel();
-        boolean originalIsRevert = controllerAction.getIsRevert();
+        boolean originalIsInvert = controllerAction.getIsInvert();
         boolean originalIsToggle = controllerAction.getIsToggle();
         int originalMaxOutput = controllerAction.getMaxOutput();
 
         try {
             controllerAction.setDeviceId(deviceId);
             controllerAction.setChannel(channel);
-            controllerAction.setIsRevert(isRevert);
+            controllerAction.setIsInvert(isInvert);
             controllerAction.setIsToggle(isToggle);
             controllerAction.setMaxOutput(maxOutput);
             creationDao.updateControllerAction(controllerAction);
@@ -213,7 +213,7 @@ final class CreationRepository {
             Logger.e(TAG, "  Could not update controller action.");
             controllerAction.setDeviceId(originalDeviceId);
             controllerAction.setChannel(originalChannel);
-            controllerAction.setIsRevert(originalIsRevert);
+            controllerAction.setIsInvert(originalIsInvert);
             controllerAction.setIsToggle(originalIsToggle);
             controllerAction.setMaxOutput(originalMaxOutput);
         }
