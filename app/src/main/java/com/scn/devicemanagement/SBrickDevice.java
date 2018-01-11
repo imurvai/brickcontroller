@@ -134,9 +134,12 @@ final class SBrickDevice extends BluetoothDevice {
                         int value2 = outputValues[2];
                         int value3 = outputValues[3];
 
-                        sendOutputValues(value0, value1, value2, value3);
-
-                        continueSending = value0 != 0 || value1 != 0 || value2 != 0 || value3 != 0;
+                        if (sendOutputValues(value0, value1, value2, value3)) {
+                            continueSending = value0 != 0 || value1 != 0 || value2 != 0 || value3 != 0;
+                        }
+                        else {
+                            continueSending = true;
+                        }
                     }
 
                     try {
@@ -172,7 +175,7 @@ final class SBrickDevice extends BluetoothDevice {
         }
     }
 
-    private void sendOutputValues(int v0, int v1, int v2, int v3) {
+    private boolean sendOutputValues(int v0, int v1, int v2, int v3) {
         try {
             byte[] buffer = new byte[] {
                     (byte)((Math.abs(v0) & 0xfe) | 0x02 | (v0 < 0 ? 1 : 0)),
@@ -182,11 +185,21 @@ final class SBrickDevice extends BluetoothDevice {
             };
 
             if (quickDriveCharacteristic.setValue(buffer)) {
-                bluetoothGatt.writeCharacteristic(quickDriveCharacteristic);
+                if (bluetoothGatt.writeCharacteristic(quickDriveCharacteristic)) {
+                    return true;
+                }
+                else {
+                    Logger.w(TAG, "  Failed to write remote control characteristic.");
+                }
+            }
+            else {
+                Logger.w(TAG, "  Failed to set value on remote control characteristic.");
             }
         }
         catch (Exception e) {
             Logger.w(TAG, "Failed to send output values to characteristic.");
         }
+
+        return false;
     }
 }

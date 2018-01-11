@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
@@ -23,10 +22,6 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
-import static com.scn.devicemanagement.BuWizzOutputLevel.HIGH;
-import static com.scn.devicemanagement.BuWizzOutputLevel.LOW;
-import static com.scn.devicemanagement.BuWizzOutputLevel.NORMAL;
 
 /**
  * Created by imurvai on 2017-12-07.
@@ -155,11 +150,11 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 break;
 
             case VIEWTYPE_BUWIZZ_SPECIFIC_DATA:
-                ((BuWizzSpecificDataViewHolder)holder).bind((BuWizzDevice)device, deviceSpecificDataChangedListener);
+                ((BuWizzSpecificDataViewHolder)holder).bind(device, deviceSpecificDataChangedListener);
                 break;
 
             case VIEWTYPE_BUWIZZ2_SPECIFIC_DATA:
-                ((BuWizz2SpecificDataViewHolder)holder).bind((BuWizz2Device)device, deviceSpecificDataChangedListener);
+                ((BuWizz2SpecificDataViewHolder)holder).bind(device, deviceSpecificDataChangedListener);
                 break;
         }
     }
@@ -292,9 +287,11 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(final BuWizzDevice device, final OnDeviceSpecificDataChangedListener listener) {
+        public void bind(final Device device, final OnDeviceSpecificDataChangedListener listener) {
             if (device == null) return;
-            switch (device.getOutputLevel()) {
+
+            BuWizzDevice.BuWizzData buWizzData = new Gson().fromJson(device.getDeviceSpecificDataJSon(), BuWizzDevice.BuWizzData.class);
+            switch (buWizzData.outputLevel) {
                 case LOW:
                     radioGroup.check(R.id.radio_low);
                     break;
@@ -312,19 +309,19 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             radioGroup.setOnCheckedChangeListener((radioGroup, i) -> {
                 switch (i) {
                     case R.id.radio_low: {
-                            String data = new Gson().toJson(new BuWizzDevice.BuWizzData(LOW));
+                            String data = new Gson().toJson(new BuWizzDevice.BuWizzData(BuWizzDevice.BuWizzOutputLevel.LOW));
                             listener.onDeviceSpecificDataChanged(device, data);
                         }
                         break;
 
                     case R.id.radio_normal: {
-                        String data = new Gson().toJson(new BuWizzDevice.BuWizzData(NORMAL));
+                        String data = new Gson().toJson(new BuWizzDevice.BuWizzData(BuWizzDevice.BuWizzOutputLevel.NORMAL));
                         listener.onDeviceSpecificDataChanged(device, data);
                     }
                     break;
 
                     case R.id.radio_high: {
-                        String data = new Gson().toJson(new BuWizzDevice.BuWizzData(HIGH));
+                        String data = new Gson().toJson(new BuWizzDevice.BuWizzData(BuWizzDevice.BuWizzOutputLevel.HIGH));
                         listener.onDeviceSpecificDataChanged(device, data);
                     }
                     break;
@@ -336,16 +333,17 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public class BuWizz2SpecificDataViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.radio_group) RadioGroup radioGroup;
-        @BindView(R.id.is_ludicrous_mode) CheckBox isLudicrousModeCheckBox;
 
         BuWizz2SpecificDataViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(final BuWizz2Device device, final OnDeviceSpecificDataChangedListener listener) {
+        public void bind(final Device device, final OnDeviceSpecificDataChangedListener listener) {
             if (device == null) return;
-            switch (device.getOutputLevel()) {
+
+            BuWizz2Device.BuWizz2Data buWizz2Data = new Gson().fromJson(device.getDeviceSpecificDataJSon(), BuWizz2Device.BuWizz2Data.class);
+            switch (buWizz2Data.outputLevel) {
                 case LOW:
                     radioGroup.check(R.id.radio_low);
                     break;
@@ -357,33 +355,39 @@ final class DeviceDetailsAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 case HIGH:
                     radioGroup.check(R.id.radio_high);
                     break;
+
+                case LUDICROUS:
+                    radioGroup.check(R.id.radio_ludicrous);
+                    break;
             }
 
             if (listener == null) return;
             radioGroup.setOnCheckedChangeListener((radioGroup, i) -> {
                 switch (i) {
                     case R.id.radio_low: {
-                        String data = new Gson().toJson(new BuWizzDevice.BuWizzData(LOW));
+                        String data = new Gson().toJson(new BuWizz2Device.BuWizz2Data(BuWizz2Device.BuWizz2OutputLevel.LOW));
                         listener.onDeviceSpecificDataChanged(device, data);
                     }
                     break;
 
                     case R.id.radio_normal: {
-                        String data = new Gson().toJson(new BuWizzDevice.BuWizzData(NORMAL));
+                        String data = new Gson().toJson(new BuWizz2Device.BuWizz2Data(BuWizz2Device.BuWizz2OutputLevel.NORMAL));
                         listener.onDeviceSpecificDataChanged(device, data);
                     }
                     break;
 
                     case R.id.radio_high: {
-                        String data = new Gson().toJson(new BuWizzDevice.BuWizzData(HIGH));
+                        String data = new Gson().toJson(new BuWizz2Device.BuWizz2Data(BuWizz2Device.BuWizz2OutputLevel.HIGH));
+                        listener.onDeviceSpecificDataChanged(device, data);
+                    }
+                    break;
+
+                    case R.id.radio_ludicrous: {
+                        String data = new Gson().toJson(new BuWizz2Device.BuWizz2Data(BuWizz2Device.BuWizz2OutputLevel.LUDICROUS));
                         listener.onDeviceSpecificDataChanged(device, data);
                     }
                     break;
                 }
-            });
-
-            isLudicrousModeCheckBox.setOnCheckedChangeListener((compoundButton, b) -> {
-
             });
         }
     }

@@ -71,6 +71,7 @@
     <string name="low">Low</string>
     <string name="normal">Normal</string>
     <string name="high">High</string>
+    <string name="ludicrous">Ludicrous</string>
 
     <!-- Creation details activity -->
     <string name="title_activity_creation_details">Creation details</string>

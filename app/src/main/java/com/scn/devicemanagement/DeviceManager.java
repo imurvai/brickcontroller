@@ -58,8 +58,8 @@ public final class DeviceManager implements DeviceFactory {
     private final List<Device.DeviceType> supportedDeviceTypes = Arrays.asList(
             Device.DeviceType.INFRARED,
             Device.DeviceType.SBRICK,
-            Device.DeviceType.BUWIZZ
-            //Device.DeviceType.BUWIZZ2
+            Device.DeviceType.BUWIZZ,
+            Device.DeviceType.BUWIZZ2
     );
 
     //

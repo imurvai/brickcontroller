@@ -8,7 +8,7 @@ import android.support.annotation.NonNull;
 import com.google.gson.Gson;
 import com.scn.logger.Logger;
 
-import static com.scn.devicemanagement.BuWizzOutputLevel.NORMAL;
+import static com.scn.devicemanagement.BuWizzDevice.BuWizzOutputLevel.NORMAL;
 
 /**
  * Created by steve on 2017. 03. 18..
@@ -75,16 +75,6 @@ public final class BuWizzDevice extends BluetoothDevice {
     @Override
     public int getNumberOfChannels() {
         return 4;
-    }
-
-    public BuWizzOutputLevel getOutputLevel() {
-        Logger.i(TAG, "getOutputLevel - " + buWizzData.outputLevel);
-        return buWizzData.outputLevel;
-    }
-
-    public void setOutputLevel(@NonNull BuWizzOutputLevel outputLevel) {
-        Logger.i(TAG, "setOutputLevel - " + outputLevel);
-        buWizzData.outputLevel = outputLevel;
     }
 
     @Override
@@ -163,9 +153,12 @@ public final class BuWizzDevice extends BluetoothDevice {
                         int value2 = outputValues[2];
                         int value3 = outputValues[3];
 
-                        sendOutputValues(value0, value1, value2, value3);
-
-                        continueSending = value0 != 0 || value1 != 0 || value2 != 0 || value3 != 0;
+                        if (sendOutputValues(value0, value1, value2, value3)) {
+                            continueSending = value0 != 0 || value1 != 0 || value2 != 0 || value3 != 0;
+                        }
+                        else {
+                            continueSending = true;
+                        }
                     }
 
                     try {
@@ -201,7 +194,7 @@ public final class BuWizzDevice extends BluetoothDevice {
         }
     }
 
-    private void sendOutputValues(int v0, int v1, int v2, int v3) {
+    private boolean sendOutputValues(int v0, int v1, int v2, int v3) {
         try {
             byte outputLevelValue = 0x20;
             switch (buWizzData.outputLevel) {
@@ -218,18 +211,35 @@ public final class BuWizzDevice extends BluetoothDevice {
                     outputLevelValue
             };
 
+            remoteControlCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
             if (remoteControlCharacteristic.setValue(buffer)) {
-                bluetoothGatt.writeCharacteristic(remoteControlCharacteristic);
+                if (bluetoothGatt.writeCharacteristic(remoteControlCharacteristic)) {
+                    return true;
+                }
+                else {
+                    Logger.w(TAG, "  Failed to write remote control characteristic.");
+                }
+            }
+            else {
+                Logger.w(TAG, "  Failed to set value on remote control characteristic.");
             }
         }
         catch (Exception e) {
             Logger.w(TAG, "Failed to send output values to characteristic.");
         }
+
+        return false;
     }
 
     //
     // DeviceSpacificData
     //
+
+    public enum BuWizzOutputLevel {
+        LOW,
+        NORMAL,
+        HIGH
+    }
 
     public static class BuWizzData {
         public BuWizzOutputLevel outputLevel;

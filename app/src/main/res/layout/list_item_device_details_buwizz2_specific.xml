@@ -23,7 +23,7 @@
             android:id="@+id/radio_low"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             android:text="@string/low"/>
 
@@ -31,7 +31,7 @@
             android:id="@+id/radio_normal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             android:text="@string/normal"/>
 
@@ -39,15 +39,16 @@
             android:id="@+id/radio_high"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             android:text="@string/high"/>
-    </RadioGroup>
 
-    <CheckBox
-        android:id="@+id/is_ludicrous_mode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:text="Ludicrous mode"/>
+        <RadioButton
+            android:id="@+id/radio_ludicrous"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:text="@string/ludicrous"/>
+    </RadioGroup>
 </LinearLayout>

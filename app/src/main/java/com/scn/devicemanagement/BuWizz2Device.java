@@ -8,7 +8,7 @@ import android.support.annotation.NonNull;
 import com.google.gson.Gson;
 import com.scn.logger.Logger;
 
-import static com.scn.devicemanagement.BuWizzOutputLevel.NORMAL;
+import static com.scn.devicemanagement.BuWizz2Device.BuWizz2OutputLevel.NORMAL;
 
 /**
  * Created by imurvai on 2017-12-30.
@@ -34,6 +34,7 @@ public final class BuWizz2Device  extends BluetoothDevice {
     private final Object outputThreadLock = new Object();
 
     private BuWizz2Data buWizz2Data = null;
+    private boolean buWizz2DataChanged = false;
 
     private final int[] outputValues = new int[4];
     private boolean continueSending = true;
@@ -69,32 +70,13 @@ public final class BuWizz2Device  extends BluetoothDevice {
         Logger.i(TAG, "setDeviceSpecificDataJSon - " + deviceSpecificDataJSon);
         buWizz2Data = null;
         if (deviceSpecificDataJSon != null) buWizz2Data = new Gson().fromJson(deviceSpecificDataJSon, BuWizz2Data.class);
-        if (buWizz2Data == null) buWizz2Data = new BuWizz2Data(NORMAL, false);
+        if (buWizz2Data == null) buWizz2Data = new BuWizz2Data(NORMAL);
+        buWizz2DataChanged = true;
     }
 
     @Override
     public int getNumberOfChannels() {
         return 4;
-    }
-
-    public BuWizzOutputLevel getOutputLevel() {
-        Logger.i(TAG, "getOutputLevel - " + buWizz2Data.outputLevel);
-        return buWizz2Data.outputLevel;
-    }
-
-    public void setOutputLevel(@NonNull BuWizzOutputLevel outputLevel) {
-        Logger.i(TAG, "setOutputLevel - " + outputLevel);
-        buWizz2Data.outputLevel = outputLevel;
-    }
-
-    public boolean getIsLudicrousMode() {
-        Logger.i(TAG, "getIsLudicrousMode -" + buWizz2Data.isLudicrousMode);
-        return buWizz2Data.isLudicrousMode;
-    }
-
-    public void setIsLudicrousMode(boolean isLudicrousMode) {
-        Logger.i(TAG, "setIsLudicrousMode - " + isLudicrousMode);
-        buWizz2Data.isLudicrousMode = isLudicrousMode;
     }
 
     @Override
@@ -105,7 +87,7 @@ public final class BuWizz2Device  extends BluetoothDevice {
 
     @Override
     public void setOutput(int channel, int value) {
-        //Logger.i(TAG, "setOutput - channel: " + channel + ", value: " + value);
+        Logger.i(TAG, "setOutput - channel: " + channel + ", value: " + value);
         checkChannel(channel);
         value = limitOutputValue(value);
 
@@ -163,19 +145,28 @@ public final class BuWizz2Device  extends BluetoothDevice {
         synchronized (outputThreadLock) {
             stopOutputThread();
 
+            buWizz2DataChanged = true;
+
             outputThread = new Thread(() -> {
                 Logger.i(TAG, "Entering the output thread - device: " + BuWizz2Device.this);
 
                 while (!Thread.currentThread().isInterrupted()) {
-                    if (continueSending) {
+                    if (buWizz2DataChanged) {
+                        sendOutputLevel(buWizz2Data.outputLevel);
+                        buWizz2DataChanged = false;
+                    }
+                    else if (continueSending) {
                         int value0 = outputValues[0];
                         int value1 = outputValues[1];
                         int value2 = outputValues[2];
                         int value3 = outputValues[3];
 
-                        sendOutputValues(value0, value1, value2, value3);
-
-                        continueSending = value0 != 0 || value1 != 0 || value2 != 0 || value3 != 0;
+                        if (sendOutputValues(value0, value1, value2, value3)) {
+                            continueSending = value0 != 0 || value1 != 0 || value2 != 0 || value3 != 0;
+                        }
+                        else {
+                            continueSending = true;
+                        }
                     }
 
                     try {
@@ -211,42 +202,87 @@ public final class BuWizz2Device  extends BluetoothDevice {
         }
     }
 
-    private void sendOutputValues(int v0, int v1, int v2, int v3) {
-        try {
-            byte outputLevelValue = 0x20;
-            switch (buWizz2Data.outputLevel) {
-                case LOW: outputLevelValue = 0x00; break;
-                case NORMAL: outputLevelValue = 0x20; break;
-                case HIGH: outputLevelValue = 0x40; break;
-            }
+    private boolean sendOutputValues(int v0, int v1, int v2, int v3) {
+        //Logger.i(TAG, "sendOutputValues...");
 
+        try {
             byte[] buffer = new byte[] {
-                    (byte)((Math.abs(v0) >> 2) | (v0 < 0 ? 0x40 : 0) | 0x80),
-                    (byte)((Math.abs(v1) >> 2) | (v1 < 0 ? 0x40 : 0)),
-                    (byte)((Math.abs(v2) >> 2) | (v2 < 0 ? 0x40 : 0)),
-                    (byte)((Math.abs(v3) >> 2) | (v3 < 0 ? 0x40 : 0)),
-                    outputLevelValue
+                    (byte)0x10,
+                    (byte)(v0 / 2),
+                    (byte)(v1 / 2),
+                    (byte)(v2 / 2),
+                    (byte)(v3 / 2),
+                    (byte)0x00
             };
 
+            remoteControlCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
             if (remoteControlCharacteristic.setValue(buffer)) {
-                bluetoothGatt.writeCharacteristic(remoteControlCharacteristic);
+                if (bluetoothGatt.writeCharacteristic(remoteControlCharacteristic)) {
+                    return true;
+                }
+                else {
+                    Logger.w(TAG, "  Failed to write remote control characteristic.");
+                }
+            }
+            else {
+                Logger.w(TAG, "  Failed to set value on remote control characteristic.");
             }
         }
         catch (Exception e) {
             Logger.w(TAG, "Failed to send output values to characteristic.");
         }
+
+        return false;
+    }
+
+    private boolean sendOutputLevel(BuWizz2OutputLevel outputLevel) {
+        Logger.i(TAG, "sendOutputLevel - " + outputLevel);
+        try {
+            byte outputLevelValue = 2;
+            switch (outputLevel) {
+                case LOW: outputLevelValue = 1; break;
+                case NORMAL: outputLevelValue = 2; break;
+                case HIGH: outputLevelValue = 3; break;
+                case LUDICROUS: outputLevelValue = 4; break;
+            }
+
+            byte[] buffer = new byte[] { (byte)0x11, outputLevelValue };
+
+            remoteControlCharacteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+            if (remoteControlCharacteristic.setValue(buffer)) {
+                if (bluetoothGatt.writeCharacteristic(remoteControlCharacteristic)) {
+                    return true;
+                }
+                else {
+                    Logger.w(TAG, "  Failed to write remote control characteristic.");
+                }
+            }
+            else {
+                Logger.w(TAG, "  Failed to set value on remote control characteristic.");
+            }
+        }
+        catch (Exception e) {
+            Logger.w(TAG, "Failed to send output level to characteristic.");
+        }
+
+        return false;
     }
 
     //
     // DeviceSpacificData
     //
 
+    public enum BuWizz2OutputLevel {
+        LOW,
+        NORMAL,
+        HIGH,
+        LUDICROUS
+    }
+
     public static class BuWizz2Data {
-        public BuWizzOutputLevel outputLevel;
-        public boolean isLudicrousMode;
-        public BuWizz2Data(@NonNull BuWizzOutputLevel outputLevel, boolean isLudicrousMode) {
+        public BuWizz2OutputLevel outputLevel;
+        public BuWizz2Data(@NonNull BuWizz2OutputLevel outputLevel) {
             this.outputLevel = outputLevel;
-            this.isLudicrousMode = isLudicrousMode;
         }
     }
 }
