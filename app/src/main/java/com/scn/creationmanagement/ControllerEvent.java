@@ -172,7 +172,44 @@ public final class ControllerEvent {
                     case MotionEvent.AXIS_THROTTLE: return "Throttle";
 
                     case MotionEvent.AXIS_RTRIGGER: return "Right Trigger";
+                    case MotionEvent.AXIS_GAS: return "Gas";
                     case MotionEvent.AXIS_BRAKE: return "Brake";
+
+                    case MotionEvent.AXIS_DISTANCE: return "Distance";
+                    case MotionEvent.AXIS_HSCROLL: return "Horizontal scroll";
+                    case MotionEvent.AXIS_ORIENTATION: return "Orientation";
+                    case MotionEvent.AXIS_PRESSURE: return "Pressure";
+                    case MotionEvent.AXIS_RELATIVE_X: return "Relative X";
+                    case MotionEvent.AXIS_RELATIVE_Y: return "Relative Y";
+                    case MotionEvent.AXIS_RUDDER: return "Rudder";
+                    case MotionEvent.AXIS_SCROLL: return "Scroll";
+                    case MotionEvent.AXIS_RX: return "RX";
+                    case MotionEvent.AXIS_RY: return "RY";
+                    case MotionEvent.AXIS_SIZE: return "Size";
+                    case MotionEvent.AXIS_VSCROLL: return "Vertical scroll";
+                    case MotionEvent.AXIS_TILT: return "Tilt";
+                    case MotionEvent.AXIS_TOOL_MAJOR: return "Tool major";
+                    case MotionEvent.AXIS_TOOL_MINOR: return "Tool minor";
+                    case MotionEvent.AXIS_TOUCH_MAJOR: return "Touch major";
+                    case MotionEvent.AXIS_TOUCH_MINOR: return "Touch minor";
+                    case MotionEvent.AXIS_WHEEL: return "Wheel";
+
+                    case MotionEvent.AXIS_GENERIC_1: return "Generic axis 1";
+                    case MotionEvent.AXIS_GENERIC_2: return "Generic axis 2";
+                    case MotionEvent.AXIS_GENERIC_3: return "Generic axis 3";
+                    case MotionEvent.AXIS_GENERIC_4: return "Generic axis 4";
+                    case MotionEvent.AXIS_GENERIC_5: return "Generic axis 5";
+                    case MotionEvent.AXIS_GENERIC_6: return "Generic axis 6";
+                    case MotionEvent.AXIS_GENERIC_7: return "Generic axis 7";
+                    case MotionEvent.AXIS_GENERIC_8: return "Generic axis 8";
+                    case MotionEvent.AXIS_GENERIC_9: return "Generic axis 9";
+                    case MotionEvent.AXIS_GENERIC_10: return "Generic axis 10";
+                    case MotionEvent.AXIS_GENERIC_11: return "Generic axis 11";
+                    case MotionEvent.AXIS_GENERIC_12: return "Generic axis 12";
+                    case MotionEvent.AXIS_GENERIC_13: return "Generic axis 13";
+                    case MotionEvent.AXIS_GENERIC_14: return "Generic axis 14";
+                    case MotionEvent.AXIS_GENERIC_15: return "Generic axis 15";
+                    case MotionEvent.AXIS_GENERIC_16: return "Generic axis 16";
 
                     default: return "Motion code: " + eventCode;
                 }

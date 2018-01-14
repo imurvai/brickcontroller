@@ -64,7 +64,7 @@ public final class ControllerEventDialog extends Dialog {
     public boolean onKeyUp(int keyCode, @NonNull KeyEvent event) {
         Logger.i(TAG, "onKeyUp - keyCode: " + keyCode);
 
-        if ((event.getSource() & InputDevice.SOURCE_GAMEPAD) != 0 && event.getRepeatCount() == 0) {
+        if ((event.getSource() & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD && event.getRepeatCount() == 0) {
             Logger.i(TAG, "  Key code: " + keyCode + " - (" + KeyEvent.keyCodeToString(keyCode) + ")");
 
             dismiss();
@@ -72,14 +72,14 @@ public final class ControllerEventDialog extends Dialog {
             return true;
         }
 
-        return false;
+        return super.onKeyUp(keyCode, event);
     }
 
     @Override
     public boolean onGenericMotionEvent(@NonNull MotionEvent event) {
         Logger.i(TAG, "onGenericMotionEvent...");
 
-        if ((event.getSource() & InputDevice.SOURCE_JOYSTICK) != 0 && event.getAction() == MotionEvent.ACTION_MOVE) {
+        if ((event.getSource() & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK && event.getAction() == MotionEvent.ACTION_MOVE) {
             for (int axis = 0; axis < 64; axis++) {
                 if (Math.abs(event.getAxisValue(axis)) > 0.8) {
                     Logger.i(TAG, "  Axis code: " + axis + " - (" + MotionEvent.axisToString(axis) + ")");
@@ -91,6 +91,6 @@ public final class ControllerEventDialog extends Dialog {
             }
         }
 
-        return false;
+        return super.onGenericMotionEvent(event);
     }
 }

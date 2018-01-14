@@ -130,13 +130,13 @@ final class DeviceListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             switch (device.getType()) {
                 case BUWIZZ:
                 case BUWIZZ2:
-                    vendorImage.setImageResource(R.drawable.buwizz_image);
+                    vendorImage.setImageResource(R.drawable.buwizz_image_small);
                     break;
                 case SBRICK:
-                    vendorImage.setImageResource(R.drawable.sbrick_image);
+                    vendorImage.setImageResource(R.drawable.sbrick_image_small);
                     break;
                 case INFRARED:
-                    vendorImage.setImageResource(R.drawable.infra_image);
+                    vendorImage.setImageResource(R.drawable.infra_image_small);
                     break;
             }
 

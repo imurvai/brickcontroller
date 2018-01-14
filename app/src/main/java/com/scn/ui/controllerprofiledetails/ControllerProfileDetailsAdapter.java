@@ -153,11 +153,11 @@ final class ControllerProfileDetailsAdapter extends RecyclerView.Adapter<Recycle
 
                 if (deviceIdNameMap != null && deviceIdNameMap.containsKey(controllerAction.getDeviceId())) {
                     String deviceName = deviceIdNameMap.get(controllerAction.getDeviceId());
-                    textView.setText(deviceName + " - " + (controllerAction.getChannel() + 1));
+                    textView.setText(deviceName + " - ch: " + (controllerAction.getChannel() + 1) + (controllerAction.getIsInvert() ? " - inv." : ""));
                 }
                 else {
                     String deviceName = controllerAction.getDeviceId();
-                    textView.setText(deviceName + " - " + (controllerAction.getChannel() + 1));
+                    textView.setText(deviceName + " - ch: " + (controllerAction.getChannel() + 1) + (controllerAction.getIsInvert() ? " - inv." : ""));
                 }
 
                 controllerActionView.setOnClickListener(view -> {
