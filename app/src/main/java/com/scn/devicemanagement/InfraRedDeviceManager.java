@@ -92,8 +92,10 @@ final class InfraRedDeviceManager extends SpecificDeviceManager {
 
     boolean isInfraRedSupported() {
         Logger.i(TAG, "isInfraRedSupported...");
-        Logger.i(TAG, "  Infra is " + (irManager != null ? "" : "NOT ") + "supported.");
-        return irManager != null;
+
+        boolean isSupported = irManager != null;
+        Logger.i(TAG, "  Infra is " + (isSupported ? "" : "NOT ") + "supported.");
+        return isSupported;
     }
 
     @MainThread

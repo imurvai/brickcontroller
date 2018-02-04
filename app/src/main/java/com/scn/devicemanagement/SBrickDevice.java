@@ -32,7 +32,9 @@ final class SBrickDevice extends BluetoothDevice {
     private final Object outputThreadLock = new Object();
 
     private final int[] outputValues = new int[4];
-    private boolean continueSending = true;
+
+    private static final int MaxSendAttempts = 4;
+    private int sendAttemptsLeft = 0;
 
     //
     // Constructor
@@ -74,7 +76,7 @@ final class SBrickDevice extends BluetoothDevice {
         }
 
         outputValues[channel] = value;
-        continueSending = true;
+        sendAttemptsLeft = MaxSendAttempts;
     }
 
     //
@@ -124,21 +126,33 @@ final class SBrickDevice extends BluetoothDevice {
         synchronized (outputThreadLock) {
             stopOutputThread();
 
+            outputValues[0] = 0;
+            outputValues[1] = 0;
+            outputValues[2] = 0;
+            outputValues[3] = 0;
+            sendAttemptsLeft = MaxSendAttempts;
+
             outputThread = new Thread(() -> {
                 Logger.i(TAG, "Entering the output thread - device: " + SBrickDevice.this);
 
                 while (!Thread.currentThread().isInterrupted()) {
-                    if (continueSending) {
+                    if (sendAttemptsLeft > 0) {
                         int value0 = outputValues[0];
                         int value1 = outputValues[1];
                         int value2 = outputValues[2];
                         int value3 = outputValues[3];
 
                         if (sendOutputValues(value0, value1, value2, value3)) {
-                            continueSending = value0 != 0 || value1 != 0 || value2 != 0 || value3 != 0;
+                            if (value0 != 0 || value1 != 0 || value2 != 0 || value3 != 0) {
+                                sendAttemptsLeft = MaxSendAttempts;
+                            }
+                            else {
+                                Logger.i(TAG, "All outputs zero, send attempts left: " + sendAttemptsLeft);
+                                sendAttemptsLeft--;
+                            }
                         }
                         else {
-                            continueSending = true;
+                            sendAttemptsLeft = MaxSendAttempts;
                         }
                     }
 

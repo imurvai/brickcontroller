@@ -3,6 +3,8 @@ package com.scn.dagger;
 import android.app.Application;
 import android.content.Context;
 
+import com.scn.app.AppPreferences;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -20,4 +22,8 @@ public class ApplicationModule {
     Context provideContext(Application application) {
         return application;
     }
+
+    @Provides
+    @Singleton
+    AppPreferences provideAppPreferences(Context context) { return new AppPreferences(context); }
 }
