@@ -49,7 +49,10 @@ public final class BrickControllerApplication extends Application implements Has
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        ACRA.init(this);
+
+        if (!com.scn.ui.BuildConfig.DEBUG) {
+            ACRA.init(this);
+        }
     }
 
     @Override

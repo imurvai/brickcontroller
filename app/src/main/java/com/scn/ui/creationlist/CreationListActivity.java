@@ -25,6 +25,7 @@ import com.scn.ui.about.AboutActivity;
 import com.scn.ui.controllertester.ControllerTesterActivity;
 import com.scn.ui.creationdetails.CreationDetailsActivity;
 import com.scn.ui.devicelist.DeviceListActivity;
+import com.scn.ui.settings.SettingsActivity;
 
 import javax.inject.Inject;
 
@@ -121,9 +122,9 @@ public class CreationListActivity extends BaseActivity implements NavigationView
                 startActivity(new Intent(CreationListActivity.this, DeviceListActivity.class));
                 break;
 
-            //case R.id.nav_settings:
-                //Toast.makeText(CreationListActivity.this, "Settings selected.", Toast.LENGTH_SHORT).show();
-                //break;
+            case R.id.nav_settings:
+                startActivity(new Intent(CreationListActivity.this, SettingsActivity.class));
+                break;
 
             case R.id.nav_controller_tester:
                 startActivity(new Intent(CreationListActivity.this, ControllerTesterActivity.class));

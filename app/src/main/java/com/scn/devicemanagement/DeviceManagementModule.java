@@ -2,6 +2,8 @@ package com.scn.devicemanagement;
 
 import android.content.Context;
 
+import com.scn.app.AppPreferences;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -22,8 +24,8 @@ public class DeviceManagementModule {
 
     @Provides
     @Singleton
-    InfraRedDeviceManager provideInfraredDeviceManager(Context context) {
-        return new InfraRedDeviceManager(context);
+    InfraRedDeviceManager provideInfraredDeviceManager(Context context, AppPreferences appPreferences) {
+        return new InfraRedDeviceManager(context, appPreferences);
     }
 
     @Provides

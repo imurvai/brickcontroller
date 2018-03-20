@@ -18,6 +18,7 @@ import com.scn.ui.devicedetails.DeviceDetailsActivity;
 import com.scn.ui.devicedetails.DeviceDetailsActivityModule;
 import com.scn.ui.devicelist.DeviceListActivity;
 import com.scn.ui.devicelist.DeviceListActivityModule;
+import com.scn.ui.settings.SettingsActivity;
 
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
@@ -55,4 +56,7 @@ public abstract class ActivityBuilderModule {
 
     @ContributesAndroidInjector(modules = ControllerTesterActivityModule.class)
     abstract ControllerTesterActivity bindControllerTesterActivity();
+
+    @ContributesAndroidInjector()
+    abstract SettingsActivity bindSettingsActivity();
 }

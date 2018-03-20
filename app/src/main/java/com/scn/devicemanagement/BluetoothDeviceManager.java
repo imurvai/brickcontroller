@@ -174,31 +174,31 @@ final class BluetoothDeviceManager extends SpecificDeviceManager {
             Logger.i(TAG, "  No scanrecord.");
         }
 
-            Map<String, String> scanRecordMap = processScanRecord(scanRecord);
-            if (!scanRecordMap.containsKey("FF")) {
-                Logger.i(TAG, "  No manufacturer data in scan record.");
-                return;
-            }
+        Map<String, String> scanRecordMap = processScanRecord(scanRecord);
+        if (!scanRecordMap.containsKey("FF")) {
+            Logger.i(TAG, "  No manufacturer data in scan record.");
+            return;
+        }
 
-            String manufacturerData = scanRecordMap.get("FF");
-            Logger.i(TAG, "  Manufacturer data: " + manufacturerData);
+        String manufacturerData = scanRecordMap.get("FF");
+        Logger.i(TAG, "  Manufacturer data: " + manufacturerData);
 
-            synchronized (deviceEmitterLock) {
-                if (deviceEmitter != null) {
-                    if (manufacturerData.startsWith("98 01")) {
-                        deviceEmitter.onNext(createDevice(Device.DeviceType.SBRICK, bluetoothDevice.getName(), bluetoothDevice.getAddress(), null));
-                    }
-                    else if (manufacturerData.startsWith("48 4D")) {
-                        deviceEmitter.onNext(createDevice(Device.DeviceType.BUWIZZ, bluetoothDevice.getName(), bluetoothDevice.getAddress(), null));
-                    }
-                    else if (manufacturerData.startsWith("4E 05")) {
-                        deviceEmitter.onNext(createDevice(Device.DeviceType.BUWIZZ2, bluetoothDevice.getName(), bluetoothDevice.getAddress(), null));
-                    }
-                    else {
-                        Logger.i(TAG, "  Unknown bluetooth device.");
-                    }
+        synchronized (deviceEmitterLock) {
+            if (deviceEmitter != null) {
+                if (manufacturerData.startsWith("98 01")) {
+                    deviceEmitter.onNext(createDevice(Device.DeviceType.SBRICK, bluetoothDevice.getName(), bluetoothDevice.getAddress(), null));
+                }
+                else if (manufacturerData.startsWith("48 4D")) {
+                    deviceEmitter.onNext(createDevice(Device.DeviceType.BUWIZZ, bluetoothDevice.getName(), bluetoothDevice.getAddress(), null));
+                }
+                else if (manufacturerData.startsWith("4E 05")) {
+                    deviceEmitter.onNext(createDevice(Device.DeviceType.BUWIZZ2, bluetoothDevice.getName(), bluetoothDevice.getAddress(), null));
+                }
+                else {
+                    Logger.i(TAG, "  Unknown bluetooth device.");
                 }
             }
+        }
     };
 
     private Map<String, String> processScanRecord(byte scanRecord[]) {

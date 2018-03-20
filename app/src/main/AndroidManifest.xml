@@ -70,6 +70,11 @@
             android:name="com.scn.ui.controllertester.ControllerTesterActivity"
             android:label="@string/title_activity_controller_tester"
             android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity
+            android:name="com.scn.ui.settings.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

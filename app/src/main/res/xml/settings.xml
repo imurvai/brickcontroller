@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:key="InfraRedDeviceTypeKey"
+        android:title="@string/title_infrared_device"
+        android:dialogTitle="@string/title_infrared_device"
+        android:entries="@array/infrared_device_entries"
+        android:entryValues="@array/infrared_device_values"
+        android:defaultValue="0" />
+</PreferenceScreen>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="infrared_device_entries">
+        <item>@string/infrared_built_in_or_none</item>
+        <item>@string/infrared_audio_output</item>
+    </string-array>
+    <string-array name="infrared_device_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+</resources>

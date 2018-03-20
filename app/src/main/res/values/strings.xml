@@ -120,4 +120,9 @@
     <string name="title_activity_controller_tester">Controller tester</string>
     <string name="press_buttons_on_controller">Press buttons and move sticks on the controller.</string>
 
+    <!-- Settings activity -->
+    <string name="title_activity_settings">BrickController settings</string>
+    <string name="title_infrared_device">Infra-red device</string>
+    <string name="infrared_built_in_or_none">Built in or none</string>
+    <string name="infrared_audio_output">Audio output</string>
 </resources>
