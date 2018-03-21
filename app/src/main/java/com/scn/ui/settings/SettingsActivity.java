@@ -1,13 +1,16 @@
 package com.scn.ui.settings;
 
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.Toolbar;
 
 import com.scn.logger.Logger;
 import com.scn.ui.BaseActivity;
 import com.scn.ui.R;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * Created by imurvai on 2018-03-20.
@@ -21,6 +24,8 @@ public class SettingsActivity extends BaseActivity {
 
     private static final String TAG = SettingsActivity.class.getSimpleName();
 
+    @BindView(R.id.toolbar) Toolbar toolbar;
+
     //
     // Activity overrides
     //
@@ -28,11 +33,14 @@ public class SettingsActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         Logger.i(TAG, "onCreate...");
-        super.onCreate(savedInstanceState);
 
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_settings);
+        ButterKnife.bind(this);
+        setSupportActionBar(toolbar);
         getFragmentManager()
                 .beginTransaction()
-                .replace(android.R.id.content, new SettingsFragment())
+                .replace(R.id.content, new SettingsFragment())
                 .commit();
     }
 

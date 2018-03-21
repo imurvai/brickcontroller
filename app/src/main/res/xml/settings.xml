@@ -4,6 +4,7 @@
         android:key="InfraRedDeviceTypeKey"
         android:title="@string/title_infrared_device"
         android:dialogTitle="@string/title_infrared_device"
+        android:summary="%s"
         android:entries="@array/infrared_device_entries"
         android:entryValues="@array/infrared_device_values"
         android:defaultValue="0" />

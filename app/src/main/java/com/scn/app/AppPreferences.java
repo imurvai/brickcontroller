@@ -2,6 +2,7 @@ package com.scn.app;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import com.scn.logger.Logger;
 
@@ -19,7 +20,6 @@ public final class AppPreferences {
     //
 
     private static final String TAG = AppPreferences.class.getSimpleName();
-    private static final String PreferencesName = "com.scn.BrickController.Prefs";
     private static final String InfraRedDeviceTypeKey = "InfraRedDeviceTypeKey";
 
     public enum InfraRedDeviceType {
@@ -49,8 +49,8 @@ public final class AppPreferences {
     public InfraRedDeviceType getInfraRedDeviceType() {
         Logger.i(TAG, "getInfraRedDeviceType...");
 
-        switch (getIntValue(InfraRedDeviceTypeKey)) {
-            case 1:
+        switch (getStringValue(InfraRedDeviceTypeKey)) {
+            case "1":
                 Logger.i(TAG, "  Infra device type: Audio");
                 return InfraRedDeviceType.AUDIO_OUTPUT;
 
@@ -65,11 +65,11 @@ public final class AppPreferences {
 
         switch (value) {
             case BUILT_IN_OR_NONE:
-                putIntValue(InfraRedDeviceTypeKey, 0);
+                putStringValue(InfraRedDeviceTypeKey, "0");
                 break;
 
             case AUDIO_OUTPUT:
-                putIntValue(InfraRedDeviceTypeKey, 1);
+                putStringValue(InfraRedDeviceTypeKey, "1");
                 break;
         }
     }
@@ -78,21 +78,13 @@ public final class AppPreferences {
     // Private methods
     //
 
-    private SharedPreferences getSharedPreferences() {
-        return context.getSharedPreferences(PreferencesName, Context.MODE_PRIVATE);
+    private String getStringValue(String key) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getString(key, "0");
     }
 
-    private SharedPreferences.Editor getSharedPreferencesEditor() {
-        return getSharedPreferences().edit();
-    }
-
-    private int getIntValue(String key) {
-        return getSharedPreferences().getInt(key, 0);
-    }
-
-    private void putIntValue(String key, int value) {
-        SharedPreferences.Editor editor = getSharedPreferencesEditor();
-        editor.putInt(key, value);
+    private void putStringValue(String key, String value) {
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        editor.putString(key, value);
         editor.commit();
     }
 }
