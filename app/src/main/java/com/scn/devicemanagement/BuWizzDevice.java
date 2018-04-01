@@ -28,6 +28,8 @@ public final class BuWizzDevice extends BluetoothDevice {
     // Characteristic UUIDs
     private static final String CHARACTERISTIC_UUID_REMOTE_CONTROL = "0000ffe1-0000-1000-8000-00805f9b34fb";
 
+    private static final int MAX_SEND_ATTEMPTS = 4;
+
     private BluetoothGattCharacteristic remoteControlCharacteristic;
 
     private Thread outputThread = null;
@@ -36,8 +38,6 @@ public final class BuWizzDevice extends BluetoothDevice {
     private BuWizzData buWizzData = null;
 
     private final int[] outputValues = new int[4];
-
-    private static final int MaxSendAttempts = 4;
     private int sendAttemptsLeft = 0;
 
     //
@@ -96,7 +96,7 @@ public final class BuWizzDevice extends BluetoothDevice {
         }
 
         outputValues[channel] = value;
-        sendAttemptsLeft = MaxSendAttempts;
+        sendAttemptsLeft = MAX_SEND_ATTEMPTS;
     }
 
     //
@@ -149,7 +149,7 @@ public final class BuWizzDevice extends BluetoothDevice {
             outputValues[1] = 0;
             outputValues[2] = 0;
             outputValues[3] = 0;
-            sendAttemptsLeft = MaxSendAttempts;
+            sendAttemptsLeft = MAX_SEND_ATTEMPTS;
 
             outputThread = new Thread(() -> {
                 Logger.i(TAG, "Entering the output thread - device: " + BuWizzDevice.this);
@@ -163,15 +163,14 @@ public final class BuWizzDevice extends BluetoothDevice {
 
                         if (sendOutputValues(value0, value1, value2, value3)) {
                             if (value0 != 0 || value1 != 0 || value2 != 0 || value3 != 0) {
-                                sendAttemptsLeft = MaxSendAttempts;
+                                sendAttemptsLeft = MAX_SEND_ATTEMPTS;
                             }
                             else {
-                                Logger.i(TAG, "All outputs zero, send attempts left: " + sendAttemptsLeft);
                                 sendAttemptsLeft--;
                             }
                         }
                         else {
-                            sendAttemptsLeft = MaxSendAttempts;
+                            sendAttemptsLeft = MAX_SEND_ATTEMPTS;
                         }
                     }
 

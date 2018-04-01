@@ -39,6 +39,8 @@ final class InfraRedDeviceManager extends SpecificDeviceManager {
     private static final int IR_STOP_GAP_US = 2000;
     private static final int AUDIO_BUFFER_START_STOP_GAP_BYTES = 2000;
 
+    private static final int MAX_SEND_ATTEMPTS = 8;
+
     private final AppPreferences appPreferences;
     private final ConsumerIrManager irManager;
 
@@ -48,7 +50,7 @@ final class InfraRedDeviceManager extends SpecificDeviceManager {
     private final Object irThreadLock = new Object();
 
     private final int outputValues[][] = new int[4][2];
-    private final boolean isContinueSending[] = new boolean[4];
+    private final int[] sendAttemptsLeft = new int[4];
 
     private final int irData[] = new int[18 * 2];
     private final byte[] audioBuffer;
@@ -190,7 +192,7 @@ final class InfraRedDeviceManager extends SpecificDeviceManager {
         }
 
         outputValues[address][channel] = value;
-        isContinueSending[address] = true;
+        sendAttemptsLeft[address] = MAX_SEND_ATTEMPTS;
     }
 
     //
@@ -244,7 +246,7 @@ final class InfraRedDeviceManager extends SpecificDeviceManager {
         for (int address = 0; address < 4; address++) {
             outputValues[address][0] = 0;
             outputValues[address][1] = 0;
-            isContinueSending[address] = false;
+            sendAttemptsLeft[address] = MAX_SEND_ATTEMPTS;
         }
     }
 
@@ -273,15 +275,7 @@ final class InfraRedDeviceManager extends SpecificDeviceManager {
                 Logger.i(TAG, "Entering IR thread...");
 
                 while (!Thread.currentThread().isInterrupted()) {
-                    switch (infraRedDeviceType) {
-                        case BUILT_IN_OR_NONE:
-                            sendIrDataToInfra();
-                            break;
-
-                        case AUDIO_OUTPUT:
-                            sendIrDataToAudio();
-                            break;
-                    }
+                    sendIrDataToDevice(infraRedDeviceType);
 
                     try {
                         Thread.sleep(5);
@@ -317,50 +311,67 @@ final class InfraRedDeviceManager extends SpecificDeviceManager {
         }
     }
 
-    private void sendIrDataToInfra() {
+    private void sendIrDataToDevice(AppPreferences.InfraRedDeviceType irDeviceType) {
         for (int address = 0; address < 4; address++) {
-            if (isContinueSending[address]) {
+            if (sendAttemptsLeft[address] > 0) {
                 int value0 = outputValues[address][0];
                 int value1 = outputValues[address][1];
 
                 fillIrBuffer(value0, value1, address);
-                irManager.transmit(IR_FREQUENCY, irData);
 
-                try { Thread.sleep(2); } catch (InterruptedException e) {}
+                switch (irDeviceType) {
+                    case BUILT_IN_OR_NONE:
+                        try {
+                            irManager.transmit(IR_FREQUENCY, irData);
+                            try {
+                                Thread.sleep(2);
+                            } catch (InterruptedException e) {
+                            }
+                        }
+                        catch (Exception e) {
+                            Logger.e(TAG, "Error sending IR data to infra.", e);
+                        }
+                        break;
 
-                if (value0 == 0 && value1 == 0) {
-                    isContinueSending[address] = false;
+                    case AUDIO_OUTPUT:
+                        AudioTrack audioTrack = null;
+                        try {
+                            int audioLength = fillAudioBuffer();
+
+                            audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, AUDIO_FREQUENCY, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_8BIT, audioBuffer.length, AudioTrack.MODE_STATIC);
+                            if (audioTrack != null && audioTrack.getState() == AudioTrack.STATE_NO_STATIC_DATA) {
+                                float maxVolume = AudioTrack.getMaxVolume();
+                                audioTrack.setStereoVolume(maxVolume, maxVolume);
+                                audioTrack.write(audioBuffer, 0, audioLength);
+                                if (audioTrack.getState() == AudioTrack.STATE_INITIALIZED) {
+                                    audioTrack.play();
+                                }
+                                else {
+                                    Logger.w(TAG, "AudioTrack din't get initialized after writing data.");
+                                }
+                            } else {
+                                Logger.w(TAG, "Failed to create audiotrack.");
+                            }
+                        }
+                        catch (Exception e) {
+                            Logger.e(TAG, "Error sending IR data to audio.", e);
+                        }
+                        finally {
+                            if (audioTrack != null) {
+                                if (audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
+                                    audioTrack.stop();
+                                }
+                                audioTrack.release();
+                            }
+                        }
+                        break;
                 }
-            }
-        }
-    }
 
-    private void sendIrDataToAudio() {
-        for (int address = 0; address < 4; address++) {
-            if (isContinueSending[address]) {
-                int value0 = outputValues[address][0];
-                int value1 = outputValues[address][1];
-
-                fillIrBuffer(value0, value1, address);
-                int audioLength = fillAudioBuffer();
-
-                AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, AUDIO_FREQUENCY, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_8BIT, audioBuffer.length, AudioTrack.MODE_STREAM);
-                if (audioTrack != null) {
-//                    float maxVolume = AudioTrack.getMaxVolume();
-//                    audioTrack.setStereoVolume(maxVolume, maxVolume);
-                    audioTrack.write(audioBuffer, 0, audioLength);
-                    audioTrack.play();
-
-//                    while (audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
-//                        try { Thread.sleep(1); } catch (InterruptedException ignore) { }
-//                    }
-
-                    audioTrack.stop();
-                    audioTrack.release();
+                if (value0 != 0 || value1 != 0) {
+                    sendAttemptsLeft[address] = MAX_SEND_ATTEMPTS;
                 }
-
-                if (value0 == 0 && value1 == 0) {
-                    isContinueSending[address] = false;
+                else {
+                    sendAttemptsLeft[address] -= 1;
                 }
             }
         }
