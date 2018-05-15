@@ -20,13 +20,6 @@ public final class AppPreferences {
     //
 
     private static final String TAG = AppPreferences.class.getSimpleName();
-    private static final String InfraRedDeviceTypeKey = "InfraRedDeviceTypeKey";
-
-    public enum InfraRedDeviceType {
-        BUILT_IN_OR_NONE,
-        AUDIO_OUTPUT
-        // USB
-    }
 
     //
     // Members
@@ -45,34 +38,6 @@ public final class AppPreferences {
     //
     // API
     //
-
-    public InfraRedDeviceType getInfraRedDeviceType() {
-        Logger.i(TAG, "getInfraRedDeviceType...");
-
-        switch (getStringValue(InfraRedDeviceTypeKey)) {
-            case "1":
-                Logger.i(TAG, "  Infra device type: Audio");
-                return InfraRedDeviceType.AUDIO_OUTPUT;
-
-            default:
-                Logger.i(TAG, "  Infra device type: build in or none");
-                return InfraRedDeviceType.BUILT_IN_OR_NONE;
-        }
-    }
-
-    public void putInfraRedDeviceType(InfraRedDeviceType value) {
-        Logger.i(TAG, "putInfraRedDeviceType: " + value);
-
-        switch (value) {
-            case BUILT_IN_OR_NONE:
-                putStringValue(InfraRedDeviceTypeKey, "0");
-                break;
-
-            case AUDIO_OUTPUT:
-                putStringValue(InfraRedDeviceTypeKey, "1");
-                break;
-        }
-    }
 
     //
     // Private methods

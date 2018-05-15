@@ -60,6 +60,7 @@ final class DeviceRepository {
 
         if (isLoaded && !forceLoad) {
             Logger.i(TAG, "  Already loaded, not forced.");
+            return;
         }
 
         deviceMap.clear();

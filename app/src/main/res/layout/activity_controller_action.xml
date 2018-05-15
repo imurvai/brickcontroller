@@ -90,10 +90,22 @@
 
                     <android.support.v7.widget.AppCompatSeekBar
                         android:id="@+id/max_output"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:max="100"
                         android:progress="100"/>
+
+                    <TextView
+                        android:id="@+id/max_output_percent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="100"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="%"/>
 
                 </LinearLayout>
             </LinearLayout>

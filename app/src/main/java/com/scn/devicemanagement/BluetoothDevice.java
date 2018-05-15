@@ -31,7 +31,7 @@ abstract class BluetoothDevice extends Device {
     protected final Context context;
     private final android.bluetooth.BluetoothDevice bluetoothDevice;
 
-    BluetoothGatt bluetoothGatt = null;
+    protected BluetoothGatt bluetoothGatt = null;
     private final Object bluetoothGattLock = new Object();
 
     //

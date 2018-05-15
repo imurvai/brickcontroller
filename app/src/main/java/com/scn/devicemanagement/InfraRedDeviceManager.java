@@ -30,14 +30,12 @@ final class InfraRedDeviceManager extends SpecificDeviceManager {
     private static final String TAG = InfraRedDeviceManager.class.getSimpleName();
 
     private static final int IR_FREQUENCY = 38000;
-    private static final int AUDIO_FREQUENCY = 48000;
 
     private static final int IR_MARK_US = 158;
     private static final int IR_START_GAP_US = 1026;
     private static final int IR_ONE_GAP_US = 553;
     private static final int IR_ZERO_GAP_US = 263;
     private static final int IR_STOP_GAP_US = 2000;
-    private static final int AUDIO_BUFFER_START_STOP_GAP_BYTES = 2000;
 
     private static final int MAX_SEND_ATTEMPTS = 8;
 
@@ -53,7 +51,6 @@ final class InfraRedDeviceManager extends SpecificDeviceManager {
     private final int[] sendAttemptsLeft = new int[4];
 
     private final int irData[] = new int[18 * 2];
-    private final byte[] audioBuffer;
 
     //
     // Constructor
@@ -98,23 +95,6 @@ final class InfraRedDeviceManager extends SpecificDeviceManager {
             this.irManager = irManager;
         }
 
-        byte[] audioBuffer = null;
-        try {
-            int maxMessageTimeUs = (18 * IR_MARK_US + IR_START_GAP_US + 16 * IR_ONE_GAP_US + IR_STOP_GAP_US);
-            int maxMessageLength = (int)((double)maxMessageTimeUs * AUDIO_FREQUENCY * 2 / 1000000) + 2 * AUDIO_BUFFER_START_STOP_GAP_BYTES;
-
-            Logger.i(TAG, "  Maximum message time:   " + maxMessageTimeUs + " us.");
-            Logger.i(TAG, "  Maximum message length: " + maxMessageLength + " bytes.");
-
-            audioBuffer = new byte[maxMessageLength];
-        }
-        catch (Exception ex) {
-            Logger.e(TAG, "Could not allocate memory for audio buffer.", ex);
-        }
-        finally {
-            this.audioBuffer = audioBuffer;
-        }
-
         resetOutputs();
     }
 
@@ -125,20 +105,7 @@ final class InfraRedDeviceManager extends SpecificDeviceManager {
     boolean isInfraRedSupported() {
         Logger.i(TAG, "isInfraRedSupported...");
 
-        boolean isSupported;
-        switch (appPreferences.getInfraRedDeviceType()) {
-            case BUILT_IN_OR_NONE:
-                isSupported = irManager != null;
-                break;
-
-            case AUDIO_OUTPUT:
-                isSupported = audioBuffer != null;
-                break;
-
-            default:
-                isSupported = false;
-                break;
-        }
+        boolean isSupported = irManager != null;
 
         Logger.i(TAG, "  Infra is " + (isSupported ? "" : "NOT ") + "supported.");
         return isSupported;
@@ -269,15 +236,12 @@ final class InfraRedDeviceManager extends SpecificDeviceManager {
             stopIrThread();
             resetOutputs();
 
-            final AppPreferences.InfraRedDeviceType infraRedDeviceType = appPreferences.getInfraRedDeviceType();
-
             irThread = new Thread(() -> {
                 Logger.i(TAG, "Entering IR thread...");
 
                 while (!Thread.currentThread().isInterrupted()) {
-                    sendIrDataToDevice(infraRedDeviceType);
-
                     try {
+                        sendIrDataToDevice();
                         Thread.sleep(5);
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
@@ -311,7 +275,7 @@ final class InfraRedDeviceManager extends SpecificDeviceManager {
         }
     }
 
-    private void sendIrDataToDevice(AppPreferences.InfraRedDeviceType irDeviceType) {
+    private void sendIrDataToDevice() {
         for (int address = 0; address < 4; address++) {
             if (sendAttemptsLeft[address] > 0) {
                 int value0 = outputValues[address][0];
@@ -319,52 +283,12 @@ final class InfraRedDeviceManager extends SpecificDeviceManager {
 
                 fillIrBuffer(value0, value1, address);
 
-                switch (irDeviceType) {
-                    case BUILT_IN_OR_NONE:
-                        try {
-                            irManager.transmit(IR_FREQUENCY, irData);
-                            try {
-                                Thread.sleep(2);
-                            } catch (InterruptedException e) {
-                            }
-                        }
-                        catch (Exception e) {
-                            Logger.e(TAG, "Error sending IR data to infra.", e);
-                        }
-                        break;
-
-                    case AUDIO_OUTPUT:
-                        AudioTrack audioTrack = null;
-                        try {
-                            int audioLength = fillAudioBuffer();
-
-                            audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, AUDIO_FREQUENCY, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_8BIT, audioBuffer.length, AudioTrack.MODE_STATIC);
-                            if (audioTrack != null && audioTrack.getState() == AudioTrack.STATE_NO_STATIC_DATA) {
-                                float maxVolume = AudioTrack.getMaxVolume();
-                                audioTrack.setStereoVolume(maxVolume, maxVolume);
-                                audioTrack.write(audioBuffer, 0, audioLength);
-                                if (audioTrack.getState() == AudioTrack.STATE_INITIALIZED) {
-                                    audioTrack.play();
-                                }
-                                else {
-                                    Logger.w(TAG, "AudioTrack din't get initialized after writing data.");
-                                }
-                            } else {
-                                Logger.w(TAG, "Failed to create audiotrack.");
-                            }
-                        }
-                        catch (Exception e) {
-                            Logger.e(TAG, "Error sending IR data to audio.", e);
-                        }
-                        finally {
-                            if (audioTrack != null) {
-                                if (audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
-                                    audioTrack.stop();
-                                }
-                                audioTrack.release();
-                            }
-                        }
-                        break;
+                try {
+                    irManager.transmit(IR_FREQUENCY, irData);
+                    Thread.sleep(2);
+                }
+                catch (Exception e) {
+                    Logger.e(TAG, "Error sending IR data to infra.", e);
                 }
 
                 if (value0 != 0 || value1 != 0) {
@@ -425,59 +349,5 @@ final class InfraRedDeviceManager extends SpecificDeviceManager {
         index = appendBitForInfraOutput(index, nibble & 2);
         index = appendBitForInfraOutput(index, nibble & 1);
         return index;
-    }
-
-    private int clearAudioBuffer(int fromIndex) {
-        return clearAudioBuffer(fromIndex, audioBuffer.length - fromIndex);
-    }
-
-    private int clearAudioBuffer(int fromIndex, int length) {
-        if (fromIndex < 0 || audioBuffer.length <= fromIndex) {
-            throw new IllegalArgumentException("fromIndex");
-        }
-
-        if (length < 0) {
-            throw new IllegalArgumentException("length");
-        }
-
-        int toIndex = Math.min(fromIndex + length, audioBuffer.length);
-        for (int i = fromIndex; i < toIndex; i++) {
-            audioBuffer[i] = (byte)128;
-        }
-
-        return toIndex;
-    }
-
-    private int fillAudioBuffer() {
-        int audioBufferIndex = clearAudioBuffer(0, AUDIO_BUFFER_START_STOP_GAP_BYTES);
-
-        double signalPhase = 0.0;
-        double signalPhaseIncrement = (double)IR_FREQUENCY / AUDIO_FREQUENCY * Math.PI;
-        double timeUs = 0.0;
-        double timeIncrementUs = (double)1000000 / AUDIO_FREQUENCY;
-        double twoPi = Math.PI * 2;
-
-        boolean isSignal = true;
-
-        for (int accumulatedIrData = 0, i = 0; i < irData.length; i++) {
-            for (accumulatedIrData += irData[i]; timeUs < accumulatedIrData; timeUs += timeIncrementUs) {
-                if (isSignal) {
-                    int value = (int)(Math.cos(signalPhase) * 127);
-                    audioBuffer[audioBufferIndex++] = (byte)(128 + value);
-                    audioBuffer[audioBufferIndex++] = (byte)(128 - value);
-                }
-                else {
-                    audioBuffer[audioBufferIndex++] = (byte)128;
-                    audioBuffer[audioBufferIndex++] = (byte)128;
-                }
-
-                signalPhase += signalPhaseIncrement;
-                if (twoPi <= signalPhase) signalPhase -= twoPi;
-            }
-
-            isSignal = !isSignal;
-        }
-
-        return clearAudioBuffer(audioBufferIndex, AUDIO_BUFFER_START_STOP_GAP_BYTES);
     }
 }

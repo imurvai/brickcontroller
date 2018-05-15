@@ -122,9 +122,9 @@ public class CreationListActivity extends BaseActivity implements NavigationView
                 startActivity(new Intent(CreationListActivity.this, DeviceListActivity.class));
                 break;
 
-            case R.id.nav_settings:
-                startActivity(new Intent(CreationListActivity.this, SettingsActivity.class));
-                break;
+//            case R.id.nav_settings:
+//                startActivity(new Intent(CreationListActivity.this, SettingsActivity.class));
+//                break;
 
             case R.id.nav_controller_tester:
                 startActivity(new Intent(CreationListActivity.this, ControllerTesterActivity.class));

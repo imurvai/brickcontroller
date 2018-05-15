@@ -15,6 +15,7 @@ import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.scn.creationmanagement.ControllerEvent;
 import com.scn.devicemanagement.Device;
@@ -58,6 +59,7 @@ public class ControllerActionActivity extends BaseActivity {
     @BindView(R.id.revert_channel) CheckBox isRevertChannelCheckBox;
     @BindView(R.id.toggle_button) CheckBox isToggleButtonCheckBox;
     @BindView(R.id.max_output) AppCompatSeekBar maxOutputSeekBar;
+    @BindView(R.id.max_output_percent) TextView maxOutputTextView;
 
     //
     // Activity overrides
@@ -221,6 +223,7 @@ public class ControllerActionActivity extends BaseActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 viewModel.selectMaxOutput(i);
+                maxOutputTextView.setText(String.valueOf(i));
             }
 
             @Override public void onStartTrackingTouch(SeekBar seekBar) {}
