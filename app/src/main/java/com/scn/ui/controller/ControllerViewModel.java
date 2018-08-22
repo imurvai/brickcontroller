@@ -17,6 +17,7 @@ import com.scn.creationmanagement.CreationManager;
 import com.scn.devicemanagement.Device;
 import com.scn.devicemanagement.DeviceManager;
 import com.scn.logger.Logger;
+import com.scn.ui.dialogs.MessageBox;
 
 import java.util.HashMap;
 import java.util.List;
@@ -101,8 +102,6 @@ public class ControllerViewModel extends ViewModel {
                 device.getStateChangeLiveData().observeForever(deviceStateChangeObserver);
             }
         }
-
-        connectDevices();
     }
 
     @MainThread
@@ -121,11 +120,23 @@ public class ControllerViewModel extends ViewModel {
     }
 
     @MainThread
-    void connectDevices() {
+    boolean connectDevices() {
         Logger.i(TAG, "connectDevices...");
+
+        boolean allSuccess = true;
         for (Device device : deviceMap.values()) {
-            device.connect();
+            if (!device.connect())
+            {
+                allSuccess = false;
+                break;
+            }
         }
+
+        if (!allSuccess) {
+            disconnectDevices();
+        }
+
+        return allSuccess;
     }
 
     @MainThread
