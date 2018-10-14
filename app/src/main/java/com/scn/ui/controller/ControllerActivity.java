@@ -117,7 +117,17 @@ public class ControllerActivity extends BaseActivity {
             viewModel.beginControllerActions();
 
             for (int motionCode = 0; motionCode < 64; motionCode++) {
-                int axisValue = (int)(event.getAxisValue(motionCode) * 255);
+                float rawAxisValue = event.getAxisValue(motionCode);
+
+                if ((motionCode == MotionEvent.AXIS_RX || motionCode == MotionEvent.AXIS_RY) &&
+                        event.getDevice().getVendorId() == 1356 &&
+                        (event.getDevice().getProductId() == 2508 || event.getDevice().getProductId() == 1476))
+                {
+                    // DualShock 4 hack for the triggers
+                    rawAxisValue = (rawAxisValue + 1) / 2;
+                }
+
+                int axisValue = (int)(rawAxisValue * 255);
 
                 if (Math.abs(axisValue) < 10) axisValue = 0;
 

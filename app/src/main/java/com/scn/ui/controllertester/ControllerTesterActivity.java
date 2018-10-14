@@ -91,11 +91,20 @@ public final class ControllerTesterActivity extends BaseActivity {
         if ((event.getSource() & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK && event.getAction() == MotionEvent.ACTION_MOVE) {
 
             for (int motionCode = 0; motionCode < 64; motionCode++) {
-                float axisValue = event.getAxisValue(motionCode);
+                float rawAxisValue = event.getAxisValue(motionCode);
+
+                if ((motionCode == MotionEvent.AXIS_RX || motionCode == MotionEvent.AXIS_RY) &&
+                        event.getDevice().getVendorId() == 1356 &&
+                        (event.getDevice().getProductId() == 2508 || event.getDevice().getProductId() == 1476))
+                {
+                    // DualShock 4 hack for the triggers
+                    rawAxisValue = (rawAxisValue + 1) / 2;
+                }
+
                 ControllerEvent controllerEvent = new ControllerEvent(ControllerEvent.ControllerEventType.MOTION, motionCode);
 
-                if (Math.abs(axisValue) > 0.1) {
-                    controllerEventMap.put(controllerEvent, axisValue);
+                if (Math.abs(rawAxisValue) > 0.1) {
+                    controllerEventMap.put(controllerEvent, rawAxisValue);
                 }
                 else {
                     if (controllerEventMap.containsKey(controllerEvent)) {

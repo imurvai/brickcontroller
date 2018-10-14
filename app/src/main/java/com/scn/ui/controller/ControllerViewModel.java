@@ -54,7 +54,7 @@ public class ControllerViewModel extends ViewModel {
 
     @Inject
     public ControllerViewModel(@NonNull DeviceManager deviceManager, @NonNull CreationManager creationManager) {
-        Logger.i(TAG, "contructor...");
+        Logger.i(TAG, "constructor...");
         this.deviceManager = deviceManager;
         this.creationManager = creationManager;
     }
@@ -102,6 +102,8 @@ public class ControllerViewModel extends ViewModel {
                 device.getStateChangeLiveData().observeForever(deviceStateChangeObserver);
             }
         }
+
+        connectDevices();
     }
 
     @MainThread

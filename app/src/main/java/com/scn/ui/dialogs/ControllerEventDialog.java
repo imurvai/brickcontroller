@@ -81,7 +81,17 @@ public final class ControllerEventDialog extends Dialog {
 
         if ((event.getSource() & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK && event.getAction() == MotionEvent.ACTION_MOVE) {
             for (int axis = 0; axis < 64; axis++) {
-                if (Math.abs(event.getAxisValue(axis)) > 0.8) {
+                float rawAxisValue = event.getAxisValue(axis);
+
+                if ((axis == MotionEvent.AXIS_RX || axis == MotionEvent.AXIS_RY) &&
+                        event.getDevice().getVendorId() == 1356 &&
+                        (event.getDevice().getProductId() == 2508 || event.getDevice().getProductId() == 1476))
+                {
+                    // DualShock 4 hack for the triggers
+                    rawAxisValue = (rawAxisValue + 1) / 2;
+                }
+
+                if (Math.abs(rawAxisValue) > 0.8) {
                     Logger.i(TAG, "  Axis code: " + axis + " - (" + MotionEvent.axisToString(axis) + ")");
 
                     dismiss();
